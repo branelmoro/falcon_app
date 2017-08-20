@@ -42,13 +42,23 @@ CREATE TABLE oauth2.scope (
  allowed_resources serial[],
  last_edit_time TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT now()
 );
+insert into oauth2.scope (id, scope_name, scope_info, allowed_resources) values (1, 'superuser', '123456', '{4,5,6}');
 CREATE TABLE oauth2.resource (
  id serial PRIMARY KEY,
- resource_method varchar(10),
- resource_path varchar(300) NOT NULL UNIQUE,
+ resource_method varchar(6),
+ resource_path varchar(300) NOT NULL,
  resource_info varchar(300),
- last_edit_time TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT now()
+ last_edit_time TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT now(),
+ UNIQUE (resource_method, resource_path)
 );
+insert into oauth2.resource (id, resource_method, resource_path, resource_info) values (1, 'GET', '/resource/', 'read resource');
+insert into oauth2.resource (id, resource_method, resource_path, resource_info) values (2, 'POST', '/resource/', 'create resource');
+insert into oauth2.resource (id, resource_method, resource_path, resource_info) values (3, 'PUT', '/resource/', 'update resource');
+insert into oauth2.resource (id, resource_method, resource_path, resource_info) values (4, 'DELETE', '/resource/', 'delete resource');
+insert into oauth2.resource (id, resource_method, resource_path, resource_info) values (5, 'GET', '/access-scope/', 'read access scope');
+insert into oauth2.resource (id, resource_method, resource_path, resource_info) values (6, 'POST', '/access-scope/', 'create access scope');
+insert into oauth2.resource (id, resource_method, resource_path, resource_info) values (7, 'PUT', '/access-scope/', 'update access scope');
+insert into oauth2.resource (id, resource_method, resource_path, resource_info) values (8, 'DELETE', '/access-scope/', 'delete access scope');
 
 CREATE SCHEMA speciality;
 

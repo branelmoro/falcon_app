@@ -32,7 +32,7 @@ class accessScope(baseController):
 			"scope_name" : req.body["scope_name"],
 			"scope_info" : req.body["scope_info"],
 			"allowed_resources" : req.body["allowed_resources"]
-		}
+		}app.models
 
 		appResponce["result"] = scope_model.createScope(scope_detail)
 
