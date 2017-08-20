@@ -51,7 +51,9 @@ class index(baseController):
 		elif(req.body["grant_type"] == "refresh_token"):
 			token_data = self.__generateTokenFromRefreshToken(req);
 		elif(req.body["grant_type"] == "authorization_code"):
+			appResponce = {}
 			appResponce["grant_type"] = "Authorization code not implemented yet"
+			raise appException.clientException_400(appResponce)
 
 		resp.body = json.encode(token_data)
 

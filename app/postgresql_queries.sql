@@ -33,6 +33,7 @@ CREATE TABLE oauth2.admin_user (
  last_edit_time TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT now()
 );
 insert into oauth2.client (client_id, client_secret, scope, user_type) values ('admin_app', 'shdfvbkflakjfjhslfhalisfjhjsghflajzshdnva', '{1,2,3,4,5}','admin');
+insert into oauth2.client (client_id, client_secret, scope, user_type) values ('web_app', 'yturerfa43t565u43qgf35w4e4q3th54sf', '{1,2,3,4,5}','admin');
 insert into oauth2.admin_user (username, password, scope) values ('branelm', '123456', '{4,5,6}');
 CREATE TABLE oauth2.scope (
  id serial PRIMARY KEY,
