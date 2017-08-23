@@ -25,16 +25,17 @@ CREATE TABLE oauth2.client (
  user_type usertype,
  last_edit_time TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT now()
 );
+insert into oauth2.client (client_id, client_secret, scope, user_type) values ('admin_app', 'shdfvbkflakjfjhslfhalisfjhjsghflajzshdnva', '{1,2,3,4,5}','admin');
+insert into oauth2.client (client_id, client_secret, scope, user_type) values ('web_app', 'yturerfa43t565u43qgf35w4e4q3th54sf', '{1,2,3,4,5}','admin');
 CREATE TABLE oauth2.admin_user (
  id serial PRIMARY KEY,
  username varchar(80) NOT NULL UNIQUE,
  password varchar(80) NOT NULL,
  scope int[],
+ is_editable boolean DEFAULT true,
  last_edit_time TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT now()
 );
-insert into oauth2.client (client_id, client_secret, scope, user_type) values ('admin_app', 'shdfvbkflakjfjhslfhalisfjhjsghflajzshdnva', '{1,2,3,4,5}','admin');
-insert into oauth2.client (client_id, client_secret, scope, user_type) values ('web_app', 'yturerfa43t565u43qgf35w4e4q3th54sf', '{1,2,3,4,5}','admin');
-insert into oauth2.admin_user (username, password, scope) values ('branelm', '123456', '{4,5,6}');
+insert into oauth2.admin_user (username, password, scope, is_editable) values ('branelm', '123456', '{1}', false);
 CREATE TABLE oauth2.scope (
  id serial PRIMARY KEY,
  scope_name varchar(80) NOT NULL UNIQUE,
@@ -43,18 +44,20 @@ CREATE TABLE oauth2.scope (
  allowed_post serial[],
  allowed_put serial[],
  allowed_delete serial[],
+ is_editable boolean DEFAULT true,
  last_edit_time TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT now()
 );
-insert into oauth2.scope (id, scope_name, scope_info, allowed_get, allowed_post, allowed_put, allowed_delete) values (1, 'superuser', '123456', '{1,2}', '{1,2}', '{1,2}', '{1,2}');
+insert into oauth2.scope (id, scope_name, scope_info, allowed_get, allowed_post, allowed_put, allowed_delete, is_editable) values (1, 'superuser', '123456', '{1,2}', '{1,2}', '{1,2}', '{1,2}', false);
 CREATE TABLE oauth2.resource (
  id serial PRIMARY KEY,
  resource_path varchar(300) NOT NULL,
  resource_info varchar(300),
+ is_editable boolean DEFAULT true,
  last_edit_time TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT now(),
  UNIQUE (resource_path)
 );
-insert into oauth2.resource (id, resource_path, resource_info) values (1, '/resource/', 'manage resource');
-insert into oauth2.resource (id, resource_path, resource_info) values (2, '/access-scope/', 'manage access-scope');
+insert into oauth2.resource (id, resource_path, resource_info, is_editable) values (1, '/resource/', 'manage resource', false);
+insert into oauth2.resource (id, resource_path, resource_info, is_editable) values (2, '/access-scope/', 'manage access-scope', false);
 
 CREATE SCHEMA speciality;
 

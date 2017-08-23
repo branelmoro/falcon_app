@@ -30,8 +30,8 @@ class resource(baseController):
 			"resource_path": req.body["resource_path"],
 			"resource_info" : req.body["resource_info"]
 		}
-		search_skill_model = oauth2ResourceModel()
-		appResponce["result"] = search_skill_model.createNewResource(data)
+		oauth2_resource = oauth2ResourceModel()
+		appResponce["result"] = oauth2_resource.createNewResource(data)
 		resp.status = falcon.HTTP_200  # This is the default status
 		resp.body = json.encode(appResponce)
 
@@ -52,9 +52,9 @@ class resource(baseController):
 			raise appException.clientException_400(appResponce)
 		else:
 			# database level validation goes here
-			search_skill_model = oauth2ResourceModel()
+			oauth2_resource = oauth2ResourceModel()
 
-			if search_skill_model.ifResourcePathAlreadyExists(req.body["resource_path"]):
+			if oauth2_resource.ifResourcePathAlreadyExists(req.body["resource_path"]):
 				appResponce["resource_path"] = "Resource path already exists"
 
 			if appResponce:
@@ -73,8 +73,8 @@ class resource(baseController):
 			"resource_info" : req.body["resource_info"],
 			"resource_id" : req.body["resource_id"]
 		}
-		search_skill_model = oauth2ResourceModel()
-		appResponce["result"] = search_skill_model.updateResource(data)
+		oauth2_resource = oauth2ResourceModel()
+		appResponce["result"] = oauth2_resource.updateResource(data)
 		resp.status = falcon.HTTP_200  # This is the default status
 		resp.body = json.encode(appResponce)
 
@@ -97,11 +97,13 @@ class resource(baseController):
 			raise appException.clientException_400(appResponce)
 		else:
 			# database level validation goes here
-			search_skill_model = oauth2ResourceModel()
+			oauth2_resource = oauth2ResourceModel()
 
-			if not search_skill_model.ifResourceIdAlreadyExists(appResponce["resource_id"]):
+			if not oauth2_resource.ifResourceIdAlreadyExists(appResponce["resource_id"]):
 				appResponce["resource_id"] = "Please provide valid resource id"
-			elif search_skill_model.ifResourcePathAlreadyExists(req.body["resource_path"], appResponce["resource_id"]):
+			elif not oauth2_resource.ifResourceEditable(appResponce["resource_id"]):
+				appResponce["resource_id"] = "Resource is not editable"
+			elif oauth2_resource.ifResourcePathAlreadyExists(req.body["resource_path"], appResponce["resource_id"]):
 				appResponce["resource_path"] = "Resource path already exists in another record"
 
 			if appResponce:
@@ -118,8 +120,8 @@ class resource(baseController):
 		data = {
 			"resource_id" : req.body["resource_id"]
 		}
-		search_skill_model = oauth2ResourceModel()
-		appResponce["result"] = search_skill_model.deleteResource(data)
+		oauth2_resource = oauth2ResourceModel()
+		appResponce["result"] = oauth2_resource.deleteResource(data)
 		resp.status = falcon.HTTP_200  # This is the default status
 		resp.body = json.encode(appResponce)
 
@@ -136,10 +138,12 @@ class resource(baseController):
 			raise appException.clientException_400(appResponce)
 		else:
 			# database level validation goes here
-			search_skill_model = oauth2ResourceModel()
+			oauth2_resource = oauth2ResourceModel()
 
-			if not search_skill_model.ifResourceIdAlreadyExists(appResponce["resource_id"]):
+			if not oauth2_resource.ifResourceIdAlreadyExists(appResponce["resource_id"]):
 				appResponce["resource_id"] = "Please provide valid resource id"
+			elif not oauth2_resource.ifResourceEditable(appResponce["resource_id"]):
+				appResponce["resource_id"] = "Resource is not editable"
 
 			if appResponce:
 				raise appException.clientException_400(appResponce)

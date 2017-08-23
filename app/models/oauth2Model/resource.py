@@ -74,3 +74,16 @@ class resource(baseModel):
 		resultCursor = self.pgSlave().query(qry,[id])
 		result = resultCursor.getOneRecord()
 		return result[0]
+
+	def ifResourceEditable(self,id):
+		qry = """
+			SELECT is_editable
+			FROM oauth2.resource
+			WHERE id = %s;
+		"""
+		resultCursor = self.pgSlave().query(qry,[id])
+		result = resultCursor.getOneRecord()
+		if result:
+			return result[0]
+		else:
+			return None
