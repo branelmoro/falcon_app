@@ -53,8 +53,8 @@ CREATE TABLE oauth2.resource (
  last_edit_time TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT now(),
  UNIQUE (resource_path)
 );
-insert into oauth2.resource (id, resource_path, resource_info) values (1, '/resource/', 'read resource');
-insert into oauth2.resource (id, resource_path, resource_info) values (2, '/access-scope/', 'create resource');
+insert into oauth2.resource (id, resource_path, resource_info) values (1, '/resource/', 'manage resource');
+insert into oauth2.resource (id, resource_path, resource_info) values (2, '/access-scope/', 'manage access-scope');
 
 CREATE SCHEMA speciality;
 

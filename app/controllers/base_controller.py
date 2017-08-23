@@ -8,9 +8,18 @@ import traceback
 
 
 from ..resources.redis import redis as appCache
+from ..models.oauth2Model import oauth2ResourceModel
 
 class baseController(object):
 	"""This is base controller and all other controllers will be child"""
+
+	def __init__(self, resource_id=None):
+		if resource_id is None:
+			raise appException.serverException_500({"resource_id":"Resource Id not Provided"})
+		oauth2_resource = oauth2ResourceModel()
+		self._path = oauth2_resource.getResourcePathById(resource_id)
+		if self._path is None:
+			raise appException.serverException_500({"resource_id":"Resource not found in authdb"})
 
 	def getAllLangs(self):
 		return ['english','hindi','marathi','gujarati','malayalam','bengali','oriya','tamil','telugu','panjabi','urdu','chinese_simplified','chinese_traditional','mandarin_chinese','arabic','russian','portuguese','japanese','german','korean','french','turkish','italian','polish','ukrainian','persian','romanian','serbian','croatian','thai','dutch','amharic','catalan','danish','greek','spanish','estonian','finnish','armenian','khmer','kannada','malay','nepali','norwegian','slovak','albanian','swedish','tagalog']
@@ -122,16 +131,20 @@ class baseController(object):
 
 		resp.body = json.encode(params)
 
-	def __clientError(self, req, resp, exc_value):
+	def __sendError(self, req, resp, exc_value):
 		http_status = exc_value.getHttpStatus()
 		if http_status == 401:
 			resp.status = falcon.HTTP_401
 		elif http_status == 403:
 			resp.status = falcon.HTTP_403
+		elif http_status == 404:
+			resp.status = falcon.HTTP_404
 		elif http_status == 405:
 			resp.status = falcon.HTTP_405
 		elif http_status == 406:
 			resp.status = falcon.HTTP_406
+		elif http_status == 500:
+			resp.status = falcon.HTTP_500
 		else:
 			resp.status = falcon.HTTP_400
 		# resp.status = falcon['HTTP_' + str(http_status)]
@@ -142,7 +155,7 @@ class baseController(object):
 		try:
 			self.get(req, resp)
 		except appException.clientException as e:
-			self.__clientError(req, resp, e)
+			self.__sendError(req, resp, e)
 		except:
 			#catch error
 			self.__internalServerError(req, resp)
@@ -151,7 +164,7 @@ class baseController(object):
 		try:
 			self.post(req, resp)
 		except appException.clientException as e:
-			self.__clientError(req, resp, e)
+			self.__sendError(req, resp, e)
 		except:
 			#catch error
 			self.__internalServerError(req, resp)
@@ -160,7 +173,7 @@ class baseController(object):
 		try:
 			self.put(req, resp)
 		except appException.clientException as e:
-			self.__clientError(req, resp, e)
+			self.__sendError(req, resp, e)
 		except:
 			#catch error
 			self.__internalServerError(req, resp)
@@ -169,7 +182,7 @@ class baseController(object):
 		try:
 			self.delete(req, resp)
 		except appException.clientException as e:
-			self.__clientError(req, resp, e)
+			self.__sendError(req, resp, e)
 		except:
 			#catch error
 			self.__internalServerError(req, resp)

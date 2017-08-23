@@ -1,5 +1,20 @@
 class serverException(Exception):
 	"""Raise for server errors"""
+	def __init__(self, params, http_status):
+		self.__params = params
+		self.__http_status = http_status
+
+	def getErrorMessages(self):
+		return self.__params
+
+	def getHttpStatus(self):
+		return self.__http_status
+
+class serverException_500(clientException):
+	"""This will handle all http 500 exception, server error"""
+	def __init__(self, params):
+		clientException.__init__(self,params,500)
+
 
 class clientException(Exception):
 	"""Raise for client errors"""
@@ -33,6 +48,12 @@ class clientException_403(clientException):
 	"""This will handle all http 405 exception, request method not allowed"""
 	def __init__(self, params):
 		clientException.__init__(self,params,403)
+
+
+class clientException_404(clientException):
+	"""This will handle all http 404 exception, url not found allowed"""
+	def __init__(self, params):
+		clientException.__init__(self,params,404)
 
 
 class clientException_405(clientException):

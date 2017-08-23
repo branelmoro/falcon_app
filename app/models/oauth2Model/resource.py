@@ -6,6 +6,21 @@ from ..base_model import baseModel
 class resource(baseModel):
 	"""entire code goes here"""
 
+	def createNewResource(self, data):
+		qry = """INSERT INTO oauth2.resource (resource_path, resource_info) values (%s,%s);"""
+		resultCursor = self.pgMaster().query(qry, [data["resource_path"], data["resource_path"]])
+		return resultCursor.getStatusMessage()
+
+	def updateResource(self, data):
+		qry = """UPDATE oauth2.resource set resource_path = %s, resource_info = %s where id = %s;"""
+		resultCursor = self.pgMaster().query(qry, [data["resource_path"], data["resource_path"], data["resource_id"]])
+		return resultCursor.getStatusMessage()
+
+	def updateResource(self, data):
+		qry = """DELETE FROM oauth2.resource where id = %s;"""
+		resultCursor = self.pgMaster().query(qry, [data["resource_id"]])
+		return resultCursor.getStatusMessage()
+
 	def ifValidResourceExists(self, ids):
 		values = "%s,"*(len(ids)-1) + "%s"
 		qry = """
@@ -16,3 +31,46 @@ class resource(baseModel):
 		resultCursor = self.pgSlave().query(qry,ids)
 		result = resultCursor.getOneRecord()
 		return (len(ids) == result[0])
+
+	def getResourcePathById(self, id):
+		qry = """
+			SELECT resource_path
+			FROM oauth2.resource
+			WHERE id = %s;
+		"""
+		resultCursor = self.pgSlave().query(qry,[id])
+		result = resultCursor.getOneRecord()
+		if result:
+			return result[0]
+		else:
+			return None
+
+	def ifResourcePathAlreadyExists(self, path, not_id=None):
+		params = [path]
+		strNotId = ""
+		if not_id is not None:
+			params.append(not_id)
+			strNotId = " and id != %s"
+
+		qry = """
+			SELECT exists(
+				SELECT id
+				FROM oauth2.resource
+				WHERE resource_path = %s"""+strNotId+"""
+			);
+		"""
+		resultCursor = self.pgSlave().query(qry,params)
+		result = resultCursor.getOneRecord()
+		return result[0]
+
+	def ifResourceIdAlreadyExists(self,id):
+		qry = """
+			SELECT exists(
+				SELECT id
+				FROM oauth2.resource
+				WHERE id = %s
+			);
+		"""
+		resultCursor = self.pgSlave().query(qry,[id])
+		result = resultCursor.getOneRecord()
+		return result[0]
