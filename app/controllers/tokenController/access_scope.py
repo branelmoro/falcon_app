@@ -12,7 +12,9 @@ from ...models.oauth2Model import oauth2ScopeModel
 class accessScope(baseController):
 
 	def __init__(self):
-		self.__path = "/access-scope/"
+		# resource_id = 1
+		super.__init__(self,2)
+		# self.__path = "/access-scope/"
 
 	def getPath(self):
 		return self.__path
@@ -31,8 +33,8 @@ class accessScope(baseController):
 		scope_detail = {
 			"scope_name" : req.body["scope_name"],
 			"scope_info" : req.body["scope_info"],
-			"allowed_resources" : req.body["allowed_resources"]
-		}app.models
+			"allowed_get" : req.body["allowed_get"]
+		}
 
 		appResponce["result"] = scope_model.createScope(scope_detail)
 
@@ -55,13 +57,24 @@ class accessScope(baseController):
 		if scope_model.ifScopeNameExists(req.body["scope_name"]):
 			appResponce["scope_name"] = "Scope name already exists in database"
 
-		req.body["allowed_resources"] = list(set(req.body["allowed_resources"]))
+		req.body["allowed_get"] = list(set(req.body["allowed_get"]))
 		resource_model = oauth2ResourceModel()
-		if not resource_model.ifValidResourceExists(req.body["allowed_resources"]):
-			appResponce["allowed_resources"] = "Invalid resources provided"
+		if not resource_model.ifValidResourceExists(req.body["allowed_get"]):
+			appResponce["allowed_get"] = "Invalid resources provided"
 
 		if appResponce:
 			raise appException.clientException_400(appResponce)
+
+
+	def __checkAllowedActionExist(self, req, appResponce, allowed_method):
+		if(allowed_method in req.body):
+			if(not isinstance(req.body[allowed_method], list)):
+				appResponce[allowed_method] = "Please provide list of get resources"
+			else:
+				nonInt = [i for i in appResponce[allowed_method] if not isinstance(req.body[allowed_method], int)]
+				if nonInt:
+					appResponce[allowed_method] = "Please provide list of valid get resources"
+		return appResponce
 
 
 	def __commonValidation(self, req, scope_id_check = False):
@@ -77,12 +90,14 @@ class accessScope(baseController):
 		if("scope_info" not in req.body or req.body["scope_info"] == "" or (not isinstance(req.body["scope_info"], str))):
 			appResponce["scope_info"] = "Please provide valid scope info"
 
-		if("allowed_resources" not in req.body or req.body["allowed_resources"] == "" or (not isinstance(req.body["allowed_resources"], list))):
-			appResponce["allowed_resources"] = "Please provide list of valid resources"
+
+		if("allowed_get" not in req.body and "allowed_post" not in req.body and "allowed_put" not in req.body and "allowed_delete" not in req.body):
+			appResponce["scope_info"] = "Please provide list of resources"
 		else:
-			invalid_resource = [resource_id for resource_id in req.body["allowed_resources"] if resource_id == "" or (not isinstance(resource_id, int))]
-			if(invalid_resource):
-				appResponce["allowed_resources"] = "Please provide list of valid resources"
+			appResponce = self.__checkAllowedActionExist(req, appResponce, "allowed_get")
+			appResponce = self.__checkAllowedActionExist(req, appResponce, "allowed_post")
+			appResponce = self.__checkAllowedActionExist(req, appResponce, "allowed_put")
+			appResponce = self.__checkAllowedActionExist(req, appResponce, "allowed_delete")
 
 		if appResponce:
 			raise appException.clientException_400(appResponce)
@@ -98,7 +113,7 @@ class accessScope(baseController):
 		scope_detail = {
 			"scope_name" : req.body["scope_name"],
 			"scope_info" : req.body["scope_info"],
-			"allowed_resources" : req.body["allowed_resources"],
+			"allowed_get" : req.body["allowed_get"],
 			"id" : req.body["scope_id"]
 		}
 
@@ -124,10 +139,10 @@ class accessScope(baseController):
 		if scope_model.ifScopeNameExistsInAnyOtherScope(req.body["scope_name"], req.body["scope_id"]):
 			appResponce["scope_name"] = "Scope name already exists in database"
 
-		req.body["allowed_resources"] = list(set(req.body["allowed_resources"]))
+		req.body["allowed_get"] = list(set(req.body["allowed_get"]))
 		resource_model = oauth2ResourceModel()
-		if not resource_model.ifValidResourceExists(req.body["allowed_resources"]):
-			appResponce["allowed_resources"] = "Invalid resources provided"
+		if not resource_model.ifValidResourceExists(req.body["allowed_get"]):
+			appResponce["allowed_get"] = "Invalid resources provided"
 
 		if appResponce:
 			raise appException.clientException_400(appResponce)

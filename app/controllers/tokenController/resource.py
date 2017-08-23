@@ -40,9 +40,25 @@ class resource(baseController):
 		# token validation
 		self.validateHTTPRequest(req)
 
+		self.__commonValidation(req)
+
 		# data validation
 		appResponce = {}
 
+		# database level validation goes here
+		oauth2_resource = oauth2ResourceModel()
+
+		if oauth2_resource.ifResourcePathAlreadyExists(req.body["resource_path"]):
+			appResponce["resource_path"] = "Resource path already exists"
+
+		if appResponce:
+			raise appException.clientException_400(appResponce)
+
+	def __commonValidation(self, req, scope_id_check = False):
+		appResponce = {}
+
+		if scope_id_check and ("resource_id" not in req.body or (not isinstance(req.body["resource_id"], int))):
+			appResponce["resource_id"] = "Please provide resource id"
 		if("resource_path" not in req.body or req.body["resource_path"] == "" or (not isinstance(req.body["resource_path"], str)) or req.body["resource_path"].find("/") == 0):
 			appResponce["resource_path"] = "Please provide valid resource path"
 		if("resource_info" not in req.body or req.body["resource_info"] == ""):
@@ -50,16 +66,6 @@ class resource(baseController):
 
 		if appResponce:
 			raise appException.clientException_400(appResponce)
-		else:
-			# database level validation goes here
-			oauth2_resource = oauth2ResourceModel()
-
-			if oauth2_resource.ifResourcePathAlreadyExists(req.body["resource_path"]):
-				appResponce["resource_path"] = "Resource path already exists"
-
-			if appResponce:
-				raise appException.clientException_400(appResponce)
-
 
 	def put(self, req, resp):
 		"""Handles POST requests"""
@@ -83,31 +89,23 @@ class resource(baseController):
 		# token validation
 		self.validateHTTPRequest(req)
 
+		self.__commonValidation(req, true)
+
 		# data validation
 		appResponce = {}
 
-		if("resource_path" not in req.body or req.body["resource_path"] == "" or (not isinstance(req.body["resource_path"], str)) or req.body["resource_path"].find("/") == 0):
-			appResponce["resource_path"] = "Please provide valid resource path"
-		if("resource_info" not in req.body or req.body["resource_info"] == ""):
-			appResponce["resource_info"] = "Please provide some resource information"
-		if("resource_id" not in req.body or (not isinstance(req.body["resource_id"], int))):
-			appResponce["resource_id"] = "Please provide resource id"
+		# database level validation goes here
+		oauth2_resource = oauth2ResourceModel()
+
+		if not oauth2_resource.ifResourceIdAlreadyExists(appResponce["resource_id"]):
+			appResponce["resource_id"] = "Please provide valid resource id"
+		elif not oauth2_resource.ifResourceEditable(appResponce["resource_id"]):
+			appResponce["resource_id"] = "Resource is not editable"
+		elif oauth2_resource.ifResourcePathAlreadyExists(req.body["resource_path"], appResponce["resource_id"]):
+			appResponce["resource_path"] = "Resource path already exists in another record"
 
 		if appResponce:
 			raise appException.clientException_400(appResponce)
-		else:
-			# database level validation goes here
-			oauth2_resource = oauth2ResourceModel()
-
-			if not oauth2_resource.ifResourceIdAlreadyExists(appResponce["resource_id"]):
-				appResponce["resource_id"] = "Please provide valid resource id"
-			elif not oauth2_resource.ifResourceEditable(appResponce["resource_id"]):
-				appResponce["resource_id"] = "Resource is not editable"
-			elif oauth2_resource.ifResourcePathAlreadyExists(req.body["resource_path"], appResponce["resource_id"]):
-				appResponce["resource_path"] = "Resource path already exists in another record"
-
-			if appResponce:
-				raise appException.clientException_400(appResponce)
 
 
 	def delete(self, req, resp):
