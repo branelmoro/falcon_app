@@ -59,11 +59,14 @@ class scope(baseModel):
 			INSERT INTO oauth2.scope (
 				scope_name,
 				scope_info,
-				allowed_resources,
+				allowed_get,
+				allowed_post,
+				allowed_put,
+				allowed_delete,
 				last_edit_time
-			) VALUES (%s, %s, %s::int[], %s);
+			) VALUES (%s, %s, %s::int[], %s::int[], %s::int[], %s::int[], %s);
 		"""
-		resultCursor = dbObj.query(qry, [scope_detail["scope_name"], scope_detail["scope_info"], scope_detail["allowed_resources"], datetime.now()])
+		resultCursor = dbObj.query(qry, [scope_detail["scope_name"], scope_detail["scope_info"], scope_detail["allowed_get"], scope_detail["allowed_post"], scope_detail["allowed_put"], scope_detail["allowed_delete"], datetime.now()])
 		# end transaction
 		return resultCursor.getStatusMessage()
 
@@ -72,10 +75,10 @@ class scope(baseModel):
 		dbObj = self.pgMaster()
 		qry = """
 			UPDATE oauth2.scope
-			SET scope_name = %s, scope_info = %s, allowed_resources = %s::int[], last_edit_time = %s
+			SET scope_name = %s, scope_info = %s, allowed_get = %s::int[], last_edit_time = %s
 			WHERE id = %s;
 		"""
-		resultCursor = dbObj.query(qry, [scope_detail["scope_name"], scope_detail["scope_info"], scope_detail["allowed_resources"], datetime.now(), scope_detail["id"]])
+		resultCursor = dbObj.query(qry, [scope_detail["scope_name"], scope_detail["scope_info"], scope_detail["allowed_get"], datetime.now(), scope_detail["id"]])
 		# end transaction
 		return resultCursor.getStatusMessage()
 

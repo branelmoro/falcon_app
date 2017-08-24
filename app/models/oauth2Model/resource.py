@@ -21,7 +21,7 @@ class resource(baseModel):
 		resultCursor = self.pgMaster().query(qry, [data["resource_id"]])
 		return resultCursor.getStatusMessage()
 
-	def ifValidResourceExists(self, ids):
+	def ifValidResourcesExists(self, ids):
 		values = "%s,"*(len(ids)-1) + "%s"
 		qry = """
 			SELECT count(id) as cnt

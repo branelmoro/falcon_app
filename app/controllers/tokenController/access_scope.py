@@ -33,7 +33,10 @@ class accessScope(baseController):
 		scope_detail = {
 			"scope_name" : req.body["scope_name"],
 			"scope_info" : req.body["scope_info"],
-			"allowed_get" : req.body["allowed_get"]
+			"allowed_get" : req.body["allowed_get"],
+			"allowed_post" : req.body["allowed_post"],
+			"allowed_put" : req.body["allowed_put"],
+			"allowed_delete" : req.body["allowed_delete"]
 		}
 
 		appResponce["result"] = scope_model.createScope(scope_detail)
@@ -47,8 +50,13 @@ class accessScope(baseController):
 		# token validation
 		self.validateHTTPRequest(req)
 
-		self.__commonValidation(req)
+		self.__commonPreDBValidation(req)
 
+		self.__commonPostDBValidation(req,)
+
+
+
+	def __commonPostDBValidation(self, req, scope_id_check = False):
 		# data validation
 		appResponce = {}
 
@@ -57,10 +65,15 @@ class accessScope(baseController):
 		if scope_model.ifScopeNameExists(req.body["scope_name"]):
 			appResponce["scope_name"] = "Scope name already exists in database"
 
-		req.body["allowed_get"] = list(set(req.body["allowed_get"]))
 		resource_model = oauth2ResourceModel()
-		if not resource_model.ifValidResourceExists(req.body["allowed_get"]):
+		if len(req.body["allowed_get"]) > 0 and not resource_model.ifValidResourcesExists(req.body["allowed_get"]):
 			appResponce["allowed_get"] = "Invalid resources provided"
+		if len(req.body["allowed_post"]) > 0 and not resource_model.ifValidResourcesExists(req.body["allowed_post"]):
+			appResponce["allowed_post"] = "Invalid resources provided"
+		if len(req.body["allowed_put"]) > 0 and not resource_model.ifValidResourcesExists(req.body["allowed_put"]):
+			appResponce["allowed_put"] = "Invalid resources provided"
+		if len(req.body["allowed_delete"]) > 0 and not resource_model.ifValidResourcesExists(req.body["allowed_delete"]):
+			appResponce["allowed_delete"] = "Invalid resources provided"
 
 		if appResponce:
 			raise appException.clientException_400(appResponce)
@@ -74,10 +87,12 @@ class accessScope(baseController):
 				nonInt = [i for i in appResponce[allowed_method] if not isinstance(req.body[allowed_method], int)]
 				if nonInt:
 					appResponce[allowed_method] = "Please provide list of valid get resources"
+		else:
+			req.body[allowed_method] = []
 		return appResponce
 
 
-	def __commonValidation(self, req, scope_id_check = False):
+	def __commonPreDBValidation(self, req, scope_id_check = False):
 
 		appResponce = {}
 
@@ -128,7 +143,7 @@ class accessScope(baseController):
 		# token validation
 		self.validateHTTPRequest(req)
 
-		self.__commonValidation(req)
+		self.__commonPreDBValidation(req)
 
 		# data validation
 		appResponce = {}
@@ -141,7 +156,7 @@ class accessScope(baseController):
 
 		req.body["allowed_get"] = list(set(req.body["allowed_get"]))
 		resource_model = oauth2ResourceModel()
-		if not resource_model.ifValidResourceExists(req.body["allowed_get"]):
+		if not resource_model.ifValidResourcesExists(req.body["allowed_get"]):
 			appResponce["allowed_get"] = "Invalid resources provided"
 
 		if appResponce:
