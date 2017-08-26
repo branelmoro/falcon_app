@@ -12,8 +12,8 @@ from ...models.oauth2Model import oauth2ScopeModel
 class adminUser(baseController):
 
 	def __init__(self):
-		# scope_id = 1
-		super.__init__(self,2)
+		# resource_id = 3
+		super.__init__(self,3)
 		# self.__path = "/access-scope/"
 
 	def getPath(self):
@@ -52,13 +52,13 @@ class adminUser(baseController):
 		self.__commonPostDBValidation(req)
 
 
-	def __commonPostDBValidation(self, req, scope_id_check = None):
+	def __commonPostDBValidation(self, req, admin_user_id_check = None):
 		# data validation
 		appResponce = {}
 
 		#db level check
 		scope_model = oauth2ScopeModel()
-		if scope_model.ifScopeNameExists(req.body["username"], scope_id_check):
+		if scope_model.ifScopeNameExists(req.body["username"], admin_user_id_check):
 			appResponce["username"] = "Scope name already exists in database"
 
 		scope_model = oauth2ScopeModel()
@@ -69,12 +69,12 @@ class adminUser(baseController):
 			raise appException.clientException_400(appResponce)
 
 
-	def __commonPreDBValidation(self, req, scope_id_check = False):
+	def __commonPreDBValidation(self, req, admin_user_id_check = False):
 
 		appResponce = {}
 
-		if scope_id_check and ("scope_id" not in req.body or req.body["scope_id"] == "" or (not isinstance(req.body["scope_id"], int))):
-			appResponce["scope_id"] = "Please provide valid scope"
+		if admin_user_id_check and ("admin_user_id" not in req.body or req.body["admin_user_id"] == "" or (not isinstance(req.body["admin_user_id"], int))):
+			appResponce["admin_user_id"] = "Please provide valid scope"
 
 		if("username" not in req.body or req.body["username"] == "" or (not isinstance(req.body["username"], str))):
 			appResponce["username"] = "Please provide valid scope name"
@@ -104,7 +104,7 @@ class adminUser(baseController):
 			"username" : req.body["username"],
 			"password" : req.body["password"],
 			"scope" : req.body["scope"],
-			"id" : req.body["scope_id"]
+			"id" : req.body["admin_user_id"]
 		}
 
 		appResponce["result"] = scope_model.updateScope(scope_detail)
@@ -120,7 +120,7 @@ class adminUser(baseController):
 
 		self.__commonPreDBValidation(req, True)
 
-		self.__commonPostDBValidation(req, req.body["scope_id"])
+		self.__commonPostDBValidation(req, req.body["admin_user_id"])
 
 
 	def delete(self, req, resp):
@@ -131,7 +131,7 @@ class adminUser(baseController):
 		appResponce = {}
 		scope_model = oauth2ScopeModel()
 
-		appResponce["result"] = scope_model.createScope(req.body["scope_id"])
+		appResponce["result"] = scope_model.createScope(req.body["admin_user_id"])
 
 		# delete in redis
 
@@ -143,8 +143,8 @@ class adminUser(baseController):
 		self.validateHTTPRequest(req)
 
 		appResponce = {}
-		if("scope_id" not in req.body or req.body["scope_id"] == "" or (not isinstance(req.body["scope_id"], int))):
-			appResponce["scope_id"] = "Please provide valid scope"
+		if("admin_user_id" not in req.body or req.body["admin_user_id"] == "" or (not isinstance(req.body["admin_user_id"], int))):
+			appResponce["admin_user_id"] = "Please provide valid scope"
 
 		if appResponce:
 			raise appException.clientException_400(appResponce)
@@ -152,7 +152,7 @@ class adminUser(baseController):
 			#db level check
 			#if skill synonym exists
 			scope_model = oauth2ScopeModel()
-			if scope_model.ifScopeIdExists(req.body["scope_id"]):
-				appResponce["scope_id"] = "Scope does not exists"
+			if scope_model.ifScopeIdExists(req.body["admin_user_id"]):
+				appResponce["admin_user_id"] = "Scope does not exists"
 			if appResponce:
 				raise appException.clientException_400(appResponce)

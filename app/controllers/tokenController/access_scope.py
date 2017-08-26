@@ -12,7 +12,7 @@ from ...models.oauth2Model import oauth2ScopeModel
 class accessScope(baseController):
 
 	def __init__(self):
-		# scope_id = 1
+		# resource_id = 1
 		super.__init__(self,2)
 		# self.__path = "/access-scope/"
 
