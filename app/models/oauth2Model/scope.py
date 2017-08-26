@@ -90,3 +90,14 @@ class scope(baseModel):
 		resultCursor = dbObj.query(qry, [scope_id])
 		# end transaction
 		return resultCursor.getStatusMessage()
+
+	def ifValidScopesExists(self, ids):
+		values = "%s,"*(len(ids)-1) + "%s"
+		qry = """
+			SELECT count(id) as cnt
+			FROM oauth2.scope
+			WHERE id in ("""+values+""");
+		"""
+		resultCursor = self.pgSlave().query(qry,ids)
+		result = resultCursor.getOneRecord()
+		return (len(ids) == result[0])
