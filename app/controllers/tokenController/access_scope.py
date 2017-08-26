@@ -130,7 +130,7 @@ class accessScope(baseController):
 			"allowed_get" : req.body["allowed_get"],
 			"allowed_post" : req.body["allowed_post"],
 			"allowed_put" : req.body["allowed_put"],
-			"allowed_delete" : req.body["allowed_delete"]
+			"allowed_delete" : req.body["allowed_delete"],
 			"id" : req.body["scope_id"]
 		}
 
