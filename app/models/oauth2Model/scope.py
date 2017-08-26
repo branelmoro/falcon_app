@@ -17,15 +17,21 @@ class scope(baseModel):
 		result = resultCursor.getAllRecords()
 		return [result[i][0] for i in result]
 
-	def ifScopeNameExists(self, scope_name):
+	def ifScopeNameExists(self, scope_name, not_id=None):
+		param = [scope_name]
+		strNotId = ""
+		if not_id is not None:
+			param.append(not_id)
+			strNotId = " and id != %s"
+
 		qry = """
 			SELECT exists(
 				SELECT id
 				FROM oauth2.scope
-				WHERE scope_name = %s
+				WHERE scope_name = %s """+strNotId+"""
 			);
 		"""
-		resultCursor = self.pgSlave().query(qry,[scope_name])
+		resultCursor = self.pgSlave().query(qry,param)
 		result = resultCursor.getOneRecord()
 		return result[0]
 
@@ -38,18 +44,6 @@ class scope(baseModel):
 			);
 		"""
 		resultCursor = self.pgSlave().query(qry,[id])
-		result = resultCursor.getOneRecord()
-		return result[0]
-
-	def ifScopeNameExistsInAnyOtherScope(self, scope_name, scope_id):
-		qry = """
-			SELECT exists(
-				SELECT id
-				FROM oauth2.scope
-				WHERE scope_name = %s and id != %s
-			);
-		"""
-		resultCursor = self.pgSlave().query(qry,[scope_name, scope_id])
 		result = resultCursor.getOneRecord()
 		return result[0]
 
@@ -75,10 +69,16 @@ class scope(baseModel):
 		dbObj = self.pgMaster()
 		qry = """
 			UPDATE oauth2.scope
-			SET scope_name = %s, scope_info = %s, allowed_get = %s::int[], last_edit_time = %s
+			SET scope_name = %s,
+				scope_info = %s,
+				allowed_get = %s::int[],
+				allowed_post = %s::int[],
+				allowed_put = %s::int[],
+				allowed_delete = %s::int[],
+				last_edit_time = %s
 			WHERE id = %s;
 		"""
-		resultCursor = dbObj.query(qry, [scope_detail["scope_name"], scope_detail["scope_info"], scope_detail["allowed_get"], datetime.now(), scope_detail["id"]])
+		resultCursor = dbObj.query(qry, [scope_detail["scope_name"], scope_detail["scope_info"], scope_detail["allowed_get"], scope_detail["allowed_post"], scope_detail["allowed_put"], scope_detail["allowed_delete"], datetime.now(), scope_detail["id"]])
 		# end transaction
 		return resultCursor.getStatusMessage()
 

@@ -52,17 +52,16 @@ class accessScope(baseController):
 
 		self.__commonPreDBValidation(req)
 
-		self.__commonPostDBValidation(req,)
+		self.__commonPostDBValidation(req)
 
 
-
-	def __commonPostDBValidation(self, req, scope_id_check = False):
+	def __commonPostDBValidation(self, req, scope_id_check = None):
 		# data validation
 		appResponce = {}
 
 		#db level check
 		scope_model = oauth2ScopeModel()
-		if scope_model.ifScopeNameExists(req.body["scope_name"]):
+		if scope_model.ifScopeNameExists(req.body["scope_name"], scope_id_check):
 			appResponce["scope_name"] = "Scope name already exists in database"
 
 		resource_model = oauth2ResourceModel()
@@ -79,7 +78,7 @@ class accessScope(baseController):
 			raise appException.clientException_400(appResponce)
 
 
-	def __checkAllowedActionExist(self, req, appResponce, allowed_method):
+	def __checkAllowedActionList(self, req, appResponce, allowed_method):
 		if(allowed_method in req.body):
 			if(not isinstance(req.body[allowed_method], list)):
 				appResponce[allowed_method] = "Please provide list of get resources"
@@ -109,10 +108,10 @@ class accessScope(baseController):
 		if("allowed_get" not in req.body and "allowed_post" not in req.body and "allowed_put" not in req.body and "allowed_delete" not in req.body):
 			appResponce["scope_info"] = "Please provide list of resources"
 		else:
-			appResponce = self.__checkAllowedActionExist(req, appResponce, "allowed_get")
-			appResponce = self.__checkAllowedActionExist(req, appResponce, "allowed_post")
-			appResponce = self.__checkAllowedActionExist(req, appResponce, "allowed_put")
-			appResponce = self.__checkAllowedActionExist(req, appResponce, "allowed_delete")
+			appResponce = self.__checkAllowedActionList(req, appResponce, "allowed_get")
+			appResponce = self.__checkAllowedActionList(req, appResponce, "allowed_post")
+			appResponce = self.__checkAllowedActionList(req, appResponce, "allowed_put")
+			appResponce = self.__checkAllowedActionList(req, appResponce, "allowed_delete")
 
 		if appResponce:
 			raise appException.clientException_400(appResponce)
@@ -129,6 +128,9 @@ class accessScope(baseController):
 			"scope_name" : req.body["scope_name"],
 			"scope_info" : req.body["scope_info"],
 			"allowed_get" : req.body["allowed_get"],
+			"allowed_post" : req.body["allowed_post"],
+			"allowed_put" : req.body["allowed_put"],
+			"allowed_delete" : req.body["allowed_delete"]
 			"id" : req.body["scope_id"]
 		}
 
@@ -143,24 +145,10 @@ class accessScope(baseController):
 		# token validation
 		self.validateHTTPRequest(req)
 
-		self.__commonPreDBValidation(req)
+		self.__commonPreDBValidation(req, True)
 
-		# data validation
-		appResponce = {}
+		self.__commonPostDBValidation(req, req.body["scope_id"])
 
-		#db level check
-		scope_model = oauth2ScopeModel()
-
-		if scope_model.ifScopeNameExistsInAnyOtherScope(req.body["scope_name"], req.body["scope_id"]):
-			appResponce["scope_name"] = "Scope name already exists in database"
-
-		req.body["allowed_get"] = list(set(req.body["allowed_get"]))
-		resource_model = oauth2ResourceModel()
-		if not resource_model.ifValidResourcesExists(req.body["allowed_get"]):
-			appResponce["allowed_get"] = "Invalid resources provided"
-
-		if appResponce:
-			raise appException.clientException_400(appResponce)
 
 	def delete(self, req, resp):
 		"""Handles POST requests"""
@@ -175,6 +163,7 @@ class accessScope(baseController):
 		# delete in redis
 
 		resp.body = json.encode(appResponce)
+
 
 	def __validateHttpDelete(req):
 		# token validation
