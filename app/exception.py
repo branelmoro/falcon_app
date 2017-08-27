@@ -10,7 +10,7 @@ class serverException(Exception):
 	def getHttpStatus(self):
 		return self.__http_status
 
-class serverException_500(clientException):
+class serverException_500(serverException):
 	"""This will handle all http 500 exception, server error"""
 	def __init__(self, params):
 		clientException.__init__(self,params,500)
