@@ -66,19 +66,28 @@ class scope(baseModel):
 
 
 	def updateScope(self, scope_detail):
-		dbObj = self.pgMaster()
+
+		params = [scope_detail["scope_name"], scope_detail["scope_info"]]
+
+		allowedList = ["allowed_get", "allowed_post", "allowed_put", "allowed_delete"]
+		strAllowed = ""
+		for allowed_method in allowedList:
+			if allowed_method in scope_detail:
+				strAllowed = strAllowed + """
+				"""+allowed_method+""" = %s::int[],"""
+				params.append(scope_detail[allowed_method])
+
+		params.extend([datetime.now(), scope_detail["id"], True])
+
 		qry = """
 			UPDATE oauth2.scope
 			SET scope_name = %s,
-				scope_info = %s,
-				allowed_get = %s::int[],
-				allowed_post = %s::int[],
-				allowed_put = %s::int[],
-				allowed_delete = %s::int[],
+				scope_info = %s,"""+strAllowed+"""
 				last_edit_time = %s
 			WHERE id = %s and is_editable = %s;
 		"""
-		resultCursor = dbObj.query(qry, [scope_detail["scope_name"], scope_detail["scope_info"], scope_detail["allowed_get"], scope_detail["allowed_post"], scope_detail["allowed_put"], scope_detail["allowed_delete"], datetime.now(), scope_detail["id"], True])
+		dbObj = self.pgMaster()
+		resultCursor = dbObj.query(qry, params)
 		# end transaction
 		return resultCursor.getStatusMessage()
 
