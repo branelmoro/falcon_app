@@ -29,6 +29,9 @@ class index(baseController):
 		self.aTokenDb = appCache("access_tokenDb")
 		self.rTokenDb = appCache("refresh_tokenDb")
 
+		self.__accessTokenExpiry = 900
+		self.__refreshTokenExpiry = 3600*7*24
+
 		self.client_app_data = []
 		self.userscope = []
 
@@ -147,18 +150,16 @@ class index(baseController):
 
 		accessToken = self.__generateTokenFromKey(accessKey, self.aTokenDb)
 
-		accessTokenExpiry = 900
-
 		scope = self.client_app_data[1]
 
 		# save new token and refresh token in cache
-		# self.aTokenDb.set(accessToken, json.encode(scope), accessTokenExpiry)
+		# self.aTokenDb.set(accessToken, json.encode(scope), self.__accessTokenExpiry)
 		self.aTokenDb.sadd(accessToken, scope)
-		self.aTokenDb.expire(accessToken, accessTokenExpiry)
+		self.aTokenDb.expire(accessToken, self.__accessTokenExpiry)
 
 		params = {
 			"accessToken" : accessToken,
-			"accessTokenExpiry" : accessTokenExpiry,
+			"accessTokenExpiry" : self.__accessTokenExpiry,
 			"scope": oauth2ScopeModel().getScopeNamesFromIds(scope)
 		}
 
@@ -186,19 +187,16 @@ class index(baseController):
 
 		refreshToken = self.__generateTokenFromKey(refreshKey, self.rTokenDb)
 
-		accessTokenExpiry = 900
-		refreshTokenExpiry = 3600*7*24
-
 		scope = list(set(self.client_app_data[1] + self.userscope))
 
 		# save new token and refresh token in cache
-		# self.aTokenDb.set(accessToken, json.encode(scope), accessTokenExpiry)
+		# self.aTokenDb.set(accessToken, json.encode(scope), self.__accessTokenExpiry)
 		self.aTokenDb.sadd(accessToken, scope)
-		self.aTokenDb.expire(accessToken, accessTokenExpiry)
+		self.aTokenDb.expire(accessToken, self.__accessTokenExpiry)
 
-		# self.rTokenDb.set(refreshToken, json.encode({"client_id":client_id,"username":username}), refreshTokenExpiry)
+		# self.rTokenDb.set(refreshToken, json.encode({"client_id":client_id,"username":username}), self.__refreshTokenExpiry)
 		self.rTokenDb.hmset(refreshToken, {"client_id":client_id,"username":username})
-		self.rTokenDb.expire(refreshToken, refreshTokenExpiry)
+		self.rTokenDb.expire(refreshToken, self.__refreshTokenExpiry)
 
 
 
@@ -206,8 +204,8 @@ class index(baseController):
 		params = {
 			"accessToken" : accessToken,
 			"refreshToken" : refreshToken,
-			"accessTokenExpiry" : accessTokenExpiry,
-			"refreshTokenExpiry" : refreshTokenExpiry,
+			"accessTokenExpiry" : self.__accessTokenExpiry,
+			"refreshTokenExpiry" : self.__refreshTokenExpiry,
 			"scope": oauth2ScopeModel().getScopeNamesFromIds(scope)
 		}
 
