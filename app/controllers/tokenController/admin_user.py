@@ -29,15 +29,15 @@ class adminUser(baseController):
 
 		resp.status = falcon.HTTP_200  # This is the default status
 
-		scope_model = oauth2ScopeModel()
+		admin_user_model = oauth2AdminUserModel()
 
-		scope_detail = {
+		admin_user_detail = {
 			"username" : req.body["username"],
 			"password" : req.body["password"],
 			"scope" : req.body["scope"]
 		}
 
-		appResponce["result"] = scope_model.createScope(scope_detail)
+		appResponce["result"] = admin_user_model.createAdminUser(admin_user_detail)
 
 		# insert into redis set
 
@@ -59,12 +59,18 @@ class adminUser(baseController):
 
 		#db level check
 		admin_user_model = oauth2AdminUserModel()
-		if admin_user_model.ifUserNameExists(req.body["username"], admin_user_id_check):
-			appResponce["username"] = "Username already exists in database"
 
-		scope_model = oauth2ScopeModel()
-		if len(req.body["scope"]) > 0 and not scope_model.ifValidScopesExists(req.body["scope"]):
-			appResponce["scope"] = "Invalid scopes provided"
+		if admin_user_id_check is not None and not admin_user_model.ifAdminUserIdExists(admin_user_id_check):
+			appResponce["admin_user_id"] = "Admin User id does not exist"
+		elif admin_user_id_check is not None and not admin_user_model.ifAdminUserEditable(admin_user_id_check):
+			appResponce["username"] = "Admin user is not editable"
+		else:
+			if admin_user_model.ifUserNameExists(req.body["username"], admin_user_id_check):
+				appResponce["username"] = "Username already exists in database"
+
+			scope_model = oauth2ScopeModel()
+			if len(req.body["scope"]) > 0 and not scope_model.ifValidScopesExists(req.body["scope"]):
+				appResponce["scope"] = "Invalid scopes provided"
 
 		if appResponce:
 			raise appException.clientException_400(appResponce)
@@ -101,14 +107,16 @@ class adminUser(baseController):
 		# this is valid request
 		appResponce = {}
 
-		scope_detail = {
+		admin_user_detail = {
 			"username" : req.body["username"],
 			"password" : req.body["password"],
-			"scope" : req.body["scope"],
 			"id" : req.body["admin_user_id"]
 		}
+		if("scope" in req.body):
+			admin_user_detail["scope"] = req.body["scope"]
 
-		appResponce["result"] = scope_model.updateScope(scope_detail)
+		admin_user_model = oauth2AdminUserModel()
+		appResponce["result"] = admin_user_model.updateScope(admin_user_detail)
 
 		# update in redis
 
@@ -152,8 +160,12 @@ class adminUser(baseController):
 		else:
 			#db level check
 			#if skill synonym exists
-			scope_model = oauth2ScopeModel()
-			if scope_model.ifScopeIdExists(req.body["admin_user_id"]):
-				appResponce["admin_user_id"] = "Scope does not exists"
-			if appResponce:
-				raise appException.clientException_400(appResponce)
+			admin_user_model = oauth2AdminUserModel()
+
+			if not admin_user_model.ifAdminUserIdExists(admin_user_id_check):
+				appResponce["admin_user_id"] = "Admin User id does not exist"
+			elif not admin_user_model.ifAdminUserEditable(admin_user_id_check):
+				appResponce["username"] = "Admin user is not editable"
+
+		if appResponce:
+			raise appException.clientException_400(appResponce)
