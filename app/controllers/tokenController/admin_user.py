@@ -153,7 +153,7 @@ class adminUser(baseController):
 
 		appResponce = {}
 		if("admin_user_id" not in req.body or req.body["admin_user_id"] == "" or (not isinstance(req.body["admin_user_id"], int))):
-			appResponce["admin_user_id"] = "Please provide valid scope"
+			appResponce["admin_user_id"] = "Please provide valid user id"
 
 		if appResponce:
 			raise appException.clientException_400(appResponce)
