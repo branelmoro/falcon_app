@@ -76,18 +76,18 @@ class scope(baseModel):
 				allowed_put = %s::int[],
 				allowed_delete = %s::int[],
 				last_edit_time = %s
-			WHERE id = %s;
+			WHERE id = %s and is_editable = %s;
 		"""
-		resultCursor = dbObj.query(qry, [scope_detail["scope_name"], scope_detail["scope_info"], scope_detail["allowed_get"], scope_detail["allowed_post"], scope_detail["allowed_put"], scope_detail["allowed_delete"], datetime.now(), scope_detail["id"]])
+		resultCursor = dbObj.query(qry, [scope_detail["scope_name"], scope_detail["scope_info"], scope_detail["allowed_get"], scope_detail["allowed_post"], scope_detail["allowed_put"], scope_detail["allowed_delete"], datetime.now(), scope_detail["id"], True])
 		# end transaction
 		return resultCursor.getStatusMessage()
 
 	def deleteScope(self, scope_id):
 		dbObj = self.pgMaster()
 		qry = """
-			DELETE FROM oauth2.scope WHERE id = %s;
+			DELETE FROM oauth2.scope WHERE id = %s and is_editable = %s;
 		"""
-		resultCursor = dbObj.query(qry, [scope_id])
+		resultCursor = dbObj.query(qry, [scope_id, True])
 		# end transaction
 		return resultCursor.getStatusMessage()
 
@@ -101,3 +101,15 @@ class scope(baseModel):
 		resultCursor = self.pgSlave().query(qry,ids)
 		result = resultCursor.getOneRecord()
 		return (len(ids) == result[0])
+
+	def ifScopeEditable(self, scope_id):
+		qry = """
+			SELECT exists(
+				SELECT id
+				FROM oauth2.scope
+				WHERE id = %s and is_editable = %s
+			);
+		"""
+		resultCursor = self.pgSlave().query(qry,[scope_id, True])
+		result = resultCursor.getOneRecord()
+		return result[0]

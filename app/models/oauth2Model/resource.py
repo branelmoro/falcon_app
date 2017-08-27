@@ -12,13 +12,13 @@ class resource(baseModel):
 		return resultCursor.getStatusMessage()
 
 	def updateResource(self, data):
-		qry = """UPDATE oauth2.resource set resource_path = %s, resource_info = %s where id = %s;"""
-		resultCursor = self.pgMaster().query(qry, [data["resource_path"], data["resource_path"], data["resource_id"]])
+		qry = """UPDATE oauth2.resource set resource_path = %s, resource_info = %s where id = %s and is_editable = %s;"""
+		resultCursor = self.pgMaster().query(qry, [data["resource_path"], data["resource_path"], data["resource_id"], True])
 		return resultCursor.getStatusMessage()
 
-	def updateResource(self, data):
-		qry = """DELETE FROM oauth2.resource where id = %s;"""
-		resultCursor = self.pgMaster().query(qry, [data["resource_id"]])
+	def deleteResource(self, data):
+		qry = """DELETE FROM oauth2.resource where id = %s and is_editable = %s;"""
+		resultCursor = self.pgMaster().query(qry, [data["resource_id"], True])
 		return resultCursor.getStatusMessage()
 
 	def ifValidResourcesExists(self, ids):
@@ -63,7 +63,7 @@ class resource(baseModel):
 		result = resultCursor.getOneRecord()
 		return result[0]
 
-	def ifResourceIdAlreadyExists(self,id):
+	def ifResourceIdExists(self,id):
 		qry = """
 			SELECT exists(
 				SELECT id

@@ -61,18 +61,25 @@ class accessScope(baseController):
 
 		#db level check
 		scope_model = oauth2ScopeModel()
-		if scope_model.ifScopeNameExists(req.body["scope_name"], scope_id_check):
-			appResponce["scope_name"] = "Scope name already exists in database"
 
-		scope_model = oauth2ScopeModel()
-		if len(req.body["allowed_get"]) > 0 and not scope_model.ifValidScopesExists(req.body["allowed_get"]):
-			appResponce["allowed_get"] = "Invalid scopes provided"
-		if len(req.body["allowed_post"]) > 0 and not scope_model.ifValidScopesExists(req.body["allowed_post"]):
-			appResponce["allowed_post"] = "Invalid scopes provided"
-		if len(req.body["allowed_put"]) > 0 and not scope_model.ifValidScopesExists(req.body["allowed_put"]):
-			appResponce["allowed_put"] = "Invalid scopes provided"
-		if len(req.body["allowed_delete"]) > 0 and not scope_model.ifValidScopesExists(req.body["allowed_delete"]):
-			appResponce["allowed_delete"] = "Invalid scopes provided"
+		if scope_id_check is not None and not scope_model.ifScopeIdExists(scope_id_check):
+			appResponce["scope_id"] = "Scope Id does not exists"
+		else:
+			if scope_id_check is not None and scope_model.ifScopeEditable(scope_id_check):
+				appResponce["scope_name"] = "Scope is not editable"
+			else:
+				if scope_model.ifScopeNameExists(req.body["scope_name"], scope_id_check):
+					appResponce["scope_name"] = "Scope name already exists in database"
+
+				scope_model = oauth2ScopeModel()
+				if len(req.body["allowed_get"]) > 0 and not scope_model.ifValidScopesExists(req.body["allowed_get"]):
+					appResponce["allowed_get"] = "Invalid scopes provided"
+				if len(req.body["allowed_post"]) > 0 and not scope_model.ifValidScopesExists(req.body["allowed_post"]):
+					appResponce["allowed_post"] = "Invalid scopes provided"
+				if len(req.body["allowed_put"]) > 0 and not scope_model.ifValidScopesExists(req.body["allowed_put"]):
+					appResponce["allowed_put"] = "Invalid scopes provided"
+				if len(req.body["allowed_delete"]) > 0 and not scope_model.ifValidScopesExists(req.body["allowed_delete"]):
+					appResponce["allowed_delete"] = "Invalid scopes provided"
 
 		if appResponce:
 			raise appException.clientException_400(appResponce)
@@ -158,7 +165,7 @@ class accessScope(baseController):
 		appResponce = {}
 		scope_model = oauth2ScopeModel()
 
-		appResponce["result"] = scope_model.createScope(req.body["scope_id"])
+		appResponce["result"] = scope_model.deleteScope(req.body["scope_id"])
 
 		# delete in redis
 
@@ -179,7 +186,10 @@ class accessScope(baseController):
 			#db level check
 			#if skill synonym exists
 			scope_model = oauth2ScopeModel()
-			if scope_model.ifScopeIdExists(req.body["scope_id"]):
+			if not scope_model.ifScopeIdExists(req.body["scope_id"]):
 				appResponce["scope_id"] = "Scope does not exists"
-			if appResponce:
-				raise appException.clientException_400(appResponce)
+			elif not scope_model.ifScopeEditable(req.body["scope_id"]):
+				appResponce["scope_name"] = "Scope is not editable"
+
+		if appResponce:
+			raise appException.clientException_400(appResponce)

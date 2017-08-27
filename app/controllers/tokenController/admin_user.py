@@ -8,6 +8,7 @@ from ...library import json
 
 # import all required models here
 from ...models.oauth2Model import oauth2ScopeModel
+from ...models.oauth2Model import oauth2AdminUserModel
 
 class adminUser(baseController):
 
@@ -57,9 +58,9 @@ class adminUser(baseController):
 		appResponce = {}
 
 		#db level check
-		scope_model = oauth2ScopeModel()
-		if scope_model.ifScopeNameExists(req.body["username"], admin_user_id_check):
-			appResponce["username"] = "Scope name already exists in database"
+		admin_user_model = oauth2AdminUserModel()
+		if admin_user_model.ifUserNameExists(req.body["username"], admin_user_id_check):
+			appResponce["username"] = "Username already exists in database"
 
 		scope_model = oauth2ScopeModel()
 		if len(req.body["scope"]) > 0 and not scope_model.ifValidScopesExists(req.body["scope"]):
@@ -74,20 +75,20 @@ class adminUser(baseController):
 		appResponce = {}
 
 		if admin_user_id_check and ("admin_user_id" not in req.body or req.body["admin_user_id"] == "" or (not isinstance(req.body["admin_user_id"], int))):
-			appResponce["admin_user_id"] = "Please provide valid scope"
+			appResponce["admin_user_id"] = "Please provide valid admin id"
 
 		if("username" not in req.body or req.body["username"] == "" or (not isinstance(req.body["username"], str))):
-			appResponce["username"] = "Please provide valid scope name"
+			appResponce["username"] = "Please provide valid user name"
 
 		if("password" not in req.body or req.body["password"] == "" or (not isinstance(req.body["password"], str))):
-			appResponce["password"] = "Please provide valid scope info"
+			appResponce["password"] = "Please provide valid password"
 
 		if("scope" not in req.body and not isinstance(req.body["scope"], list)):
 			appResponce["scope"] = "Please provide list of scopes"
 		else:
 			nonInt = [i for i in appResponce["scope"] if not isinstance(req.body["scope"], int)]
 			if nonInt:
-				appResponce["scope"] = "Please provide list of valid get scopes"
+				appResponce["scope"] = "Please provide list of valid scopes"
 
 		if appResponce:
 			raise appException.clientException_400(appResponce)
@@ -129,9 +130,9 @@ class adminUser(baseController):
 
 		# this is valid request
 		appResponce = {}
-		scope_model = oauth2ScopeModel()
+		admin_user_model = oauth2AdminUserModel()
 
-		appResponce["result"] = scope_model.createScope(req.body["admin_user_id"])
+		appResponce["result"] = admin_user_model.deleteAdminUser(req.body["admin_user_id"])
 
 		# delete in redis
 

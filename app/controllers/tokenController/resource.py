@@ -97,7 +97,7 @@ class resource(baseController):
 		# database level validation goes here
 		oauth2_resource = oauth2ResourceModel()
 
-		if not oauth2_resource.ifResourceIdAlreadyExists(appResponce["resource_id"]):
+		if not oauth2_resource.ifResourceIdExists(appResponce["resource_id"]):
 			appResponce["resource_id"] = "Please provide valid resource id"
 		elif not oauth2_resource.ifResourceEditable(appResponce["resource_id"]):
 			appResponce["resource_id"] = "Resource is not editable"
@@ -138,7 +138,7 @@ class resource(baseController):
 			# database level validation goes here
 			oauth2_resource = oauth2ResourceModel()
 
-			if not oauth2_resource.ifResourceIdAlreadyExists(appResponce["resource_id"]):
+			if not oauth2_resource.ifResourceIdExists(appResponce["resource_id"]):
 				appResponce["resource_id"] = "Please provide valid resource id"
 			elif not oauth2_resource.ifResourceEditable(appResponce["resource_id"]):
 				appResponce["resource_id"] = "Resource is not editable"

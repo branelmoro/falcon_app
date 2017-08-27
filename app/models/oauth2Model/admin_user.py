@@ -18,3 +18,21 @@ class adminUser(baseModel):
 			return result[0]
 		else:
 			return False
+
+	def ifUserNameExists(self, username, not_id=None):
+		param = [username]
+		strNotId = ""
+		if not_id is not None:
+			param.append(not_id)
+			strNotId = " and id != %s"
+
+		qry = """
+			SELECT exists(
+				SELECT id
+				FROM oauth2.admin_user
+				WHERE username = %s """+strNotId+"""
+			);
+		"""
+		resultCursor = self.pgSlave().query(qry,param)
+		result = resultCursor.getOneRecord()
+		return result[0]
