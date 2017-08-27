@@ -116,7 +116,7 @@ class adminUser(baseController):
 			admin_user_detail["scope"] = req.body["scope"]
 
 		admin_user_model = oauth2AdminUserModel()
-		appResponce["result"] = admin_user_model.updateScope(admin_user_detail)
+		appResponce["result"] = admin_user_model.updateAdminUser(admin_user_detail)
 
 		# update in redis
 

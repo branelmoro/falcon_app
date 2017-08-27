@@ -74,3 +74,29 @@ class adminUser(baseModel):
 		resultCursor = dbObj.query(qry, [user_detail["username"], user_detail["password"], user_detail["scope"], datetime.now()])
 		# end transaction
 		return resultCursor.getStatusMessage()
+
+	def updateAdminUser(self, user_detail):
+
+		params = [user_detail["username"], user_detail["password"], user_detail["scope"], datetime.now(), user_detail["id"], True]
+
+		qry = """
+			UPDATE oauth2.admin_user
+			SET username = %s,
+				password = %s,
+				scope = %s::int[],
+				last_edit_time = %s
+			WHERE id = %s and is_editable = %s;
+		"""
+		dbObj = self.pgMaster()
+		resultCursor = dbObj.query(qry, params)
+		# end transaction
+		return resultCursor.getStatusMessage()
+
+	def deleteAdminUser(self, id):
+		dbObj = self.pgMaster()
+		qry = """
+			DELETE FROM oauth2.admin_user WHERE id = %s and is_editable = %s;
+		"""
+		resultCursor = dbObj.query(qry, [id, True])
+		# end transaction
+		return resultCursor.getStatusMessage()
