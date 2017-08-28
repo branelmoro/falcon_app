@@ -100,3 +100,17 @@ class adminUser(baseModel):
 		resultCursor = dbObj.query(qry, [id, True])
 		# end transaction
 		return resultCursor.getStatusMessage()
+
+	def deleteScopeFromAdminUser(self, scope_id, dbObj = None):
+		if dbObj is None:
+			dbObj = self.pgMaster()
+
+		qry = """
+			UPDATE oauth2.admin_user
+			SET scope = array_remove(scope, %s)
+			WHERE %s = ANY(scope);
+		"""
+		resultCursor = dbObj.query(qry, [scope_id, scope_id])
+		# end transaction
+
+		return resultCursor.getStatusMessage()

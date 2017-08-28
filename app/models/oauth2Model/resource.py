@@ -3,6 +3,8 @@ from datetime import datetime
 # always give model class name same as model name
 from ..base_model import baseModel
 
+from . import oauth2ScopeModel
+
 class resource(baseModel):
 	"""entire code goes here"""
 
@@ -17,8 +19,14 @@ class resource(baseModel):
 		return resultCursor.getStatusMessage()
 
 	def deleteResource(self, data):
+		dbTansaction = self.pgTransaction()
 		qry = """DELETE FROM oauth2.resource where id = %s and is_editable = %s;"""
-		resultCursor = self.pgMaster().query(qry, [data["resource_id"], True])
+		resultCursor = dbTansaction.query(qry, [data["resource_id"], True])
+		if True:
+			# remove from scopes
+			scope_model = oauth2ScopeModel()
+			scope_model.deleteResourceFromScope(data["resource_id"])
+		dbTansaction.commit()
 		return resultCursor.getStatusMessage()
 
 	def ifValidResourcesExists(self, ids):

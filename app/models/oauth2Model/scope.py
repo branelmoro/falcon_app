@@ -5,6 +5,8 @@ from ..base_model import baseModel
 
 from ...resources.redis import redis as appCache
 
+from . import oauth2AdminUserModel
+
 class scope(baseModel):
 	"""entire code goes here"""
 
@@ -153,12 +155,18 @@ class scope(baseModel):
 		return resultCursor.getStatusMessage()
 
 	def deleteScope(self, scope_id):
-		dbObj = self.pgMaster()
+		dbTansaction = self.pgTransaction()
 		qry = """
 			DELETE FROM oauth2.scope WHERE id = %s and is_editable = %s;
 		"""
-		resultCursor = dbObj.query(qry, [scope_id, True])
+		resultCursor = dbTansaction.query(qry, [scope_id, True])
+
+		if True:
+			admin_user_model = oauth2AdminUserModel()
+			admin_user_model.deleteScopeFromAdminUser(scope_id, dbTansaction)
+
 		self.__deleteScopeFromCache(scope_id)
+		dbTansaction.commit()
 		# end transaction
 		return resultCursor.getStatusMessage()
 
@@ -184,3 +192,41 @@ class scope(baseModel):
 		resultCursor = self.pgSlave().query(qry,[scope_id, True])
 		result = resultCursor.getOneRecord()
 		return result[0]
+
+	def deleteResourceFromScope(self, resource_id, dbObj = None):
+		if dbObj is None:
+			dbObj = self.pgMaster()
+
+		params = [resource_id, resource_id, resource_id, resource_id]
+
+		qry = """
+			SELECT id
+			FROM oauth2.scope
+			WHERE %s = ANY(allowed_get)
+				or %s = ANY(allowed_post)
+				or %s = ANY(allowed_put)
+				or %s = ANY(allowed_delete);
+		"""
+		resultCursor = self.pgSlave().query(qry,params)
+		result = resultCursor.getAllRecords()
+
+		ids = [result[i][0] for i in result]
+
+		qry = """
+			UPDATE oauth2.scope
+			SET allowed_get = array_remove(allowed_get, %s)
+				allowed_post = array_remove(allowed_post, %s)
+				allowed_put = array_remove(allowed_put, %s)
+				allowed_delete = array_remove(allowed_delete, %s)
+			WHERE %s = ANY(allowed_get)
+				or %s = ANY(allowed_post)
+				or %s = ANY(allowed_put)
+				or %s = ANY(allowed_delete);
+		"""
+		params = params + params
+		resultCursor = dbObj.query(qry, params)
+		# end transaction
+
+		self.__addScopeToCache(self.__getScopeDetails(self, ids), True)
+
+		return resultCursor.getStatusMessage()
