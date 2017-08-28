@@ -21,6 +21,8 @@ class baseController(object):
 		if self._path is None:
 			raise appException.serverException_500({"resource_id":"Resource not found in authdb"})
 
+		self.__resource_id = resource_id
+
 	def getAllLangs(self):
 		return ['english','hindi','marathi','gujarati','malayalam','bengali','oriya','tamil','telugu','panjabi','urdu','chinese_simplified','chinese_traditional','mandarin_chinese','arabic','russian','portuguese','japanese','german','korean','french','turkish','italian','polish','ukrainian','persian','romanian','serbian','croatian','thai','dutch','amharic','catalan','danish','greek','spanish','estonian','finnish','armenian','khmer','kannada','malay','nepali','norwegian','slovak','albanian','swedish','tagalog']
 
@@ -45,20 +47,21 @@ class baseController(object):
 
 	def __validateUrlAccessRights(self, req):
 		# validate token here
-		path = self.getPath()
+		# path = self.getPath()
 		is_valid = False
 		accessDb = appCache("access_scopeDb");
 
-		resource_id = accessDb.get(req.method + " " + path)
-		# token = hashlib.md5(path).hexdigest();
-		if(resource_id is None):
-			raise appException.clientException_400({"url":"Resource url is not ready."})
+		# resource_id = accessDb.get(req.method + " " + path)
+		# # token = hashlib.md5(path).hexdigest();
+		# if(resource_id is None):
+		# 	raise appException.clientException_400({"url":"Resource url is not ready."})
 
 		aTokenDb = appCache("access_tokenDb");
 		scopes = aTokenDb.smembers(req.headers["X-ACCESS-TOKEN"])
 
 		for scope in scopes:
-			if accessDb.sismember(scope, resource_id):
+			scope_method = scope + "__" + req.method
+			if accessDb.sismember(scope_method, self.__resource_id):
 				is_valid = True
 				break
 
