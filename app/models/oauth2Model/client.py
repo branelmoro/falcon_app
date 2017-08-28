@@ -17,3 +17,18 @@ class client(baseModel):
 			return result
 		else:
 			return False
+
+
+	def deleteScopeFromClient(self, scope_id, dbObj = None):
+		if dbObj is None:
+			dbObj = self.pgMaster()
+
+		qry = """
+			UPDATE oauth2.client
+			SET scope = array_remove(scope, %s)
+			WHERE %s = ANY(scope);
+		"""
+		resultCursor = dbObj.query(qry, [scope_id, scope_id])
+		# end transaction
+
+		return resultCursor.getStatusMessage()

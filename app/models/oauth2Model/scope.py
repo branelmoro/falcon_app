@@ -6,6 +6,7 @@ from ..base_model import baseModel
 from ...resources.redis import redis as appCache
 
 from . import oauth2AdminUserModel
+from . import oauth2ClientModel
 
 class scope(baseModel):
 	"""entire code goes here"""
@@ -164,6 +165,8 @@ class scope(baseModel):
 		if True:
 			admin_user_model = oauth2AdminUserModel()
 			admin_user_model.deleteScopeFromAdminUser(scope_id, dbTansaction)
+			client_model = oauth2ClientModel()
+			client_model.deleteScopeFromAdminUser(scope_id, dbTansaction)
 
 		self.__deleteScopeFromCache(scope_id)
 		dbTansaction.commit()
