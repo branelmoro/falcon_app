@@ -39,7 +39,7 @@ CREATE TABLE oauth2.scope (
  is_editable boolean DEFAULT true,
  last_edit_time TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT now()
 );
-insert into oauth2.scope (id, scope_name, scope_info, allowed_get, allowed_post, allowed_put, allowed_delete, is_editable) values (1, 'superuser', '123456', '{1,2}', '{1,2}', '{1,2}', '{1,2}', false);
+insert into oauth2.scope (id, scope_name, scope_info, allowed_get, allowed_post, allowed_put, allowed_delete, is_editable) values (1, 'superuser', '123456', '{1,2,3}', '{1,2,3}', '{1,2,3}', '{1,2,3}', false);
 CREATE TABLE oauth2.admin_user (
  id serial PRIMARY KEY,
  username varchar(80) NOT NULL UNIQUE,
