@@ -59,7 +59,7 @@ class resource(baseController):
 
 		if scope_id_check and ("resource_id" not in req.body or (not isinstance(req.body["resource_id"], int))):
 			appResponce["resource_id"] = "Please provide resource id"
-		if("resource_path" not in req.body or req.body["resource_path"] == "" or (not isinstance(req.body["resource_path"], str)) or req.body["resource_path"].find("/") == 0):
+		if("resource_path" not in req.body or req.body["resource_path"] == "" or (not isinstance(req.body["resource_path"], str)) or req.body["resource_path"].find("/") != 0):
 			appResponce["resource_path"] = "Please provide valid resource path"
 		if("resource_info" not in req.body or req.body["resource_info"] == ""):
 			appResponce["resource_info"] = "Please provide some resource information"

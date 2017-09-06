@@ -28,6 +28,7 @@ CREATE TABLE oauth2.resource (
 insert into oauth2.resource (id, resource_path, resource_info, is_editable) values (1, '/resource/', 'manage resource', false);
 insert into oauth2.resource (id, resource_path, resource_info, is_editable) values (2, '/access-scope/', 'manage access-scope', false);
 insert into oauth2.resource (id, resource_path, resource_info, is_editable) values (3, '/admin-user/', 'manage admin-user', false);
+insert into oauth2.resource (id, resource_path, resource_info, is_editable) values (4, '/client/', 'manage clients', false);
 CREATE TABLE oauth2.scope (
  id serial PRIMARY KEY,
  scope_name varchar(80) NOT NULL UNIQUE,
