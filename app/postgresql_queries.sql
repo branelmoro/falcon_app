@@ -29,6 +29,7 @@ insert into oauth2.resource (id, resource_path, resource_info, is_editable) valu
 insert into oauth2.resource (id, resource_path, resource_info, is_editable) values (2, '/access-scope/', 'manage access-scope', false);
 insert into oauth2.resource (id, resource_path, resource_info, is_editable) values (3, '/admin-user/', 'manage admin-user', false);
 insert into oauth2.resource (id, resource_path, resource_info, is_editable) values (4, '/client/', 'manage clients', false);
+ALTER SEQUENCE oauth2.resource_id_seq RESTART WITH 5;
 CREATE TABLE oauth2.scope (
  id serial PRIMARY KEY,
  scope_name varchar(80) NOT NULL UNIQUE,
@@ -41,6 +42,7 @@ CREATE TABLE oauth2.scope (
  last_edit_time TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT now()
 );
 insert into oauth2.scope (id, scope_name, scope_info, allowed_get, allowed_post, allowed_put, allowed_delete, is_editable) values (1, 'superuser', '123456', '{1,2,3}', '{1,2,3}', '{1,2,3}', '{1,2,3}', false);
+ALTER SEQUENCE oauth2.scope_id_seq RESTART WITH 2;
 CREATE TABLE oauth2.admin_user (
  id serial PRIMARY KEY,
  username varchar(80) NOT NULL UNIQUE,
@@ -50,6 +52,7 @@ CREATE TABLE oauth2.admin_user (
  last_edit_time TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT now()
 );
 insert into oauth2.admin_user (username, password, scope, is_editable) values ('branelm', '123456', '{1}', false);
+ALTER SEQUENCE oauth2.admin_user_id_seq RESTART WITH 2;
 CREATE TABLE oauth2.client (
  id serial PRIMARY KEY,
  client_id varchar(80) NOT NULL UNIQUE,
@@ -61,6 +64,8 @@ CREATE TABLE oauth2.client (
 );
 insert into oauth2.client (client_id, client_secret, scope, user_type, is_editable) values ('admin_app', 'shdfvbkflakjfjhslfhalisfjhjsghflajzshdnva', '{1,2,3,4,5}','admin', false);
 insert into oauth2.client (client_id, client_secret, scope, user_type, is_editable) values ('web_app', 'yturerfa43t565u43qgf35w4e4q3th54sf', '{1,2,3,4,5}','admin', false);
+ALTER SEQUENCE oauth2.client_user_id_seq RESTART WITH 2;
+
 
 CREATE SCHEMA speciality;
 
