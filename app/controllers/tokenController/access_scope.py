@@ -1,8 +1,8 @@
 # always extend your controller from base_controller
 # always give controller class name same as filename
 from ... import falcon
-from ..controllers.base_controller import baseController
-from ..controllers.base_controller import appException
+from ..base_controller import baseController
+from ..base_controller import appException
 
 from ...library import json
 
@@ -14,7 +14,7 @@ class accessScope(baseController):
 
 	def __init__(self):
 		# resource_id = 1
-		super.__init__(self,2)
+		super().__init__(self,2)
 		# self.__path = "/access-scope/"
 
 	def getPath(self):

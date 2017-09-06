@@ -9,6 +9,7 @@ arrControllers = []
 
 arrControllers.append(controllers.indexController.index)
 arrControllers.append(controllers.tokenController.index)
+arrControllers.append(controllers.tokenController.resource)
 arrControllers.append(controllers.specialityController.saveSearchSkill)
 arrControllers.append(controllers.specialityController.searchSkillStatus)
 
