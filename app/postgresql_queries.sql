@@ -32,10 +32,10 @@ CREATE TABLE oauth2.scope (
  id serial PRIMARY KEY,
  scope_name varchar(80) NOT NULL UNIQUE,
  scope_info varchar(100),
- allowed_get serial[],
- allowed_post serial[],
- allowed_put serial[],
- allowed_delete serial[],
+ allowed_get smallint[],
+ allowed_post smallint[],
+ allowed_put smallint[],
+ allowed_delete smallint[],
  is_editable boolean DEFAULT true,
  last_edit_time TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT now()
 );
@@ -55,10 +55,11 @@ CREATE TABLE oauth2.client (
  client_secret varchar(80) NOT NULL,
  scope int[],
  user_type usertype,
+ is_editable boolean DEFAULT true,
  last_edit_time TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT now()
 );
-insert into oauth2.client (client_id, client_secret, scope, user_type) values ('admin_app', 'shdfvbkflakjfjhslfhalisfjhjsghflajzshdnva', '{1,2,3,4,5}','admin');
-insert into oauth2.client (client_id, client_secret, scope, user_type) values ('web_app', 'yturerfa43t565u43qgf35w4e4q3th54sf', '{1,2,3,4,5}','admin');
+insert into oauth2.client (client_id, client_secret, scope, user_type, is_editable) values ('admin_app', 'shdfvbkflakjfjhslfhalisfjhjsghflajzshdnva', '{1,2,3,4,5}','admin', false);
+insert into oauth2.client (client_id, client_secret, scope, user_type, is_editable) values ('web_app', 'yturerfa43t565u43qgf35w4e4q3th54sf', '{1,2,3,4,5}','admin', false);
 
 CREATE SCHEMA speciality;
 
