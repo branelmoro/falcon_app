@@ -140,7 +140,7 @@ class resource(baseController):
 		resp.status = falcon.HTTP_200  # This is the default status
 		resp.body = json.encode(appResponce)
 
-	def __validateHttpDelete(req):
+	def __validateHttpDelete(self, req):
 		# token validation
 		self.validateHTTPRequest(req)
 
@@ -155,9 +155,9 @@ class resource(baseController):
 			# database level validation goes here
 			oauth2_resource = oauth2ResourceModel()
 
-			if not oauth2_resource.ifResourceIdExists(appResponce["resource_id"]):
+			if not oauth2_resource.ifResourceIdExists(req.body["resource_id"]):
 				appResponce["resource_id"] = "Please provide valid resource id"
-			elif not oauth2_resource.ifResourceEditable(appResponce["resource_id"]):
+			elif not oauth2_resource.ifResourceEditable(req.body["resource_id"]):
 				appResponce["resource_id"] = "Resource is not editable"
 
 			if appResponce:

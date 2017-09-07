@@ -205,10 +205,10 @@ class scope(baseModel):
 		qry = """
 			SELECT id
 			FROM oauth2.scope
-			WHERE %s = ANY(allowed_get)
-				or %s = ANY(allowed_post)
-				or %s = ANY(allowed_put)
-				or %s = ANY(allowed_delete);
+			WHERE %s::smallint = ANY(allowed_get)
+				or %s::smallint = ANY(allowed_post)
+				or %s::smallint = ANY(allowed_put)
+				or %s::smallint = ANY(allowed_delete);
 		"""
 		resultCursor = self.pgSlave().query(qry,params)
 		result = resultCursor.getAllRecords()
@@ -217,19 +217,20 @@ class scope(baseModel):
 
 		qry = """
 			UPDATE oauth2.scope
-			SET allowed_get = array_remove(allowed_get, %s)
-				allowed_post = array_remove(allowed_post, %s)
-				allowed_put = array_remove(allowed_put, %s)
-				allowed_delete = array_remove(allowed_delete, %s)
-			WHERE %s = ANY(allowed_get)
-				or %s = ANY(allowed_post)
-				or %s = ANY(allowed_put)
-				or %s = ANY(allowed_delete);
+			SET allowed_get = array_remove(allowed_get, %s::smallint),
+				allowed_post = array_remove(allowed_post, %s::smallint),
+				allowed_put = array_remove(allowed_put, %s::smallint),
+				allowed_delete = array_remove(allowed_delete, %s::smallint)
+			WHERE %s::smallint = ANY(allowed_get)
+				or %s::smallint = ANY(allowed_post)
+				or %s::smallint = ANY(allowed_put)
+				or %s::smallint = ANY(allowed_delete);
 		"""
 		params = params + params
 		resultCursor = dbObj.query(qry, params)
 		# end transaction
 
-		self.__addScopeToCache(self.__getScopeDetails(self, ids), True)
+		if ids:
+			self.__addScopeToCache(self.__getScopeDetails(ids), True)
 
 		return resultCursor.getStatusMessage()

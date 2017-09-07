@@ -41,6 +41,11 @@ CREATE TABLE oauth2.scope (
  is_editable boolean DEFAULT true,
  last_edit_time TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT now()
 );
+CREATE INDEX oauth2_scope_allowed_get ON oauth2.scope (allowed_get);
+CREATE INDEX oauth2_scope_allowed_post ON oauth2.scope (allowed_post);
+CREATE INDEX oauth2_scope_allowed_put ON oauth2.scope (allowed_put);
+CREATE INDEX oauth2_scope_allowed_delete ON oauth2.scope (allowed_delete);
+CREATE INDEX oauth2_scope_is_editable ON oauth2.scope (is_editable);
 insert into oauth2.scope (id, scope_name, scope_info, allowed_get, allowed_post, allowed_put, allowed_delete, is_editable) values (1, 'superuser', '123456', '{1,2,3}', '{1,2,3}', '{1,2,3}', '{1,2,3}', false);
 ALTER SEQUENCE oauth2.scope_id_seq RESTART WITH 2;
 CREATE TABLE oauth2.admin_user (
@@ -51,6 +56,9 @@ CREATE TABLE oauth2.admin_user (
  is_editable boolean DEFAULT true,
  last_edit_time TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT now()
 );
+CREATE INDEX oauth2_admin_user_password ON oauth2.admin_user (password);
+CREATE INDEX oauth2_admin_scope ON oauth2.admin_user (scope);
+CREATE INDEX oauth2_admin_user_is_editable ON oauth2.admin_user (is_editable);
 insert into oauth2.admin_user (username, password, scope, is_editable) values ('branelm', '123456', '{1}', false);
 ALTER SEQUENCE oauth2.admin_user_id_seq RESTART WITH 2;
 CREATE TABLE oauth2.client (
@@ -62,9 +70,13 @@ CREATE TABLE oauth2.client (
  is_editable boolean DEFAULT true,
  last_edit_time TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT now()
 );
+CREATE INDEX oauth2_client_password ON oauth2.client (client_secret);
+CREATE INDEX oauth2_client_scope ON oauth2.client (scope);
+CREATE INDEX oauth2_client_usertype ON oauth2.client (usertype);
+CREATE INDEX oauth2_client_is_editable ON oauth2.client (is_editable);
 insert into oauth2.client (client_id, client_secret, scope, user_type, is_editable) values ('admin_app', 'shdfvbkflakjfjhslfhalisfjhjsghflajzshdnva', '{1,2,3,4,5}','admin', false);
 insert into oauth2.client (client_id, client_secret, scope, user_type, is_editable) values ('web_app', 'yturerfa43t565u43qgf35w4e4q3th54sf', '{1,2,3,4,5}','admin', false);
-ALTER SEQUENCE oauth2.client_user_id_seq RESTART WITH 2;
+ALTER SEQUENCE oauth2.client_user_id_seq RESTART WITH 3;
 
 
 CREATE SCHEMA speciality;
