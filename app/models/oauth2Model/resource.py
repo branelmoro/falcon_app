@@ -16,7 +16,7 @@ class resource(baseModel):
 
 	def updateResource(self, data):
 		qry = """UPDATE oauth2.resource set resource_path = %s, resource_info = %s where id = %s and is_editable = %s;"""
-		resultCursor = self.pgMaster().query(qry, [data["resource_path"], data["resource_path"], data["resource_id"], True])
+		resultCursor = self.pgMaster().query(qry, [data["resource_path"], data["resource_info"], data["resource_id"], True])
 		return resultCursor.getStatusMessage()
 
 	def deleteResource(self, data):
