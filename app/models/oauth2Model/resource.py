@@ -9,7 +9,6 @@ class resource(baseModel):
 	"""entire code goes here"""
 
 	def createNewResource(self, data):
-		print(data)
 		qry = """INSERT INTO oauth2.resource (resource_path, resource_info) values (%s,%s);"""
 		resultCursor = self.pgMaster().query(qry, [data["resource_path"], data["resource_info"]])
 		return resultCursor.getStatusMessage()
