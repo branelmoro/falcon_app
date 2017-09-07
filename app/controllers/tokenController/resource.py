@@ -26,10 +26,8 @@ class resource(baseController):
 		# this is valid request
 		appResponce = {}
 
-		data = {
-			"resource_path": req.body["resource_path"],
-			"resource_info" : req.body["resource_info"]
-		}
+		data = self._getFilteredRequestData(req, ["resource_path", "resource_info"])
+
 		oauth2_resource = oauth2ResourceModel()
 		appResponce["result"] = oauth2_resource.createNewResource(data)
 		resp.status = falcon.HTTP_200  # This is the default status
@@ -54,18 +52,41 @@ class resource(baseController):
 		if appResponce:
 			raise appException.clientException_400(appResponce)
 
-	def __commonValidation(self, req, scope_id_check = False):
+	def __commonValidation(self, req):
+
+		is_put = (req.method == "PUT")
+
 		appResponce = {}
 
-		if scope_id_check and ("resource_id" not in req.body or (not isinstance(req.body["resource_id"], int))):
+		if is_put and ("resource_id" not in req.body or (not isinstance(req.body["resource_id"], int))):
 			appResponce["resource_id"] = "Please provide resource id"
-		if("resource_path" not in req.body or req.body["resource_path"] == "" or (not isinstance(req.body["resource_path"], str)) or req.body["resource_path"].find("/") != 0):
+
+		if is_put and ("resource_path" not in req.body and "resource_info" not in req.body):
+			appResponce["resource_id"] = "Please provide information to update"
+
+		if(
+			is_put
+			and "resource_path" in req.body
+			and (req.body["resource_path"] == "" or (not isinstance(req.body["resource_path"], str)) or req.body["resource_path"].find("/") != 0)
+		) or (
+			not is_put
+			and ("resource_path" not in req.body or req.body["resource_path"] == "" or (not isinstance(req.body["resource_path"], str)) or req.body["resource_path"].find("/") != 0)
+		):
 			appResponce["resource_path"] = "Please provide valid resource path"
-		if("resource_info" not in req.body or req.body["resource_info"] == ""):
+
+		if(
+			is_put
+			and "resource_info" in req.body
+			and req.body["resource_info"] == ""
+		) or (
+			not is_put
+			and ("resource_info" not in req.body or req.body["resource_info"] == "")
+		):
 			appResponce["resource_info"] = "Please provide some resource information"
 
 		if appResponce:
 			raise appException.clientException_400(appResponce)
+
 
 	def put(self, req, resp):
 		"""Handles POST requests"""
@@ -74,11 +95,8 @@ class resource(baseController):
 		# this is valid request
 		appResponce = {}
 
-		data = {
-			"resource_path": req.body["resource_path"],
-			"resource_info" : req.body["resource_info"],
-			"resource_id" : req.body["resource_id"]
-		}
+		data = self._getFilteredRequestData(req, ["resource_path", "resource_info", "resource_id"])
+
 		oauth2_resource = oauth2ResourceModel()
 		appResponce["result"] = oauth2_resource.updateResource(data)
 		resp.status = falcon.HTTP_200  # This is the default status
@@ -89,7 +107,7 @@ class resource(baseController):
 		# token validation
 		self.validateHTTPRequest(req)
 
-		self.__commonValidation(req, true)
+		self.__commonValidation(req)
 
 		# data validation
 		appResponce = {}
@@ -97,11 +115,11 @@ class resource(baseController):
 		# database level validation goes here
 		oauth2_resource = oauth2ResourceModel()
 
-		if not oauth2_resource.ifResourceIdExists(appResponce["resource_id"]):
+		if not oauth2_resource.ifResourceIdExists(req.body["resource_id"]):
 			appResponce["resource_id"] = "Please provide valid resource id"
-		elif not oauth2_resource.ifResourceEditable(appResponce["resource_id"]):
+		elif not oauth2_resource.ifResourceEditable(req.body["resource_id"]):
 			appResponce["resource_id"] = "Resource is not editable"
-		elif oauth2_resource.ifResourcePathAlreadyExists(req.body["resource_path"], appResponce["resource_id"]):
+		elif "resource_path" in req.body and oauth2_resource.ifResourcePathAlreadyExists(req.body["resource_path"], req.body["resource_id"]):
 			appResponce["resource_path"] = "Resource path already exists in another record"
 
 		if appResponce:
@@ -115,9 +133,8 @@ class resource(baseController):
 		# this is valid request
 		appResponce = {}
 
-		data = {
-			"resource_id" : req.body["resource_id"]
-		}
+		data = self._getFilteredRequestData(req, ["resource_id"])
+
 		oauth2_resource = oauth2ResourceModel()
 		appResponce["result"] = oauth2_resource.deleteResource(data)
 		resp.status = falcon.HTTP_200  # This is the default status
