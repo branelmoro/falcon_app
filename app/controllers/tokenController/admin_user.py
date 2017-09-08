@@ -14,11 +14,11 @@ class adminUser(baseController):
 
 	def __init__(self):
 		# resource_id = 3
-		super().__init__(self,3)
-		# self.__path = "/access-scope/"
+		super().__init__(3)
+		# self._path = "/access-scope/"
 
 	def getPath(self):
-		return self.__path
+		return self._path
 
 	def post(self, req, resp):
 		"""Handles POST requests"""
