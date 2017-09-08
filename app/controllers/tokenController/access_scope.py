@@ -150,7 +150,7 @@ class accessScope(baseController):
 			# for create scope case
 			if not is_put:
 				lstAllowedScopes = ["allowed_get", "allowed_post", "allowed_put", "allowed_delete"]
-				receivedScopes = [i for i in lstAllowedScopes if i in req.body and len(req.body[i]) > 0]
+				receivedScopes = [i for i in lstAllowedScopes if i in req.body and not i in appResponce and len(req.body[i]) > 0]
 				if not receivedScopes:
 					appResponce["allowed_resource"] = "Please provide atleast one resource access to scope"
 
