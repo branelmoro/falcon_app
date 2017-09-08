@@ -24,7 +24,8 @@ class resource(baseModel):
 			listSet.append("resource_info = %s")
 			param.append(data["resource_info"])
 		qry = """UPDATE oauth2.resource set """ + (','.join(listSet)) + """ where id = %s and is_editable = %s;"""
-		param.extend([data["resource_id"],True])
+		listSet.append("last_edit_time = %s")
+		param.extend([datetime.now(), data["resource_id"], True])
 		resultCursor = self.pgMaster().query(qry, param)
 		return resultCursor.getStatusMessage()
 

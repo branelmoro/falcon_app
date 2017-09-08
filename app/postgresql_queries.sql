@@ -11,7 +11,7 @@ CREATE TYPE search_location_type AS ENUM ('world','country','region','city','are
 CREATE TYPE account_status as ENUM('enabled', 'disabled');
 CREATE TYPE primary_contact_type AS ENUM ('mob', 'email');
 CREATE TYPE gend AS ENUM ('male','female','unknown');
-CREATE TYPE profile_bucket AS ENUM ('a','b','c',......);--approximately 100 buckets
+CREATE TYPE profile_bucket AS ENUM ('a','b','c');--approximately 100 buckets
 CREATE TYPE bloodGroup AS ENUM ('A+','A-','B+','B-','AB+','AB-','O+','O-');
 CREATE TYPE usertype AS ENUM ('guest','registered_user','admin');
 

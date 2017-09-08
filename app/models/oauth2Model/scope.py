@@ -129,25 +129,18 @@ class scope(baseModel):
 
 	def updateScope(self, scope_detail):
 
-		params = [scope_detail["scope_name"], scope_detail["scope_info"]]
+		fieldList = ["scope_name", "scope_info", "allowed_get", "allowed_post", "allowed_put", "allowed_delete"]
 
-		allowedList = ["allowed_get", "allowed_post", "allowed_put", "allowed_delete"]
-		strAllowed = ""
-		for allowed_method in allowedList:
-			if allowed_method in scope_detail:
-				strAllowed = strAllowed + """
-				"""+allowed_method+""" = %s::int[],"""
-				params.append(scope_detail[allowed_method])
+		param = []
+		listSet = []
+		for i in fieldList
+			if i in scope_detail:
+				listSet.append(i + " = %s")
+				param.append(scope_detail[i])
 
+		qry = """UPDATE oauth2.scope set """ + (','.join(listSet)) + """ where id = %s and is_editable = %s;"""
+		listSet.append("last_edit_time = %s")
 		params.extend([datetime.now(), scope_detail["id"], True])
-
-		qry = """
-			UPDATE oauth2.scope
-			SET scope_name = %s,
-				scope_info = %s,"""+strAllowed+"""
-				last_edit_time = %s
-			WHERE id = %s and is_editable = %s;
-		"""
 		dbObj = self.pgMaster()
 		resultCursor = dbObj.query(qry, params)
 
@@ -193,6 +186,19 @@ class scope(baseModel):
 			);
 		"""
 		resultCursor = self.pgSlave().query(qry,[scope_id, True])
+		result = resultCursor.getOneRecord()
+		return result[0]
+
+	def ifAtleastOneResourceAccessIsGiven(self, scope_id, allowed_resource):
+		allowed_resource = ["cardinality("+i+") > 0" for i in allowed_resource]
+		qry = """
+			SELECT exists(
+				SELECT id
+				FROM oauth2.scope
+				WHERE id = %s and (""" + (' or '.join(allowed_resource)) + """);
+			);
+		"""
+		resultCursor = self.pgSlave().query(qry,[scope_id])
 		result = resultCursor.getOneRecord()
 		return result[0]
 

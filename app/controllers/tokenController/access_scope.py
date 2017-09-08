@@ -68,17 +68,26 @@ class accessScope(baseController):
 
 			resource_model = oauth2ResourceModel()
 			if "allowed_get" in req.body and len(req.body["allowed_get"]) > 0 and not resource_model.ifValidResourcesExists(req.body["allowed_get"]):
-				appResponce["allowed_get"] = "Invalid resources provided"
+				appResponce["allowed_get"] = "Invalid get resources provided"
 			if "allowed_post" in req.body and len(req.body["allowed_post"]) > 0 and not resource_model.ifValidResourcesExists(req.body["allowed_post"]):
-				appResponce["allowed_post"] = "Invalid resources provided"
+				appResponce["allowed_post"] = "Invalid port resources provided"
 			if "allowed_put" in req.body and len(req.body["allowed_put"]) > 0 and not resource_model.ifValidResourcesExists(req.body["allowed_put"]):
-				appResponce["allowed_put"] = "Invalid resources provided"
+				appResponce["allowed_put"] = "Invalid put resources provided"
 			if "allowed_delete" in req.body and len(req.body["allowed_delete"]) > 0 and not resource_model.ifValidResourcesExists(req.body["allowed_delete"]):
-				appResponce["allowed_delete"] = "Invalid resources provided"
+				appResponce["allowed_delete"] = "Invalid delete resources provided"
 
 			if is_put:
 				# check if atleast once resource is given
-				pass
+				lstAllowedScopes = ["allowed_get", "allowed_post", "allowed_put", "allowed_delete"]
+				receivedScopes = [i for i in lstAllowedScopes if i in req.body and len(req.body[i]) > 0]
+				if not receivedScopes:
+					checkDbScopes = [i for i in lstAllowedScopes if i not in req.body]
+					if checkDbScopes:
+						# run query to check if atleat one resource access exists
+						if not scope_model.ifAtleastOneResourceAccessIsGiven(appResponce["scope_id"], checkDbScopes):
+							appResponce["allowed_resource"] = "Please provide atleast one resource access to scope"
+					else:
+						appResponce["allowed_resource"] = "Please provide atleast one resource access to scope"
 
 		if appResponce:
 			raise appException.clientException_400(appResponce)
@@ -87,13 +96,13 @@ class accessScope(baseController):
 	def __checkAllowedActionList(self, req, appResponce, allowed_method, is_put):
 		if(allowed_method in req.body):
 			if(not isinstance(req.body[allowed_method], list)):
-				appResponce[allowed_method] = "Please provide list of "+allowed_method+" scopes"
+				appResponce[allowed_method] = "Please provide list of "+allowed_method+" resources"
 			elif not is_put and len(req.body[allowed_method]) == 0:
-				appResponce[allowed_method] = "Please provide list of "+allowed_method+" scopes"
+				appResponce[allowed_method] = "Please provide list of "+allowed_method+" resources"
 			else:
 				nonInt = [i for i in appResponce[allowed_method] if not isinstance(req.body[allowed_method], int)]
 				if nonInt:
-					appResponce[allowed_method] = "Please provide list of valid "+allowed_method+" scopes"
+					appResponce[allowed_method] = "Please provide list of valid "+allowed_method+" resources"
 		else:
 			if not is_put:
 				req.body[allowed_method] = []
@@ -132,7 +141,7 @@ class accessScope(baseController):
 
 
 		if(not is_put and "allowed_get" not in req.body and "allowed_post" not in req.body and "allowed_put" not in req.body and "allowed_delete" not in req.body):
-			appResponce["scope_info"] = "Please provide list of scopes"
+			appResponce["allowed_resource"] = "Please provide atleast one resource access to scope"
 		else:
 			appResponce = self.__checkAllowedActionList(req, appResponce, "allowed_get", is_put)
 			appResponce = self.__checkAllowedActionList(req, appResponce, "allowed_post", is_put)
