@@ -3,7 +3,7 @@ WITH ENCODING = 'UTF8'
 TEMPLATE = template0
 CONNECTION LIMIT = -1;
 
-CREATE EXTENSION postgis;
+-- CREATE EXTENSION postgis;
 
 CREATE TYPE lang AS ENUM ('english','hindi','marathi','gujarati','malayalam','bengali','oriya','tamil','telugu','panjabi','urdu','chinese_simplified','chinese_traditional','arabic','russian','portuguese','japanese','german','korean','french','turkish','italian','polish','ukrainian','persian','romanian','serbian','croatian','thai','dutch','amharic','catalan','danish','greek','spanish','estonian','finnish','armenian','khmer','kannada','malay','nepali','norwegian','slovak','albanian','swedish','tagalog');
 CREATE TYPE search_skill_status AS ENUM ('invalid', 'valid', 'pending');
@@ -25,10 +25,10 @@ CREATE TABLE oauth2.resource (
  last_edit_time TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT now(),
  UNIQUE (resource_path)
 );
-insert into oauth2.resource (id, resource_path, resource_info, is_editable) values (1, '/resource/', 'manage resource', false);
-insert into oauth2.resource (id, resource_path, resource_info, is_editable) values (2, '/access-scope/', 'manage access-scope', false);
-insert into oauth2.resource (id, resource_path, resource_info, is_editable) values (3, '/admin-user/', 'manage admin-user', false);
-insert into oauth2.resource (id, resource_path, resource_info, is_editable) values (4, '/client/', 'manage clients', false);
+INSERT INTO oauth2.resource (id, resource_path, resource_info, is_editable) VALUES (1, '/resource/', 'manage resource', false);
+INSERT INTO oauth2.resource (id, resource_path, resource_info, is_editable) VALUES (2, '/access-scope/', 'manage access-scope', false);
+INSERT INTO oauth2.resource (id, resource_path, resource_info, is_editable) VALUES (3, '/admin-user/', 'manage admin-user', false);
+INSERT INTO oauth2.resource (id, resource_path, resource_info, is_editable) VALUES (4, '/client/', 'manage clients', false);
 ALTER SEQUENCE oauth2.resource_id_seq RESTART WITH 5;
 CREATE TABLE oauth2.scope (
  id serial PRIMARY KEY,
@@ -46,7 +46,7 @@ CREATE INDEX oauth2_scope_allowed_post ON oauth2.scope (allowed_post);
 CREATE INDEX oauth2_scope_allowed_put ON oauth2.scope (allowed_put);
 CREATE INDEX oauth2_scope_allowed_delete ON oauth2.scope (allowed_delete);
 CREATE INDEX oauth2_scope_is_editable ON oauth2.scope (is_editable);
-insert into oauth2.scope (id, scope_name, scope_info, allowed_get, allowed_post, allowed_put, allowed_delete, is_editable) values (1, 'superuser', '123456', '{1,2,3}', '{1,2,3}', '{1,2,3}', '{1,2,3}', false);
+INSERT INTO oauth2.scope (id, scope_name, scope_info, allowed_get, allowed_post, allowed_put, allowed_delete, is_editable) VALUES (1, 'superuser', '123456', '{1,2,3}', '{1,2,3}', '{1,2,3}', '{1,2,3}', false);
 ALTER SEQUENCE oauth2.scope_id_seq RESTART WITH 2;
 CREATE TABLE oauth2.admin_user (
  id serial PRIMARY KEY,
@@ -59,7 +59,7 @@ CREATE TABLE oauth2.admin_user (
 CREATE INDEX oauth2_admin_user_password ON oauth2.admin_user (password);
 CREATE INDEX oauth2_admin_scope ON oauth2.admin_user (scope);
 CREATE INDEX oauth2_admin_user_is_editable ON oauth2.admin_user (is_editable);
-insert into oauth2.admin_user (username, password, scope, is_editable) values ('branelm', '123456', '{1}', false);
+INSERT INTO oauth2.admin_user (id, username, password, scope, is_editable) VALUES (1, 'branelm', '123456', '{1}', false);
 ALTER SEQUENCE oauth2.admin_user_id_seq RESTART WITH 2;
 CREATE TABLE oauth2.client (
  id serial PRIMARY KEY,
@@ -74,8 +74,8 @@ CREATE INDEX oauth2_client_password ON oauth2.client (client_secret);
 CREATE INDEX oauth2_client_scope ON oauth2.client (scope);
 CREATE INDEX oauth2_client_usertype ON oauth2.client (usertype);
 CREATE INDEX oauth2_client_is_editable ON oauth2.client (is_editable);
-insert into oauth2.client (client_id, client_secret, scope, user_type, is_editable) values ('admin_app', 'shdfvbkflakjfjhslfhalisfjhjsghflajzshdnva', '{1,2,3,4,5}','admin', false);
-insert into oauth2.client (client_id, client_secret, scope, user_type, is_editable) values ('web_app', 'yturerfa43t565u43qgf35w4e4q3th54sf', '{1,2,3,4,5}','admin', false);
+INSERT INTO oauth2.client (id, client_id, client_secret, scope, user_type, is_editable) VALUES (1, 'admin_app', 'shdfvbkflakjfjhslfhalisfjhjsghflajzshdnva', '{1,2,3,4,5}','admin', false);
+INSERT INTO oauth2.client (id, client_id, client_secret, scope, user_type, is_editable) VALUES (2, 'web_app', 'yturerfa43t565u43qgf35w4e4q3th54sf', '{1,2,3,4,5}','admin', false);
 ALTER SEQUENCE oauth2.client_user_id_seq RESTART WITH 3;
 
 
