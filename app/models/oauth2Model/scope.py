@@ -133,7 +133,7 @@ class scope(baseModel):
 
 		param = []
 		listSet = []
-		for i in fieldList
+		for i in fieldList:
 			if i in scope_detail:
 				listSet.append(i + " = %s")
 				param.append(scope_detail[i])
