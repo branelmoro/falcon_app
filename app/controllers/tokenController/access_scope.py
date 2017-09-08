@@ -49,28 +49,34 @@ class accessScope(baseController):
 		self.__commonPostDBValidation(req)
 
 
-	def __commonPostDBValidation(self, req, scope_id_check = None):
+	def __commonPostDBValidation(self, req):
 
 		is_put = (req.method == "PUT")
+
+		if is_put:
+			scope_id = req.body["scope_id"]
+		else:
+			scope_id = None
+
 		# data validation
 		appResponce = {}
 
 		#db level check
 		scope_model = oauth2ScopeModel()
 
-		if is_put is not None and not scope_model.ifScopeIdExists(is_put):
+		if is_put and not scope_model.ifScopeIdExists(scope_id):
 			appResponce["scope_id"] = "Scope Id does not exists"
-		elif is_put is not None and not scope_model.ifScopeEditable(is_put):
+		elif is_put and not scope_model.ifScopeEditable(scope_id):
 			appResponce["scope_name"] = "Scope is not editable"
 		else:
-			if scope_model.ifScopeNameExists(req.body["scope_name"], is_put):
+			if scope_model.ifScopeNameExists(req.body["scope_name"], scope_id):
 				appResponce["scope_name"] = "Scope name already exists in database"
 
 			resource_model = oauth2ResourceModel()
 			if "allowed_get" in req.body and len(req.body["allowed_get"]) > 0 and not resource_model.ifValidResourcesExists(req.body["allowed_get"]):
 				appResponce["allowed_get"] = "Invalid get resources provided"
 			if "allowed_post" in req.body and len(req.body["allowed_post"]) > 0 and not resource_model.ifValidResourcesExists(req.body["allowed_post"]):
-				appResponce["allowed_post"] = "Invalid port resources provided"
+				appResponce["allowed_post"] = "Invalid post resources provided"
 			if "allowed_put" in req.body and len(req.body["allowed_put"]) > 0 and not resource_model.ifValidResourcesExists(req.body["allowed_put"]):
 				appResponce["allowed_put"] = "Invalid put resources provided"
 			if "allowed_delete" in req.body and len(req.body["allowed_delete"]) > 0 and not resource_model.ifValidResourcesExists(req.body["allowed_delete"]):
@@ -85,7 +91,7 @@ class accessScope(baseController):
 					checkDbScopes = [i for i in lstAllowedScopes if i not in req.body]
 					if checkDbScopes:
 						# run query to check if atleat one resource access exists
-						if not scope_model.ifAtleastOneResourceAccessIsGiven(appResponce["scope_id"], checkDbScopes):
+						if not scope_model.ifAtleastOneResourceAccessIsGiven(scope_id, checkDbScopes):
 							appResponce["allowed_resource"] = "Please provide atleast one resource access to scope"
 					else:
 						appResponce["allowed_resource"] = "Please provide atleast one resource access to scope"
@@ -99,7 +105,7 @@ class accessScope(baseController):
 			if(not isinstance(req.body[allowed_method], list)):
 				appResponce[allowed_method] = "Please provide list of "+allowed_method+" resources"
 			else:
-				nonInt = [i for i in appResponce[allowed_method] if not isinstance(req.body[allowed_method], int)]
+				nonInt = [i for i in req.body[allowed_method] if not isinstance(i, int)]
 				if nonInt:
 					appResponce[allowed_method] = "Please provide list of valid "+allowed_method+" resources"
 		else:
@@ -108,7 +114,7 @@ class accessScope(baseController):
 		return appResponce
 
 
-	def __commonPreDBValidation(self, req, scope_id_check = False):
+	def __commonPreDBValidation(self, req):
 
 		is_put = (req.method == "PUT")
 
@@ -150,7 +156,7 @@ class accessScope(baseController):
 			# for create scope case
 			if not is_put:
 				lstAllowedScopes = ["allowed_get", "allowed_post", "allowed_put", "allowed_delete"]
-				receivedScopes = [i for i in lstAllowedScopes if i in req.body and not i in appResponce and len(req.body[i]) > 0]
+				receivedScopes = [i for i in lstAllowedScopes if i in req.body and len(req.body[i]) > 0]
 				if not receivedScopes:
 					appResponce["allowed_resource"] = "Please provide atleast one resource access to scope"
 
@@ -182,9 +188,9 @@ class accessScope(baseController):
 		# token validation
 		self.validateHTTPRequest(req)
 
-		self.__commonPreDBValidation(req, True)
+		self.__commonPreDBValidation(req)
 
-		self.__commonPostDBValidation(req, req.body["scope_id"])
+		self.__commonPostDBValidation(req)
 
 
 	def delete(self, req, resp):

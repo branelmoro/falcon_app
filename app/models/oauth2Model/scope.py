@@ -33,7 +33,7 @@ class scope(baseModel):
 
 
 	def getScopeNamesFromIds(self, ids):
-		result = self.__getScopeDetails(self, ids)
+		result = self.__getScopeDetails(ids)
 
 		self.__addScopeToCache(result)
 
@@ -122,7 +122,7 @@ class scope(baseModel):
 
 		insertId = resultCursor.getLastInsertId();
 
-		self.__addScopeToCache(self.__getScopeDetails(self, [insertId]))
+		self.__addScopeToCache(self.__getScopeDetails([insertId]))
 
 		return resultCursor.getStatusMessage()
 
@@ -144,7 +144,7 @@ class scope(baseModel):
 		dbObj = self.pgMaster()
 		resultCursor = dbObj.query(qry, params)
 
-		self.__addScopeToCache(self.__getScopeDetails(self, [scope_detail["id"]]), True)
+		self.__addScopeToCache(self.__getScopeDetails([scope_detail["id"]]), True)
 		# end transaction
 		return resultCursor.getStatusMessage()
 
