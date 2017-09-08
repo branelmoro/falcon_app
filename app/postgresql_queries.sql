@@ -72,11 +72,11 @@ CREATE TABLE oauth2.client (
 );
 CREATE INDEX oauth2_client_password ON oauth2.client (client_secret);
 CREATE INDEX oauth2_client_scope ON oauth2.client (scope);
-CREATE INDEX oauth2_client_usertype ON oauth2.client (usertype);
+CREATE INDEX oauth2_client_usertype ON oauth2.client (user_type);
 CREATE INDEX oauth2_client_is_editable ON oauth2.client (is_editable);
 INSERT INTO oauth2.client (id, client_id, client_secret, scope, user_type, is_editable) VALUES (1, 'admin_app', 'shdfvbkflakjfjhslfhalisfjhjsghflajzshdnva', '{1,2,3,4,5}','admin', false);
 INSERT INTO oauth2.client (id, client_id, client_secret, scope, user_type, is_editable) VALUES (2, 'web_app', 'yturerfa43t565u43qgf35w4e4q3th54sf', '{1,2,3,4,5}','admin', false);
-ALTER SEQUENCE oauth2.client_user_id_seq RESTART WITH 3;
+ALTER SEQUENCE oauth2.client_id_seq RESTART WITH 3;
 
 
 CREATE SCHEMA speciality;
