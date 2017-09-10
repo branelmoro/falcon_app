@@ -123,6 +123,12 @@ class accessScope(baseController):
 		if is_put and ("scope_id" not in req.body or req.body["scope_id"] == "" or (not isinstance(req.body["scope_id"], int))):
 			appResponce["scope_id"] = "Please provide valid scope"
 
+		if is_put:
+			editableFields = ["scope_name", "scope_info", "allowed_get", "allowed_post", "allowed_put", "allowed_delete"]
+			fieldReceived = [i for i in editableFields if i in req.body]
+			if not fieldReceived:
+				appResponce["scope_id"] = "Please provide information to edit"
+
 		if(
 			is_put
 			and "scope_name" in req.body
