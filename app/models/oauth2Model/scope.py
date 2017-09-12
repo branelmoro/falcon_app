@@ -129,14 +129,21 @@ class scope(baseModel):
 
 	def updateScope(self, scope_detail):
 
-		fieldList = ["scope_name", "scope_info", "allowed_get", "allowed_post", "allowed_put", "allowed_delete"]
-
-		param = []
+		params = []
 		listSet = []
+
+		fieldList = ["scope_name", "scope_info"]
 		for i in fieldList:
 			if i in scope_detail:
 				listSet.append(i + " = %s")
-				param.append(scope_detail[i])
+				params.append(scope_detail[i])
+
+
+		fieldList = ["allowed_get", "allowed_post", "allowed_put", "allowed_delete"]
+		for i in fieldList:
+			if i in scope_detail:
+				listSet.append(i + " = %s::int[]")
+				params.append(scope_detail[i])
 
 		qry = """UPDATE oauth2.scope set """ + (','.join(listSet)) + """ where id = %s and is_editable = %s;"""
 		listSet.append("last_edit_time = %s")
