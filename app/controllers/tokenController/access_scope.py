@@ -69,7 +69,7 @@ class accessScope(baseController):
 		elif is_put and not scope_model.ifScopeEditable(scope_id):
 			appResponce["scope_name"] = "Scope is not editable"
 		else:
-			if scope_model.ifScopeNameExists(req.body["scope_name"], scope_id):
+			if "scope_name" in req.body and scope_model.ifScopeNameExists(req.body["scope_name"], scope_id):
 				appResponce["scope_name"] = "Scope name already exists in database"
 
 			resource_model = oauth2ResourceModel()
@@ -86,8 +86,9 @@ class accessScope(baseController):
 			if is_put:
 				# check if atleast once resource is given
 				lstAllowedScopes = ["allowed_get", "allowed_post", "allowed_put", "allowed_delete"]
-				receivedScopes = [i for i in lstAllowedScopes if i in req.body and len(req.body[i]) > 0]
-				if not receivedScopes:
+				receivedScopes = [i for i in lstAllowedScopes if i in req.body]
+				receivedNonEmptyScopes = [i for i in receivedScopes if len(req.body[i]) > 0]
+				if receivedScopes and not receivedNonEmptyScopes:
 					checkDbScopes = [i for i in lstAllowedScopes if i not in req.body]
 					if checkDbScopes:
 						# run query to check if atleat one resource access exists

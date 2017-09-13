@@ -29,6 +29,8 @@ class scope(baseModel):
 			WHERE id in ("""+values+""");
 		"""
 		resultCursor = self.pgSlave().query(qry,ids)
+
+		# return [list(i) for i in resultCursor.getAllRecords()]
 		return resultCursor.getAllRecords()
 
 
@@ -55,16 +57,17 @@ class scope(baseModel):
 
 
 	def __addScopeToCache(self, result, blnReplace = False):
-		for i in result:
-			scope_id = result[i][1]
+		for scope_detail in result:
 
-			self.__storeInCache(scope_id + "__GET", result[i][2], blnReplace)
+			scope_id = str(scope_detail[1])
 
-			self.__storeInCache(scope_id + "__POST", result[i][3], blnReplace)
+			self.__storeInCache(scope_id + "__GET", scope_detail[2], blnReplace)
 
-			self.__storeInCache(scope_id + "__PUT", result[i][4], blnReplace)
+			self.__storeInCache(scope_id + "__POST", scope_detail[3], blnReplace)
 
-			self.__storeInCache(scope_id + "__DELETE", result[i][5], blnReplace)
+			self.__storeInCache(scope_id + "__PUT", scope_detail[4], blnReplace)
+
+			self.__storeInCache(scope_id + "__DELETE", scope_detail[5], blnReplace)
 
 
 	def __deleteScopeFromCache(self,scope_id):
@@ -151,7 +154,11 @@ class scope(baseModel):
 		dbObj = self.pgMaster()
 		resultCursor = dbObj.query(qry, params)
 
-		self.__addScopeToCache(self.__getScopeDetails([scope_detail["id"]]), True)
+		sd = self.__getScopeDetails([scope_detail["id"]])
+
+		print(sd)
+
+		self.__addScopeToCache(sd, True)
 		# end transaction
 		return resultCursor.getStatusMessage()
 
