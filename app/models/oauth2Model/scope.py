@@ -142,11 +142,11 @@ class scope(baseModel):
 		fieldList = ["allowed_get", "allowed_post", "allowed_put", "allowed_delete"]
 		for i in fieldList:
 			if i in scope_detail:
-				listSet.append(i + " = %s::int[]")
+				listSet.append(i + " = %s::smallint[]")
 				params.append(scope_detail[i])
 
-		qry = """UPDATE oauth2.scope set """ + (','.join(listSet)) + """ where id = %s and is_editable = %s;"""
 		listSet.append("last_edit_time = %s")
+		qry = """UPDATE oauth2.scope set """ + (','.join(listSet)) + """ where id = %s and is_editable = %s;"""
 		params.extend([datetime.now(), scope_detail["id"], True])
 		dbObj = self.pgMaster()
 		resultCursor = dbObj.query(qry, params)
