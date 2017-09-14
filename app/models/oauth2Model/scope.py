@@ -71,6 +71,7 @@ class scope(baseModel):
 
 
 	def __deleteScopeFromCache(self,scope_id):
+		scope_id = str(scope_id)
 		self.__removeFromCache(scope_id + "__GET")
 		self.__removeFromCache(scope_id + "__POST")
 		self.__removeFromCache(scope_id + "__PUT")

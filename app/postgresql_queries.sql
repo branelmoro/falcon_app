@@ -52,7 +52,7 @@ CREATE TABLE oauth2.admin_user (
  id serial PRIMARY KEY,
  username varchar(80) NOT NULL UNIQUE,
  password varchar(80) NOT NULL,
- scope int[],
+ scope smallint[],
  is_editable boolean DEFAULT true,
  last_edit_time TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT now()
 );
@@ -65,7 +65,7 @@ CREATE TABLE oauth2.client (
  id serial PRIMARY KEY,
  client_id varchar(80) NOT NULL UNIQUE,
  client_secret varchar(80) NOT NULL,
- scope int[],
+ scope smallint[],
  user_type usertype,
  is_editable boolean DEFAULT true,
  last_edit_time TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT now()

@@ -107,8 +107,8 @@ class adminUser(baseModel):
 
 		qry = """
 			UPDATE oauth2.admin_user
-			SET scope = array_remove(scope, %s)
-			WHERE %s = ANY(scope);
+			SET scope = array_remove(scope, %s::smallint)
+			WHERE %s::smallint = ANY(scope);
 		"""
 		resultCursor = dbObj.query(qry, [scope_id, scope_id])
 		# end transaction
