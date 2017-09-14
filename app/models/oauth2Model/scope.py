@@ -154,11 +154,7 @@ class scope(baseModel):
 		dbObj = self.pgMaster()
 		resultCursor = dbObj.query(qry, params)
 
-		sd = self.__getScopeDetails([scope_detail["id"]])
-
-		print(sd)
-
-		self.__addScopeToCache(sd, True)
+		self.__addScopeToCache(self.__getScopeDetails([scope_detail["id"]]), True)
 		# end transaction
 		return resultCursor.getStatusMessage()
 
