@@ -200,15 +200,22 @@ class scope(baseModel):
 		return result[0]
 
 	def ifAtleastOneResourceAccessIsGiven(self, scope_id, allowed_resource):
-		allowed_resource = ["cardinality("+i+") > 0" for i in allowed_resource]
+		params = [scope_id]
+
+		# allowed_resource = ["cardinality("+i+") > 0" for i in allowed_resource]
+
+		allowed_resource = [i+" != %s::smallint[]" for i in allowed_resource]
+		params.extend([[] for i in allowed_resource])
+
 		qry = """
 			SELECT exists(
 				SELECT id
 				FROM oauth2.scope
-				WHERE id = %s and (""" + (' or '.join(allowed_resource)) + """);
+				WHERE id = %s and (""" + (' or '.join(allowed_resource)) + """)
 			);
 		"""
-		resultCursor = self.pgSlave().query(qry,[scope_id])
+
+		resultCursor = self.pgSlave().query(qry,params)
 		result = resultCursor.getOneRecord()
 		return result[0]
 
