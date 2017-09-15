@@ -170,7 +170,7 @@ class scope(baseModel):
 			admin_user_model = oauth2AdminUserModel()
 			admin_user_model.deleteScopeFromAdminUser(scope_id, dbTansaction)
 			client_model = oauth2ClientModel()
-			client_model.deleteScopeFromAdminUser(scope_id, dbTansaction)
+			client_model.deleteScopeFromClient(scope_id, dbTansaction)
 
 		self.__deleteScopeFromCache(scope_id)
 		dbTansaction.commit()

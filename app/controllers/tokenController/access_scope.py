@@ -215,7 +215,7 @@ class accessScope(baseController):
 		resp.body = json.encode(appResponce)
 
 
-	def __validateHttpDelete(req):
+	def __validateHttpDelete(self, req):
 		# token validation
 		self.validateHTTPRequest(req)
 
