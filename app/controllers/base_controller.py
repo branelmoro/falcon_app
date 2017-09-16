@@ -208,3 +208,12 @@ class baseController(object):
 			if field in req.body:
 				data[field] = req.body[field]
 		return data
+
+	def _getErrorDetail(self, error_id, req):
+		return {
+			"error_id":1,
+			"message":{
+				"english":"this is error message"
+			}
+		}
+		raise appException.clientException_405({"message" : "delete method not allowed"})		}

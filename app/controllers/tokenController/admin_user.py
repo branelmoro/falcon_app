@@ -31,11 +31,7 @@ class adminUser(baseController):
 
 		admin_user_model = oauth2AdminUserModel()
 
-		admin_user_detail = {
-			"username" : req.body["username"],
-			"password" : req.body["password"],
-			"scope" : req.body["scope"]
-		}
+		admin_user_detail = self._getFilteredRequestData(req, ["username", "password", "scope"])
 
 		appResponce["result"] = admin_user_model.createAdminUser(admin_user_detail)
 
@@ -53,48 +49,86 @@ class adminUser(baseController):
 		self.__commonPostDBValidation(req)
 
 
-	def __commonPostDBValidation(self, req, admin_user_id_check = None):
+	def __commonPostDBValidation(self, req):
+
+		is_put = (req.method == "PUT")
+
+		if is_put:
+			admin_user_id = req.body["admin_user_id"]
+		else:
+			admin_user_id = None
+
 		# data validation
 		appResponce = {}
 
 		#db level check
 		admin_user_model = oauth2AdminUserModel()
 
-		if admin_user_id_check is not None and not admin_user_model.ifAdminUserIdExists(admin_user_id_check):
+		if is_put and not admin_user_model.ifAdminUserIdExists(admin_user_id):
 			appResponce["admin_user_id"] = "Admin User id does not exist"
-		elif admin_user_id_check is not None and not admin_user_model.ifAdminUserEditable(admin_user_id_check):
+		elif is_put and not admin_user_model.ifAdminUserEditable(admin_user_id):
 			appResponce["username"] = "Admin user is not editable"
 		else:
-			if admin_user_model.ifUserNameExists(req.body["username"], admin_user_id_check):
+			if "username" in req.body and admin_user_model.ifUserNameExists(req.body["username"], admin_user_id):
 				appResponce["username"] = "Username already exists in database"
 
 			scope_model = oauth2ScopeModel()
-			if len(req.body["scope"]) > 0 and not scope_model.ifValidScopesExists(req.body["scope"]):
+			if "scope" in req.body and len(req.body["scope"]) > 0 and not scope_model.ifValidScopesExists(req.body["scope"]):
 				appResponce["scope"] = "Invalid scopes provided"
 
 		if appResponce:
 			raise appException.clientException_400(appResponce)
 
 
-	def __commonPreDBValidation(self, req, admin_user_id_check = False):
+	def __commonPreDBValidation(self, req):
+
+		is_put = (req.method == "PUT")
 
 		appResponce = {}
 
-		if admin_user_id_check and ("admin_user_id" not in req.body or req.body["admin_user_id"] == "" or (not isinstance(req.body["admin_user_id"], int))):
+		if is_put and ("admin_user_id" not in req.body or req.body["admin_user_id"] == "" or (not isinstance(req.body["admin_user_id"], int))):
 			appResponce["admin_user_id"] = "Please provide valid admin id"
 
-		if("username" not in req.body or req.body["username"] == "" or (not isinstance(req.body["username"], str))):
+		if is_put:
+			editableFields = ["username", "password", "scope"]
+			fieldReceived = [i for i in editableFields if i in req.body]
+			if not fieldReceived:
+				appResponce["scope_id"] = "Please provide information to edit"
+
+		if(
+			is_put
+			and "username" in req.body
+			and (req.body["username"] == "" or (not isinstance(req.body["username"], str)))
+		) or (
+			not is_put
+			and ("username" not in req.body or req.body["username"] == "" or (not isinstance(req.body["username"], str)))
+		):
 			appResponce["username"] = "Please provide valid user name"
 
-		if("password" not in req.body or req.body["password"] == "" or (not isinstance(req.body["password"], str))):
+		if(
+			is_put
+			and "password" in req.body
+			and (req.body["password"] == "" or (not isinstance(req.body["password"], str)))
+		) or (
+			not is_put
+			and ("password" not in req.body or req.body["password"] == "" or (not isinstance(req.body["password"], str)))
+		):
 			appResponce["password"] = "Please provide valid password"
 
-		if("scope" not in req.body and not isinstance(req.body["scope"], list)):
+		if(
+			is_put
+			and "scope" in req.body
+			and not isinstance(req.body["scope"], list)
+		) or (
+			not is_put
+			and ("scope" not in req.body or not isinstance(req.body["scope"], list))
+		):
 			appResponce["scope"] = "Please provide list of scopes"
 		else:
-			nonInt = [i for i in appResponce["scope"] if not isinstance(req.body["scope"], int)]
-			if nonInt:
-				appResponce["scope"] = "Please provide list of valid scopes"
+			if "scope" in req.body:
+				nonInt = [i for i in appResponce["scope"] if not isinstance(req.body["scope"], int)]
+				if nonInt:
+					appResponce["scope"] = "Please provide list of valid scopes"
 
 		if appResponce:
 			raise appException.clientException_400(appResponce)
@@ -107,13 +141,7 @@ class adminUser(baseController):
 		# this is valid request
 		appResponce = {}
 
-		admin_user_detail = {
-			"username" : req.body["username"],
-			"password" : req.body["password"],
-			"id" : req.body["admin_user_id"]
-		}
-		if("scope" in req.body):
-			admin_user_detail["scope"] = req.body["scope"]
+		admin_user_detail = self._getFilteredRequestData(req, ["admin_user_id", "username", "password", "scope"])
 
 		admin_user_model = oauth2AdminUserModel()
 		appResponce["result"] = admin_user_model.updateAdminUser(admin_user_detail)
@@ -127,9 +155,9 @@ class adminUser(baseController):
 		# token validation
 		self.validateHTTPRequest(req)
 
-		self.__commonPreDBValidation(req, True)
+		self.__commonPreDBValidation(req)
 
-		self.__commonPostDBValidation(req, req.body["admin_user_id"])
+		self.__commonPostDBValidation(req)
 
 
 	def delete(self, req, resp):
@@ -147,7 +175,7 @@ class adminUser(baseController):
 		resp.body = json.encode(appResponce)
 
 
-	def __validateHttpDelete(req):
+	def __validateHttpDelete(self, req):
 		# token validation
 		self.validateHTTPRequest(req)
 

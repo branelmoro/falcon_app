@@ -77,16 +77,24 @@ class adminUser(baseModel):
 
 	def updateAdminUser(self, user_detail):
 
-		params = [user_detail["username"], user_detail["password"], user_detail["scope"], datetime.now(), user_detail["id"], True]
+		params = []
+		listSet = []
 
-		qry = """
-			UPDATE oauth2.admin_user
-			SET username = %s,
-				password = %s,
-				scope = %s::int[],
-				last_edit_time = %s
-			WHERE id = %s and is_editable = %s;
-		"""
+		fieldList = ["username", "password"]
+		for i in fieldList:
+			if i in user_detail:
+				listSet.append(i + " = %s")
+				params.append(user_detail[i])
+
+		if "scope" in user_detail:
+			listSet.append("scope = %s::smallint[]")
+			params.append(user_detail[i])
+
+		params.extend([datetime.now(), user_detail["admin_user_id"], True])
+
+		listSet.append("last_edit_time = %s")
+		qry = """UPDATE oauth2.admin_user set """ + (','.join(listSet)) + """ where id = %s and is_editable = %s;"""
+
 		dbObj = self.pgMaster()
 		resultCursor = dbObj.query(qry, params)
 		# end transaction

@@ -67,7 +67,7 @@ class accessScope(baseController):
 		if is_put and not scope_model.ifScopeIdExists(scope_id):
 			appResponce["scope_id"] = "Scope Id does not exists"
 		elif is_put and not scope_model.ifScopeEditable(scope_id):
-			appResponce["scope_name"] = "Scope is not editable"
+			appResponce["scope_id"] = "Scope is not editable"
 		else:
 			if "scope_name" in req.body and scope_model.ifScopeNameExists(req.body["scope_name"], scope_id):
 				appResponce["scope_name"] = "Scope name already exists in database"
