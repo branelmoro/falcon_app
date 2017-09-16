@@ -126,9 +126,12 @@ class adminUser(baseController):
 			appResponce["scope"] = "Please provide list of scopes"
 		else:
 			if "scope" in req.body:
-				nonInt = [i for i in appResponce["scope"] if not isinstance(req.body["scope"], int)]
-				if nonInt:
-					appResponce["scope"] = "Please provide list of valid scopes"
+				if req.body["scope"]:
+					nonInt = [i for i in req.body["scope"] if not isinstance(i, int)]
+					if nonInt:
+						appResponce["scope"] = "Please provide list of valid scopes"
+				else:
+					appResponce["scope"] = "Please provide at least one access scope"
 
 		if appResponce:
 			raise appException.clientException_400(appResponce)

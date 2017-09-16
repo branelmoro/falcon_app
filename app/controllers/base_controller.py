@@ -216,4 +216,3 @@ class baseController(object):
 				"english":"this is error message"
 			}
 		}
-		raise appException.clientException_405({"message" : "delete method not allowed"})		}
