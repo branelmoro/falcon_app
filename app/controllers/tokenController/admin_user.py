@@ -93,7 +93,7 @@ class adminUser(baseController):
 			editableFields = ["username", "password", "scope"]
 			fieldReceived = [i for i in editableFields if i in req.body]
 			if not fieldReceived:
-				appResponce["scope_id"] = "Please provide information to edit"
+				appResponce["admin_user_id"] = "Please provide information to edit"
 
 		if(
 			is_put
@@ -193,9 +193,9 @@ class adminUser(baseController):
 			#if skill synonym exists
 			admin_user_model = oauth2AdminUserModel()
 
-			if not admin_user_model.ifAdminUserIdExists(admin_user_id_check):
+			if not admin_user_model.ifAdminUserIdExists(req.body["admin_user_id"]):
 				appResponce["admin_user_id"] = "Admin User id does not exist"
-			elif not admin_user_model.ifAdminUserEditable(admin_user_id_check):
+			elif not admin_user_model.ifAdminUserEditable(req.body["admin_user_id"]):
 				appResponce["username"] = "Admin user is not editable"
 
 		if appResponce:

@@ -88,13 +88,15 @@ class adminUser(baseModel):
 
 		if "scope" in user_detail:
 			listSet.append("scope = %s::smallint[]")
-			params.append(user_detail[i])
-
-		params.extend([datetime.now(), user_detail["admin_user_id"], True])
+			params.append(user_detail["scope"])
 
 		listSet.append("last_edit_time = %s")
+		params.extend([datetime.now(), user_detail["admin_user_id"], True])
+		print(params)
+
 		qry = """UPDATE oauth2.admin_user set """ + (','.join(listSet)) + """ where id = %s and is_editable = %s;"""
 
+		print(qry)
 		dbObj = self.pgMaster()
 		resultCursor = dbObj.query(qry, params)
 		# end transaction
