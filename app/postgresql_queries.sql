@@ -78,6 +78,63 @@ INSERT INTO oauth2.client (id, client_id, client_secret, scope, user_type, is_ed
 INSERT INTO oauth2.client (id, client_id, client_secret, scope, user_type, is_editable) VALUES (2, 'web_app', 'yturerfa43t565u43qgf35w4e4q3th54sf', '{1,2,3,4,5}','admin', false);
 ALTER SEQUENCE oauth2.client_id_seq RESTART WITH 3;
 
+CREATE TABLE public.error_messages (
+ id serial PRIMARY KEY,
+ error_info text NOT NULL,
+ english varchar(80) DEFAULT NULL UNIQUE,
+ hindi varchar(80) DEFAULT NULL UNIQUE,
+ marathi varchar(80) DEFAULT NULL UNIQUE,
+ gujarati varchar(80) DEFAULT NULL UNIQUE,
+ malayalam varchar(80) DEFAULT NULL UNIQUE,
+ bengali varchar(80) DEFAULT NULL UNIQUE,
+ oriya varchar(80) DEFAULT NULL UNIQUE,
+ tamil varchar(80) DEFAULT NULL UNIQUE,
+ telugu varchar(80) DEFAULT NULL UNIQUE,
+ panjabi varchar(80) DEFAULT NULL UNIQUE,
+ urdu varchar(80) DEFAULT NULL UNIQUE,
+ chinese_simplified varchar(80) DEFAULT NULL UNIQUE,
+ chinese_traditional varchar(80) DEFAULT NULL UNIQUE,
+ arabic varchar(80) DEFAULT NULL UNIQUE,
+ russian varchar(80) DEFAULT NULL UNIQUE,
+ portuguese varchar(80) DEFAULT NULL UNIQUE,
+ japanese varchar(80) DEFAULT NULL UNIQUE,
+ german varchar(80) DEFAULT NULL UNIQUE,
+ korean varchar(80) DEFAULT NULL UNIQUE,
+ french varchar(80) DEFAULT NULL UNIQUE,
+ turkish varchar(80) DEFAULT NULL UNIQUE,
+ italian varchar(80) DEFAULT NULL UNIQUE,
+ polish varchar(80) DEFAULT NULL UNIQUE,
+ ukrainian varchar(80) DEFAULT NULL UNIQUE,
+ persian varchar(80) DEFAULT NULL UNIQUE,
+ romanian varchar(80) DEFAULT NULL UNIQUE,
+ serbian varchar(80) DEFAULT NULL UNIQUE,
+ croatian varchar(80) DEFAULT NULL UNIQUE,
+ thai varchar(80) DEFAULT NULL UNIQUE,
+ dutch varchar(80) DEFAULT NULL UNIQUE,
+ amharic varchar(80) DEFAULT NULL UNIQUE,
+ catalan varchar(80) DEFAULT NULL UNIQUE,
+ danish varchar(80) DEFAULT NULL UNIQUE,
+ greek varchar(80) DEFAULT NULL UNIQUE,
+ spanish varchar(80) DEFAULT NULL UNIQUE,
+ estonian varchar(80) DEFAULT NULL UNIQUE,
+ finnish varchar(80) DEFAULT NULL UNIQUE,
+ armenian varchar(80) DEFAULT NULL UNIQUE,
+ khmer varchar(80) DEFAULT NULL UNIQUE,
+ kannada varchar(80) DEFAULT NULL UNIQUE,
+ malay varchar(80) DEFAULT NULL UNIQUE,
+ nepali varchar(80) DEFAULT NULL UNIQUE,
+ norwegian varchar(80) DEFAULT NULL UNIQUE,
+ slovak varchar(80) DEFAULT NULL UNIQUE,
+ albanian varchar(80) DEFAULT NULL UNIQUE,
+ swedish varchar(80) DEFAULT NULL UNIQUE,
+ tagalog varchar(80) DEFAULT NULL UNIQUE,
+ last_edit_time TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT now()
+);
+
+
+
+
+
 
 CREATE SCHEMA speciality;
 
