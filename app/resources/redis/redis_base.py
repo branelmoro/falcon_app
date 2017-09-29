@@ -128,49 +128,54 @@ class redisCrud(object):
 	def __getReConnection(self,is_master=True):
 		return redisBase.reconnectDB(self.__dbname)
 
+
 	#override all StrictRedis methods
-	# key/value commands
+	# key/value commands	
 	def get(self, key):
 		try:
-			return self.__getDBConnection().get(key)
-		except Exception as e:
-			return self.__getReConnection().get(key)
+			data = self.__getDBConnection().get(key)
+		except:
+			data = self.__getReConnection().get(key)
+		if data:
+			return data.decode()
+		else:
+			return data
 
 	def set(self, key, value, expiry = None):
 		# print(value);
 		if expiry is None:
 			try:
 				return self.__getDBConnection().set(key, value)
-			except Exception as e:
+			except:
 				return self.__getReConnection().set(key, value)
 		else:
 			try:
 				return self.__getDBConnection().set(key, value, expiry)
-			except Exception as e:
+			except:
 				return self.__getReConnection().set(key, value, expiry)
 
 	def delete(self, key):
 		try:
 			return self.__getDBConnection().delete(key)
-		except Exception as e:
+		except:
 			return self.__getReConnection().delete(key)
 
 	def exists(self, key):
 		try:
 			return self.__getDBConnection().exists(key)
-		except Exception as e:
+		except:
 			return self.__getReConnection().exists(key)
 
 	def expire(self, key, expiry):
 		try:
 			return self.__getDBConnection().expire(key, expiry)
-		except Exception as e:
+		except:
 			return self.__getReConnection().expire(key, expiry)
 
 	def ttl(self, key):
 		try:
 			return self.__getDBConnection().ttl(key)
-		except Exception as e:
+		except:
 			return self.__getReConnection().ttl(key)
 
 
@@ -178,55 +183,69 @@ class redisCrud(object):
 	def sadd(self, key, value):
 		try:
 			return self.__getDBConnection().sadd(key, value)
-		except Exception as e:
+		except:
 			return self.__getReConnection().sadd(key, value)
 
 	def srem(self, key, value):
 		try:
 			return self.__getDBConnection().srem(key, value)
-		except Exception as e:
+		except:
 			return self.__getReConnection().srem(key, value)
 
 	def sismember(self, key, value):
 		try:
 			return self.__getDBConnection().sismember(key, value)
-		except Exception as e:
+		except:
 			return self.__getReConnection().sismember(key, value)
 
 	def smembers(self, key):
 		try:
 			return self.__getDBConnection().smembers(key)
-		except Exception as e:
+		except:
 			return self.__getReConnection().smembers(key)
 
 
 	# hash/object commands
-	def hset(self, key, value):
+	def hset(self, hashkey, key, value):
 		try:
-			return self.__getDBConnection().hset(key, value)
-		except Exception as e:
-			return self.__getReConnection().hset(key, value)
-
-	def hget(self, key, value):
+			return self.__getDBConnection().hset(hashkey, key, value)
+		except:
+			return self.__getReConnection().hset(hashkey, key, value)
+	
+	def hget(self, hashkey, key):
 		try:
-			return self.__getDBConnection().hget(key, value)
-		except Exception as e:
-			return self.__getReConnection().hget(key, value)
-
-	def hmset(self, key, value):
+			data = self.__getDBConnection().hget(hashkey, key)
+		except:
+			data = self.__getReConnection().hget(hashkey, key)
+		if data:
+			return data.decode()
+		else:
+			return data
+	
+	def hmset(self, hashkey, key_value):
 		try:
-			return self.__getDBConnection().hmset(key, value)
-		except Exception as e:
-			return self.__getReConnection().hmset(key, value)
-
+			return self.__getDBConnection().hmset(hashkey, key_value)
+		except:
+			return self.__getReConnection().hmset(hashkey, key_value)
+	
 	def hgetall(self, key):
 		try:
-			return self.__getDBConnection().hgetall(key)
-		except Exception as e:
-			return self.__getReConnection().hgetall(key)
-
-	def hdel(self, key, value):
+			data = self.__getDBConnection().hgetall(key)
+		except:
+			data = self.__getReConnection().hgetall(key)
+		if data:
+			return {k.decode():data[k].decode() for k in data}
+		else:
+			return data
+	
+	def hdel(self, hashkey, key):
 		try:
-			return self.__getDBConnection().hdel(key, value)
-		except Exception as e:
-			return self.__getReConnection().hdel(key, value)
+			return self.__getDBConnection().hdel(hashkey, key)
+		except:
+			return self.__getReConnection().hdel(hashkey, key)
+
+	def hexists(self, hashkey, key):
+		try:
+			return self.__getDBConnection().hexists(hashkey, key)
+		except:
+			return self.__getReConnection().hexists(hashkey, key)
