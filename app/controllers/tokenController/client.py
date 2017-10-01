@@ -14,8 +14,10 @@ class client(baseController):
 
 	def __init__(self):
 		# resource_id = 3
-		super().__init__(3)
+		super().__init__(4)
 		# self._path = "/access-scope/"
+
+		self.__allowed_user_types =  ["guest","registered_user","admin"]
 
 	def getPath(self):
 		return self._path
@@ -31,7 +33,7 @@ class client(baseController):
 
 		client_model = oauth2ClientModel()
 
-		client_detail = self._getFilteredRequestData(req, ["client_id", "client_secret", "scope"])
+		client_detail = self._getFilteredRequestData(req, ["app_id", "app_secret", "scope", "user_type"])
 
 		appResponce["result"] = client_model.createClient(client_detail)
 
@@ -69,8 +71,8 @@ class client(baseController):
 		elif is_put and not client_model.ifClientEditable(client_id):
 			appResponce["client_id"] = "Client is not editable"
 		else:
-			if "client_id" in req.body and client_model.ifClientIdExists(req.body["client_id"], client_id):
-				appResponce["client_id"] = "ClientId already exists in database"
+			if "app_id" in req.body and client_model.ifAppIdExists(req.body["app_id"], app_id):
+				appResponce["app_id"] = "ClientId already exists in database"
 
 			scope_model = oauth2ScopeModel()
 			if "scope" in req.body and len(req.body["scope"]) > 0 and not scope_model.ifValidScopesExists(req.body["scope"]):
@@ -90,30 +92,42 @@ class client(baseController):
 			appResponce["client_id"] = "Please provide valid client id"
 
 		if is_put:
-			editableFields = ["client_id", "client_secret", "scope"]
+			editableFields = ["app_id", "app_secret", "scope", "user_type"]
 			fieldReceived = [i for i in editableFields if i in req.body]
 			if not fieldReceived:
-				appResponce["client_id"] = "Please provide information to edit"
+				appResponce["app_id"] = "Please provide information to edit"
 
 		if(
 			is_put
-			and "client_id" in req.body
-			and (req.body["client_id"] == "" or (not isinstance(req.body["client_id"], str)))
+			and "app_id" in req.body
+			and (req.body["app_id"] == "" or (not isinstance(req.body["app_id"], str)))
 		) or (
 			not is_put
-			and ("client_id" not in req.body or req.body["client_id"] == "" or (not isinstance(req.body["client_id"], str)))
+			and ("app_id" not in req.body or req.body["app_id"] == "" or (not isinstance(req.body["app_id"], str)))
 		):
-			appResponce["client_id"] = "Please provide valid client id"
+			appResponce["app_id"] = "Please provide valid app id"
+
 
 		if(
 			is_put
-			and "client_secret" in req.body
-			and (req.body["client_secret"] == "" or (not isinstance(req.body["client_secret"], str)))
+			and "user_type" in req.body
+			and (req.body["user_type"] == "" or (not isinstance(req.body["user_type"], str)) or req.body["user_type"] not in self.__allowed_user_types)
 		) or (
 			not is_put
-			and ("client_secret" not in req.body or req.body["client_secret"] == "" or (not isinstance(req.body["client_secret"], str)))
+			and ("user_type" not in req.body or req.body["user_type"] == "" or (not isinstance(req.body["user_type"], str)) or req.body["user_type"] not in self.__allowed_user_types)
 		):
-			appResponce["client_secret"] = "Please provide valid client secret"
+			appResponce["user_type"] = "Please provide valid user type"
+
+
+		if(
+			is_put
+			and "app_secret" in req.body
+			and (req.body["app_secret"] == "" or (not isinstance(req.body["app_secret"], str)))
+		) or (
+			not is_put
+			and ("app_secret" not in req.body or req.body["app_secret"] == "" or (not isinstance(req.body["app_secret"], str)))
+		):
+			appResponce["app_secret"] = "Please provide valid app secret"
 
 		if(
 			is_put
@@ -144,7 +158,7 @@ class client(baseController):
 		# this is valid request
 		appResponce = {}
 
-		client_detail = self._getFilteredRequestData(req, ["client_id", "client_id", "client_secret", "scope"])
+		client_detail = self._getFilteredRequestData(req, ["app_id", "app_id", "app_secret", "scope", "user_type"])
 
 		client_model = oauth2ClientModel()
 		appResponce["result"] = client_model.updateClient(client_detail)
@@ -171,7 +185,7 @@ class client(baseController):
 		appResponce = {}
 		client_model = oauth2ClientModel()
 
-		appResponce["result"] = client_model.deleteClient(req.body["client_id"])
+		appResponce["result"] = client_model.deleteClient(req.body["app_id"])
 
 		# delete in redis
 
@@ -184,7 +198,7 @@ class client(baseController):
 
 		appResponce = {}
 		if("client_id" not in req.body or req.body["client_id"] == "" or (not isinstance(req.body["client_id"], int))):
-			appResponce["client_id"] = "Please provide valid user id"
+			appResponce["client_id"] = "Please provide valid client id"
 
 		if appResponce:
 			raise appException.clientException_400(appResponce)
