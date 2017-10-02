@@ -71,8 +71,8 @@ class client(baseController):
 		elif is_put and not client_model.ifClientEditable(client_id):
 			appResponce["client_id"] = "Client is not editable"
 		else:
-			if "app_id" in req.body and client_model.ifAppIdExists(req.body["app_id"], app_id):
-				appResponce["app_id"] = "ClientId already exists in database"
+			if "app_id" in req.body and client_model.ifAppIdExists(req.body["app_id"], client_id):
+				appResponce["app_id"] = "App Id already exists in database"
 
 			scope_model = oauth2ScopeModel()
 			if "scope" in req.body and len(req.body["scope"]) > 0 and not scope_model.ifValidScopesExists(req.body["scope"]):
@@ -158,7 +158,7 @@ class client(baseController):
 		# this is valid request
 		appResponce = {}
 
-		client_detail = self._getFilteredRequestData(req, ["app_id", "app_id", "app_secret", "scope", "user_type"])
+		client_detail = self._getFilteredRequestData(req, ["client_id", "app_id", "app_secret", "scope", "user_type"])
 
 		client_model = oauth2ClientModel()
 		appResponce["result"] = client_model.updateClient(client_detail)
@@ -185,7 +185,7 @@ class client(baseController):
 		appResponce = {}
 		client_model = oauth2ClientModel()
 
-		appResponce["result"] = client_model.deleteClient(req.body["app_id"])
+		appResponce["result"] = client_model.deleteClient(req.body["client_id"])
 
 		# delete in redis
 
