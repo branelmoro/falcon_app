@@ -7,11 +7,15 @@ app = app_wrapper.falcon.API()
 
 arrControllers = []
 
+
+# print(getattr(arrControllers))
+
 arrControllers.append(controllers.indexController.index)
 arrControllers.append(controllers.tokenController.index)
 arrControllers.append(controllers.tokenController.resource)
 arrControllers.append(controllers.tokenController.accessScope)
 arrControllers.append(controllers.tokenController.adminUser)
+arrControllers.append(controllers.tokenController.client)
 arrControllers.append(controllers.specialityController.saveSearchSkill)
 arrControllers.append(controllers.specialityController.searchSkillStatus)
 
