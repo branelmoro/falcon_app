@@ -82,7 +82,7 @@ CREATE SCHEMA static_text;
 CREATE TABLE static_text.errors (
  id serial PRIMARY KEY,
  info text NOT NULL,
- english text DEFAULT NULL UNIQUE,
+ english text NOT NULL UNIQUE,
  hindi text DEFAULT NULL,
  marathi text DEFAULT NULL,
  gujarati text DEFAULT NULL,
@@ -135,7 +135,7 @@ CREATE TABLE static_text.errors (
 CREATE TABLE static_text.labels (
  id serial PRIMARY KEY,
  info text NOT NULL,
- english text DEFAULT NULL UNIQUE,
+ english text NOT NULL UNIQUE,
  hindi text DEFAULT NULL,
  marathi text DEFAULT NULL,
  gujarati text DEFAULT NULL,

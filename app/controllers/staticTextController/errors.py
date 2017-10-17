@@ -47,8 +47,13 @@ class skillParent(baseController):
 		# token validation
 		self.validateHTTPRequest(req)
 
+		self.__commonValidation(req)
+
 		# data validation
 		appResponce = {}
+
+
+
 
 		if("skill_synonym_word" not in req.body or (not isinstance(req.body["skill_synonym_word"], str)) or req.body["skill_synonym_word"] == ""):
 			appResponce["skill_synonym_word"] = "Please provide synonym search word"
@@ -73,6 +78,48 @@ class skillParent(baseController):
 				appResponce["skill_synonym_id"] = "Please provide valid parent skill name"
 			if appResponce:
 				raise appException.clientException_400(appResponce)
+
+
+	def __commonValidation(self, req):
+
+		is_put = (req.method == "PUT")
+
+		appResponce = {}
+
+		if is_put and ("error_id" not in req.body or (not isinstance(req.body["error_id"], int))):
+			appResponce["error_id"] = "Please provide error id"
+			raise appException.clientException_400(appResponce)
+
+		arrLangs = self.getAllLangs();
+		langsToEdit = [a for a in arrLangs if a in req.body]
+		if is_put and ("info" not in req.body and not langsToEdit):
+			appResponce["error_id"] = "Please provide information to update"
+			raise appException.clientException_400(appResponce)
+
+		if(
+			is_put
+			and "info" in req.body
+			and (req.body["info"] == "" or (not isinstance(req.body["info"], str)))
+		) or (
+			not is_put
+			and ("info" not in req.body or req.body["info"] == "" or (not isinstance(req.body["info"], str)))
+		):
+			appResponce["info"] = "Please provide error info"
+
+		if(
+			is_put
+			and "english" in req.body
+			and req.body["english"] == ""
+		) or (
+			not is_put
+			and ("english" not in req.body or req.body["english"] == "")
+		):
+			appResponce["english"] = "Please provide error in english"
+
+		if appResponce:
+			raise appException.clientException_400(appResponce)
+
+
 
 
 	def delete(self, req, resp):
