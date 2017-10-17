@@ -1,6 +1,6 @@
 # never change this file unless required
 
-from .. import falcon
+from falcon import HTTP_400, HTTP_401, HTTP_403, HTTP_404, HTTP_405, HTTP_406, HTTP_500
 from .. import exception as appException
 from ..library import json
 import sys
@@ -116,7 +116,7 @@ class baseController(object):
 		return True
 
 	def __internalServerError(self, req, resp):
-		resp.status = falcon.HTTP_500
+		resp.status = HTTP_500
 		params = {
 			"nodename" : "node1",
 			"version" : "0.0.1",
@@ -137,19 +137,19 @@ class baseController(object):
 	def __sendError(self, req, resp, exc_value):
 		http_status = exc_value.getHttpStatus()
 		if http_status == 401:
-			resp.status = falcon.HTTP_401
+			resp.status = HTTP_401
 		elif http_status == 403:
-			resp.status = falcon.HTTP_403
+			resp.status = HTTP_403
 		elif http_status == 404:
-			resp.status = falcon.HTTP_404
+			resp.status = HTTP_404
 		elif http_status == 405:
-			resp.status = falcon.HTTP_405
+			resp.status = HTTP_405
 		elif http_status == 406:
-			resp.status = falcon.HTTP_406
+			resp.status = HTTP_406
 		elif http_status == 500:
-			resp.status = falcon.HTTP_500
+			resp.status = HTTP_500
 		else:
-			resp.status = falcon.HTTP_400
+			resp.status = HTTP_400
 		# resp.status = falcon['HTTP_' + str(http_status)]
 		params = exc_value.getErrorMessages();
 		resp.body = json.encode(params)

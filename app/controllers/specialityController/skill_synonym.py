@@ -1,6 +1,6 @@
 # always extend your controller from base_controller
 # always give controller class name same as filename
-from ... import falcon
+from falcon import HTTP_200
 from ..controllers.base_controller import baseController
 from ..controllers.base_controller import appException
 
@@ -26,7 +26,7 @@ class skillSynonym(baseController):
 		# this is valid request
 		appResponce = {}
 
-		resp.status = falcon.HTTP_200  # This is the default status
+		resp.status = HTTP_200  # This is the default status
 
 		# create model object
 		skill_synonym_model = skillSynonymModel()
@@ -120,7 +120,7 @@ class skillSynonymStatus(baseController):
 
 		appResponce = {}
 
-		resp.status = falcon.HTTP_200  # This is the default status
+		resp.status = HTTP_200  # This is the default status
 
 		skill_synonym_model = skillSynonymModel()
 		if req.body["status"] == "invalid":

@@ -1,6 +1,6 @@
 # always extend your controller from base_controller
 # always give controller class name same as filename
-from ... import falcon
+from falcon import HTTP_200
 from ..base_controller import baseController
 
 from ...library import json
@@ -33,7 +33,7 @@ class index(baseController):
 	"""This is sample controller"""
 	def on_get(self, req, resp):
 		"""Handles GET requests"""
-		resp.status = falcon.HTTP_200  # This is the default status
+		resp.status = HTTP_200  # This is the default status
 
 		params = api_info
 

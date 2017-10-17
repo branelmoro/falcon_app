@@ -1,6 +1,6 @@
 # always extend your controller from base_controller
 # always give controller class name same as filename
-from ... import falcon
+from falcon import HTTP_200
 from ..base_controller import baseController
 from ..base_controller import appException
 
@@ -26,7 +26,7 @@ class saveSearchSkill(baseController):
 		# this is valid request
 		appResponce = {}
 
-		resp.status = falcon.HTTP_200  # This is the default status
+		resp.status = HTTP_200  # This is the default status
 
 		appResponce["woking"] = "fine"
 		appResponce["body"] = req.body
@@ -74,7 +74,7 @@ class searchSkillStatus(baseController):
 
 		appResponce = {}
 
-		resp.status = falcon.HTTP_200  # This is the default status
+		resp.status = HTTP_200  # This is the default status
 
 		if req.body["status"] == "invalid":
 			search_skill_model = skillSearchModel()
