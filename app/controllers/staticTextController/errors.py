@@ -7,9 +7,7 @@ from ..base_controller import appException
 from ...library import json
 
 # import all required models here
-from ...models.specialityModel import skillSearchModel
-from ...models.specialityModel import skillSynonymModel
-from ...models.specialityModel import skillParentModel
+from ...models.staticTextModel import errorsModel
 
 class skillParent(baseController):
 
@@ -26,19 +24,15 @@ class skillParent(baseController):
 		# this is valid request
 		appResponce = {}
 
-		resp.status = HTTP_200  # This is the default status
+		resp.status = falcon.HTTP_200  # This is the default status
 
-		# create model object
-		skill_synonym_model = skillSynonymModel()
+		error_model = errorsModel()
 
-		skill_detail = {
-			"skill_name" : req.body["skill_synonym_word"],
-			"language" : req.body["languages"],
-			"search_count" : 0,
-			"assigned_to" : 0
-		}
+		arrFields = self.getAllLangs();
+		arrFields.extend(["info"])
+		error_detail = self._getFilteredRequestData(req, arrFields)
 
-		appResponce["result"] = skill_synonym_model.createSynonymForSkill(search_skill, req.body["skill_synonym_id"])
+		appResponce["result"] = error_model.createError(error_detail)
 
 		resp.body = json.encode(appResponce)
 
@@ -47,40 +41,12 @@ class skillParent(baseController):
 		# token validation
 		self.validateHTTPRequest(req)
 
-		self.__commonValidation(req)
+		self.__commonPreDBValidation(req)
 
-		# data validation
-		appResponce = {}
-
+		self.__commonPostDBValidation(req)
 
 
-
-		if("skill_synonym_word" not in req.body or (not isinstance(req.body["skill_synonym_word"], str)) or req.body["skill_synonym_word"] == ""):
-			appResponce["skill_synonym_word"] = "Please provide synonym search word"
-		if("languages" not in req.body or (not isinstance(req.body["languages"], list)) or len(req.body["languages"])):
-			appResponce["languages"] = "Please provide languages for synonym skill word"
-		else:
-			arrLangs = self.getAllLangs();
-			invalidLangs = [a for a in req.body["languages"] if (not isinstance(a, str) or a not in arrLangs)]
-			if(len(invalidLangs)):
-				appResponce["skill_synonym_id"] = "Invalid languages found for synonym skill word".(",".join(invalidLangs))
-		if("skill_synonym_id" not in req.body or (not isinstance(req.body["skill_synonym_id"], int))):
-			appResponce["skill_synonym_id"] = "Please provide parent synonym skill word"
-
-		if appResponce:
-			raise appException.clientException_400(appResponce)
-		else:
-			# db level checks
-			skill_synonym_model = skillSynonymModel()
-			if skill_synonym_model.ifSkillSynonymAlreadyExists(appResponce["skill_synonym_word"]):
-				appResponce["skill_synonym_word"] = "Skill Synonym already exists in database!"
-			if not skill_synonym_model.ifValidSkillNameExists(req.body["skill_synonym_id"]):
-				appResponce["skill_synonym_id"] = "Please provide valid parent skill name"
-			if appResponce:
-				raise appException.clientException_400(appResponce)
-
-
-	def __commonValidation(self, req):
+	def __commonPreDBValidation(self, req):
 
 		is_put = (req.method == "PUT")
 
@@ -91,8 +57,8 @@ class skillParent(baseController):
 			raise appException.clientException_400(appResponce)
 
 		arrLangs = self.getAllLangs();
-		langsToEdit = [a for a in arrLangs if a in req.body]
-		if is_put and ("info" not in req.body and not langsToEdit):
+		langsToAdd = [a for a in arrLangs if a in req.body]
+		if is_put and ("info" not in req.body and not langsToAdd):
 			appResponce["error_id"] = "Please provide information to update"
 			raise appException.clientException_400(appResponce)
 
@@ -109,17 +75,66 @@ class skillParent(baseController):
 		if(
 			is_put
 			and "english" in req.body
-			and req.body["english"] == ""
+			and (req.body["english"] == "" or (not isinstance(req.body["english"], str)))
 		) or (
 			not is_put
-			and ("english" not in req.body or req.body["english"] == "")
+			and ("english" not in req.body or req.body["english"] == "" or (not isinstance(req.body["english"], str)))
 		):
 			appResponce["english"] = "Please provide error in english"
+
+		if langsToAdd:
+			invalidLangs = [a for a in langsToAdd if not isinstance(a, str) or a == ""]
+			if invalidLangs:
+				for lang in invalidLangs:
+					appResponce[lang] = "Please provide valid error in " + lang
 
 		if appResponce:
 			raise appException.clientException_400(appResponce)
 
 
+	def __commonPostDBValidation(self, req):
+
+		is_put = (req.method == "PUT")
+
+		if is_put:
+			error_id = req.body["error_id"]
+		else:
+			error_id = None
+
+		# data validation
+		appResponce = {}
+
+		#db level check
+		error_model = errorsModel()
+
+		if is_put and not error_model.ifErrorIdExists(error_id):
+			appResponce["error_id"] = "Error id does not exist"
+		elif is_put and not error_model.ifErrorEditable(error_id):
+			appResponce["error_id"] = "Error is not editable"
+		else:
+			if "english" in req.body and error_model.ifEnglishErrorExists(req.body["english"], error_id):
+				appResponce["english"] = "Error in english already exists in database"
+
+		if appResponce:
+			raise appException.clientException_400(appResponce)
+
+
+	def put(self, req, resp):
+		"""Handles POST requests"""
+		self.__validateHttpPut(req)
+
+		# this is valid request
+		appResponce = {}
+
+		arrFields = self.getAllLangs();
+		arrFields.extend(["error_id","info"])
+		error_detail = self._getFilteredRequestData(req, arrFields)
+
+		error_detail = errorsModel()
+		appResponce["result"] = error_detail.updateError(error_detail)
+
+		# update in redis
+		resp.body = json.encode(appResponce)
 
 
 	def delete(self, req, resp):
@@ -128,26 +143,34 @@ class skillParent(baseController):
 
 		# this is valid request
 		appResponce = {}
+		error_detail = errorsModel()
 
-		skill_synonym_model = skillSynonymModel()
-		appResponce["result"] = skill_synonym_model.removeSkillSynonymById(req.body["skill_synonym_id"])
+		appResponce["result"] = error_detail.deleteError(req.body["error_id"])
+
+		# delete in redis
+
 		resp.body = json.encode(appResponce)
 
-	def __validateHttpDelete(req):
+
+	def __validateHttpDelete(self, req):
 		# token validation
 		self.validateHTTPRequest(req)
 
 		appResponce = {}
-		if("skill_synonym_id" not in req.body or req.body["skill_synonym_id"] == "" or (not isinstance(req.body["skill_synonym_id"], int))):
-			appResponce["skill_synonym_id"] = "Please provide valid skill"
+		if("error_id" not in req.body or req.body["error_id"] == "" or (not isinstance(req.body["error_id"], int))):
+			appResponce["error_id"] = "Please provide valid client id"
 
 		if appResponce:
 			raise appException.clientException_400(appResponce)
 		else:
 			#db level check
 			#if skill synonym exists
-			skill_synonym_model = skillSynonymModel()
-			if not skill_synonym_model.ifValidSkillNameExists(req.body["skill_synonym_id"]):
-				appResponce["skill_synonym_id"] = "Please provide valid skill name"
-			if appResponce:
-				raise appException.clientException_400(appResponce)
+			error_detail = errorsModel()
+
+			if not error_detail.ifErrorIdExists(req.body["error_id"]):
+				appResponce["error_id"] = "Error id does not exist"
+			elif not error_detail.ifErrorEditable(req.body["error_id"]):
+				appResponce["error_id"] = "Error is not editable"
+
+		if appResponce:
+			raise appException.clientException_400(appResponce)
