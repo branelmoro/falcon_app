@@ -50,16 +50,17 @@ class errors(baseModel):
 
 	def createError(self, error_detail):
 		dbObj = self.pgMaster()
+		values = '%s,'*(len(error_detail) - 1) + '%s'
+		fieldList = list(error_detail)
+		params = [error_detail[field] for field in fieldList]
+		params.extend([datetime.now()])
+		values = values + ',%s'
 		qry = """
 			INSERT INTO static_text.errors (
-				app_id,
-				app_secret,
-				scope,
-				user_type,
-				last_edit_time
-			) VALUES (%s, %s, %s::int[], %s, %s);
+				""" + (','.join(fieldList)) + """, last_edit_time
+			) VALUES ("""+ values +""");
 		"""
-		resultCursor = dbObj.query(qry, [error_detail["app_id"], error_detail["app_secret"], error_detail["scope"], error_detail["user_type"], datetime.now()])
+		resultCursor = dbObj.query(qry, params)
 		# end transaction
 		return resultCursor.getStatusMessage()
 
