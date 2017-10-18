@@ -25,10 +25,7 @@ CREATE TABLE oauth2.resource (
  last_edit_time TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT now(),
  UNIQUE (resource_path)
 );
-INSERT INTO oauth2.resource (id, resource_path, resource_info, is_editable) VALUES (1, '/resource/', 'manage resource', false);
-INSERT INTO oauth2.resource (id, resource_path, resource_info, is_editable) VALUES (2, '/access-scope/', 'manage access-scope', false);
-INSERT INTO oauth2.resource (id, resource_path, resource_info, is_editable) VALUES (3, '/admin-user/', 'manage admin-user', false);
-INSERT INTO oauth2.resource (id, resource_path, resource_info, is_editable) VALUES (4, '/client/', 'manage clients', false);
+INSERT INTO oauth2.resource (id, resource_path, resource_info, is_editable) VALUES (1, '/resource/', 'manage resource', false), (2, '/access-scope/', 'manage access-scope', false), (3, '/admin-user/', 'manage admin-user', false), (4, '/client/', 'manage clients', false);
 ALTER SEQUENCE oauth2.resource_id_seq RESTART WITH 5;
 CREATE TABLE oauth2.scope (
  id serial PRIMARY KEY,
@@ -74,8 +71,7 @@ CREATE INDEX oauth2_client_password ON oauth2.client (app_secret);
 CREATE INDEX oauth2_client_scope ON oauth2.client (scope);
 CREATE INDEX oauth2_client_usertype ON oauth2.client (user_type);
 CREATE INDEX oauth2_client_is_editable ON oauth2.client (is_editable);
-INSERT INTO oauth2.client (id, app_id, app_secret, scope, user_type, is_editable) VALUES (1, 'admin_app', 'shdfvbkflakjfjhslfhalisfjhjsghflajzshdnva', '{1,2,3,4,5}','admin', false);
-INSERT INTO oauth2.client (id, app_id, app_secret, scope, user_type, is_editable) VALUES (2, 'web_app', 'yturerfa43t565u43qgf35w4e4q3th54sf', '{1,2,3,4,5}','admin', false);
+INSERT INTO oauth2.client (id, app_id, app_secret, scope, user_type, is_editable) VALUES (1, 'admin_app', 'shdfvbkflakjfjhslfhalisfjhjsghflajzshdnva', '{1,2,3,4,5}','admin', false), (2, 'web_app', 'yturerfa43t565u43qgf35w4e4q3th54sf', '{1,2,3,4,5}','admin', false);
 ALTER SEQUENCE oauth2.client_id_seq RESTART WITH 3;
 
 CREATE SCHEMA static_text;
