@@ -3,6 +3,7 @@ from datetime import datetime
 # always give model class name same as model name
 from ..base_model import baseModel
 
+from ...library import APPCACHE
 from ...resources.redis import redis as appCache
 
 from . import oauth2AdminUserModel

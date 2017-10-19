@@ -74,6 +74,7 @@ CREATE INDEX oauth2_client_is_editable ON oauth2.client (is_editable);
 INSERT INTO oauth2.client (id, app_id, app_secret, scope, user_type, is_editable) VALUES (1, 'admin_app', 'shdfvbkflakjfjhslfhalisfjhjsghflajzshdnva', '{1,2,3,4,5}','admin', false), (2, 'web_app', 'yturerfa43t565u43qgf35w4e4q3th54sf', '{1,2,3,4,5}','admin', false);
 ALTER SEQUENCE oauth2.client_id_seq RESTART WITH 3;
 
+
 CREATE SCHEMA static_text;
 CREATE TABLE static_text.errors (
  id serial PRIMARY KEY,
@@ -128,6 +129,15 @@ CREATE TABLE static_text.errors (
  is_editable boolean DEFAULT true,
  last_edit_time TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT now()
 );
+
+INSERT INTO static_text.errors (id, info, english, is_editable) VALUES (1, 'resource api', 'Resource path already exists in another record in database!', false),
+(2, 'resource api', 'Please provide a valid resource id!', false),
+(3, 'resource api', 'Please provide some information to update!', false),
+(4, 'resource api', 'Please provide a valid resource path!', false),
+(5, 'resource api', 'Please provide some resource information!', false),
+(6, 'resource api', 'This resource is not editable!', false)
+;
+ALTER SEQUENCE static_text.errors_id_seq RESTART WITH 3;
 CREATE TABLE static_text.labels (
  id serial PRIMARY KEY,
  info text NOT NULL,

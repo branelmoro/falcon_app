@@ -3,6 +3,7 @@
 from falcon import HTTP_400, HTTP_401, HTTP_403, HTTP_404, HTTP_405, HTTP_406, HTTP_500
 from .. import exception as appException
 from ..library import json
+from ..library import APPCACHE
 import sys
 import traceback
 
@@ -51,17 +52,13 @@ class baseController(object):
 		is_valid = False
 		accessDb = appCache("access_scopeDb");
 
-		# resource_id = accessDb.get(req.method + " " + path)
-		# # token = hashlib.md5(path).hexdigest();
-		# if(resource_id is None):
-		# 	raise appException.clientException_400({"url":"Resource url is not ready."})
-
 		aTokenDb = appCache("access_tokenDb");
 		scopes = aTokenDb.smembers(req.headers["X-ACCESS-TOKEN"])
 
 		for scope in scopes:
 			scope_method = scope + "__" + req.method
 			if accessDb.sismember(scope_method, self.__resource_id):
+			# if APPCACHE.ifResourceExistsInScopes(scope, req.method, self.__resource_id):
 				is_valid = True
 				break
 
@@ -209,10 +206,5 @@ class baseController(object):
 				data[field] = req.body[field]
 		return data
 
-	def _getErrorDetail(self, error_id, req):
-		return {
-			"error_id":1,
-			"message":{
-				"english":"this is error message"
-			}
-		}
+	def _getError(self, error_id, lang = None):
+		return APPCACHE.getError(error_id, lang)

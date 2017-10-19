@@ -47,7 +47,8 @@ class resource(baseController):
 		oauth2_resource = oauth2ResourceModel()
 
 		if oauth2_resource.ifResourcePathAlreadyExists(req.body["resource_path"]):
-			appResponce["resource_path"] = "Resource path already exists"
+			appResponce["resource_path"] = self._getError(1)
+			# appResponce["resource_path"] = "Resource path already exists in database!"
 
 		if appResponce:
 			raise appException.clientException_400(appResponce)
@@ -59,10 +60,12 @@ class resource(baseController):
 		appResponce = {}
 
 		if is_put and ("resource_id" not in req.body or (not isinstance(req.body["resource_id"], int))):
-			appResponce["resource_id"] = "Please provide resource id"
+			# appResponce["resource_id"] = "Please provide a valid resource id"
+			appResponce["resource_id"] = self._getError(2)
 
 		if is_put and ("resource_path" not in req.body and "resource_info" not in req.body):
-			appResponce["resource_id"] = "Please provide information to update"
+			# appResponce["resource_id"] = "Please provide some information to update"
+			appResponce["resource_id"] = self._getError(3)
 
 		if(
 			is_put
@@ -72,7 +75,8 @@ class resource(baseController):
 			not is_put
 			and ("resource_path" not in req.body or req.body["resource_path"] == "" or (not isinstance(req.body["resource_path"], str)) or req.body["resource_path"].find("/") != 0)
 		):
-			appResponce["resource_path"] = "Please provide valid resource path"
+			# appResponce["resource_path"] = "Please provide valid resource path"
+			appResponce["resource_path"] = self._getError(4)
 
 		if(
 			is_put
@@ -82,7 +86,8 @@ class resource(baseController):
 			not is_put
 			and ("resource_info" not in req.body or req.body["resource_info"] == "")
 		):
-			appResponce["resource_info"] = "Please provide some resource information"
+			# appResponce["resource_info"] = "Please provide some resource information"
+			appResponce["resource_info"] = self._getError(4)
 
 		if appResponce:
 			raise appException.clientException_400(appResponce)
@@ -116,11 +121,14 @@ class resource(baseController):
 		oauth2_resource = oauth2ResourceModel()
 
 		if not oauth2_resource.ifResourceIdExists(req.body["resource_id"]):
-			appResponce["resource_id"] = "Please provide valid resource id"
+			# appResponce["resource_id"] = "Please provide a valid resource id"
+			appResponce["resource_id"] = self._getError(2)
 		elif not oauth2_resource.ifResourceEditable(req.body["resource_id"]):
-			appResponce["resource_id"] = "Resource is not editable"
+			# appResponce["resource_id"] = "This resource is not editable"
+			appResponce["resource_id"] = self._getError(6)
 		elif "resource_path" in req.body and oauth2_resource.ifResourcePathAlreadyExists(req.body["resource_path"], req.body["resource_id"]):
-			appResponce["resource_path"] = "Resource path already exists in another record"
+			# appResponce["resource_path"] = "Resource path already exists in another record"
+			appResponce["resource_path"] = self._getError(1)
 
 		if appResponce:
 			raise appException.clientException_400(appResponce)
@@ -147,7 +155,8 @@ class resource(baseController):
 		appResponce = {}
 
 		if("resource_id" not in req.body or (not isinstance(req.body["resource_id"], int))):
-			appResponce["resource_id"] = "Please provide resource id"
+			# appResponce["resource_id"] = "Please provide a valid resource id"
+			appResponce["resource_id"] = self._getError(2)
 
 		if appResponce:
 			raise appException.clientException_400(appResponce)
@@ -156,9 +165,11 @@ class resource(baseController):
 			oauth2_resource = oauth2ResourceModel()
 
 			if not oauth2_resource.ifResourceIdExists(req.body["resource_id"]):
-				appResponce["resource_id"] = "Please provide valid resource id"
+				# appResponce["resource_id"] = "Please provide a valid resource id"
+				appResponce["resource_id"] = self._getError(2)
 			elif not oauth2_resource.ifResourceEditable(req.body["resource_id"]):
-				appResponce["resource_id"] = "Resource is not editable"
+				# appResponce["resource_id"] = "Resource is not editable"
+				appResponce["resource_id"] = self._getError(6)
 
 			if appResponce:
 				raise appException.clientException_400(appResponce)
