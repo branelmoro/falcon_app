@@ -8,7 +8,7 @@ import sys
 import traceback
 
 
-from ..resources.redis import redis as appCache
+from ..resources.redis import redis as SESSION
 from ..models.oauth2Model import oauth2ResourceModel
 
 class baseController(object):
@@ -38,7 +38,7 @@ class baseController(object):
 		is_valid = False
 		
 		if("X-ACCESS-TOKEN" in req.headers):
-			aTokenDb = appCache("access_tokenDb");
+			aTokenDb = SESSION("access_tokenDb");
 			if(aTokenDb.exists(req.headers["X-ACCESS-TOKEN"])):
 				is_valid = True
 
@@ -50,15 +50,12 @@ class baseController(object):
 		# validate token here
 		# path = self.getPath()
 		is_valid = False
-		accessDb = appCache("access_scopeDb");
 
-		aTokenDb = appCache("access_tokenDb");
+		aTokenDb = SESSION("access_tokenDb");
 		scopes = aTokenDb.smembers(req.headers["X-ACCESS-TOKEN"])
 
 		for scope in scopes:
-			scope_method = scope + "__" + req.method
-			if accessDb.sismember(scope_method, self.__resource_id):
-			# if APPCACHE.ifResourceExistsInScopes(scope, req.method, self.__resource_id):
+			if APPCACHE.ifResourceExistsInScopes(scope, req.method, self.__resource_id):
 				is_valid = True
 				break
 

@@ -4,17 +4,12 @@ from datetime import datetime
 from ..base_model import baseModel
 
 from ...library import APPCACHE
-from ...resources.redis import redis as appCache
 
 from . import oauth2AdminUserModel
 from . import oauth2ClientModel
 
 class scope(baseModel):
 	"""entire code goes here"""
-
-	def __init__(self):
-		self.__scopeKeyExpiry = 1200
-		self.__accessDb = appCache("access_scopeDb");
 
 
 	def __getScopeDetails(self, ids):
@@ -43,40 +38,18 @@ class scope(baseModel):
 		return [result[i][0] for i in result]
 
 
-	def __removeFromCache(self, scopekey):
-		if self.__accessDb.exists(scopekey):
-			self.__accessDb.delete(scopekey)
+	def __addScopeToCache(self, result):
 
-
-	def __storeInCache(self, scopekey, allowed_method, blnReplace = False):
-		if allowed_method:
-			if blnReplace or not self.__accessDb.exists(scopekey):
-				self.__accessDb.sadd(scopekey, allowed_method)
-			self.__accessDb.expire(scopekey, self.__scopeKeyExpiry)
-		elif blnReplace:
-			self.__removeFromCache(scopekey)
-
-
-	def __addScopeToCache(self, result, blnReplace = False):
 		for scope_detail in result:
-
 			scope_id = str(scope_detail[1])
-
-			self.__storeInCache(scope_id + "__GET", scope_detail[2], blnReplace)
-
-			self.__storeInCache(scope_id + "__POST", scope_detail[3], blnReplace)
-
-			self.__storeInCache(scope_id + "__PUT", scope_detail[4], blnReplace)
-
-			self.__storeInCache(scope_id + "__DELETE", scope_detail[5], blnReplace)
+			APPCACHE.addScope(scope_id, "GET", scope_detail[2])
+			APPCACHE.addScope(scope_id, "POST", scope_detail[3])
+			APPCACHE.addScope(scope_id, "PUT", scope_detail[4])
+			APPCACHE.addScope(scope_id, "DELETE", scope_detail[5])
 
 
 	def __deleteScopeFromCache(self,scope_id):
-		scope_id = str(scope_id)
-		self.__removeFromCache(scope_id + "__GET")
-		self.__removeFromCache(scope_id + "__POST")
-		self.__removeFromCache(scope_id + "__PUT")
-		self.__removeFromCache(scope_id + "__DELETE")
+		APPCACHE.deleteScope(scope_id)
 
 
 	def ifScopeNameExists(self, scope_name, not_id=None):
@@ -156,7 +129,7 @@ class scope(baseModel):
 		dbObj = self.pgMaster()
 		resultCursor = dbObj.query(qry, params)
 
-		self.__addScopeToCache(self.__getScopeDetails([scope_detail["id"]]), True)
+		self.__addScopeToCache(self.__getScopeDetails([scope_detail["id"]]))
 		# end transaction
 		return resultCursor.getStatusMessage()
 
@@ -256,6 +229,6 @@ class scope(baseModel):
 		# end transaction
 
 		if ids:
-			self.__addScopeToCache(self.__getScopeDetails(ids), True)
+			self.__addScopeToCache(self.__getScopeDetails(ids))
 
 		return resultCursor.getStatusMessage()
