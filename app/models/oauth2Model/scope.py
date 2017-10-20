@@ -12,6 +12,20 @@ class scope(baseModel):
 	"""entire code goes here"""
 
 
+	def getAllScopeDetails(self):
+		qry = """
+			SELECT scope_name,
+				id,
+				allowed_get,
+				allowed_post,
+				allowed_put,
+				allowed_delete
+			FROM oauth2.scope;
+		"""
+		resultCursor = self.pgSlave().query(qry,[])
+
+		return resultCursor.getAllRecords()
+
 	def __getScopeDetails(self, ids):
 		values = "%s,"*(len(ids)-1) + "%s"
 		qry = """

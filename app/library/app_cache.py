@@ -3,6 +3,8 @@ import sys
 from .. import exception as appException
 
 # from ..resources.redis import redis
+from ..models.oauth2Model import oauth2ScopeModel
+from ..models.staticTextModel import errorsModel
 
 class APPCACHE(object):
 
@@ -33,6 +35,15 @@ class APPCACHE(object):
 	def __loadErrors(cls):
 		if "error" not in cls.__cachedData:
 			cls.__cachedData["error"] = {}
+			error_model = errorsModel()
+			result = error_model.getAllErrors()
+			for error_detail in result:
+				error_id = error_detail["id"]
+				del error_detail["id"]
+				for lang in error_detail:
+					cls.addError(error_id, lang, error_detail[lang])
+
+
 		# load all errors and languages
 
 	@classmethod
@@ -46,8 +57,11 @@ class APPCACHE(object):
 		# no error found... through error
 		raise appException.serverException_500({"error_message":"Error message not found", "error_id":error_id, "lang":lang})
 
+
 	@classmethod
 	def addError(cls, error_id, lang, text):
+		if not text:
+			return
 		if "error" not in cls.__cachedData:
 			cls.__cachedData["error"] = {}
 		if error_id not in cls.__cachedData["error"]:
@@ -66,7 +80,15 @@ class APPCACHE(object):
 	def __loadAccessScopes(cls):
 		if "scope" not in cls.__cachedData:
 			cls.__cachedData["scope"] = {}
-		# load all errors and languages
+			scope_model = oauth2ScopeModel()
+			result = scope_model.getAllScopeDetails()
+
+			for scope_detail in result:
+				scope_id = str(scope_detail[1])
+				cls.addScope(scope_id, "GET", scope_detail[2])
+				cls.addScope(scope_id, "POST", scope_detail[3])
+				cls.addScope(scope_id, "PUT", scope_detail[4])
+				cls.addScope(scope_id, "DELETE", scope_detail[5])
 
 
 	@classmethod

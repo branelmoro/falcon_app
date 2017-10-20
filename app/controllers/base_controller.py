@@ -25,7 +25,7 @@ class baseController(object):
 		self.__resource_id = resource_id
 
 	def getAllLangs(self):
-		return ['english','hindi','marathi','gujarati','malayalam','bengali','oriya','tamil','telugu','panjabi','urdu','chinese_simplified','chinese_traditional','mandarin_chinese','arabic','russian','portuguese','japanese','german','korean','french','turkish','italian','polish','ukrainian','persian','romanian','serbian','croatian','thai','dutch','amharic','catalan','danish','greek','spanish','estonian','finnish','armenian','khmer','kannada','malay','nepali','norwegian','slovak','albanian','swedish','tagalog']
+		return ['english', 'hindi', 'marathi', 'gujarati', 'malayalam', 'bengali', 'oriya', 'tamil', 'telugu', 'panjabi', 'urdu', 'chinese_simplified', 'chinese_traditional', 'arabic', 'russian', 'portuguese', 'japanese', 'german', 'korean', 'french', 'turkish', 'italian', 'polish', 'ukrainian', 'persian', 'romanian', 'serbian', 'croatian', 'thai', 'dutch', 'amharic', 'catalan', 'danish', 'greek', 'spanish', 'estonian', 'finnish', 'armenian', 'khmer', 'kannada', 'malay', 'nepali', 'norwegian', 'slovak', 'albanian', 'swedish', 'tagalog']
 
 	def __validateRequestHeaders(self, req):
 		# validate request headers here

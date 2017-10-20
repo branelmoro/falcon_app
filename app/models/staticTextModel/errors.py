@@ -6,6 +6,22 @@ from ..base_model import baseModel
 class errors(baseModel):
 	"""entire code goes here"""
 
+	def getAllErrors(self):
+		qry = """
+			SELECT id, english, hindi, marathi, gujarati, malayalam, bengali, oriya, tamil, telugu, panjabi, urdu, chinese_simplified, chinese_traditional, arabic, russian, portuguese, japanese, german, korean, french, turkish, italian, polish, ukrainian, persian, romanian, serbian, croatian, thai, dutch, amharic, catalan, danish, greek, spanish, estonian, finnish, armenian, khmer, kannada, malay, nepali, norwegian, slovak, albanian, swedish, tagalog
+			FROM static_text.errors;
+		"""
+		resultCursor = self.pgSlave().query(qry,[])
+
+		result = resultCursor.getAllRecords()
+		columns = resultCursor.getColumns()
+
+		data = []
+		for i in result:
+			data.append({k:i[columns[k]] for k in columns})
+		
+		return data
+
 	def ifErrorIdExists(self, id):
 		qry = """
 			SELECT exists(
