@@ -122,7 +122,7 @@ class resource(baseController):
 
 		if not oauth2_resource.ifResourceIdExists(req.body["resource_id"]):
 			# appResponce["resource_id"] = "Please provide a valid resource id"
-			appResponce["resource_id"] = self._getError(2)
+			appResponce["resource_id"] = self._getError(7)
 		elif not oauth2_resource.ifResourceEditable(req.body["resource_id"]):
 			# appResponce["resource_id"] = "This resource is not editable"
 			appResponce["resource_id"] = self._getError(6)
@@ -166,7 +166,7 @@ class resource(baseController):
 
 			if not oauth2_resource.ifResourceIdExists(req.body["resource_id"]):
 				# appResponce["resource_id"] = "Please provide a valid resource id"
-				appResponce["resource_id"] = self._getError(2)
+				appResponce["resource_id"] = self._getError(7)
 			elif not oauth2_resource.ifResourceEditable(req.body["resource_id"]):
 				# appResponce["resource_id"] = "Resource is not editable"
 				appResponce["resource_id"] = self._getError(6)

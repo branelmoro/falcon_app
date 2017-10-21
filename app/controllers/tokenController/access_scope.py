@@ -65,22 +65,22 @@ class accessScope(baseController):
 		scope_model = oauth2ScopeModel()
 
 		if is_put and not scope_model.ifScopeIdExists(scope_id):
-			appResponce["scope_id"] = "Scope Id does not exists"
+			appResponce["scope_id"] = self._getError(13)
 		elif is_put and not scope_model.ifScopeEditable(scope_id):
-			appResponce["scope_id"] = "Scope is not editable"
+			appResponce["scope_id"] = self._getError(14)
 		else:
 			if "scope_name" in req.body and scope_model.ifScopeNameExists(req.body["scope_name"], scope_id):
-				appResponce["scope_name"] = "Scope name already exists in database"
+				appResponce["scope_name"] = self._getError(15)
 
 			resource_model = oauth2ResourceModel()
 			if "allowed_get" in req.body and len(req.body["allowed_get"]) > 0 and not resource_model.ifValidResourcesExists(req.body["allowed_get"]):
-				appResponce["allowed_get"] = "Invalid get resources provided"
+				appResponce["allowed_get"] = self._getError(16, data={"method":"get"})
 			if "allowed_post" in req.body and len(req.body["allowed_post"]) > 0 and not resource_model.ifValidResourcesExists(req.body["allowed_post"]):
-				appResponce["allowed_post"] = "Invalid post resources provided"
+				appResponce["allowed_post"] = self._getError(16, data={"method":"post"})
 			if "allowed_put" in req.body and len(req.body["allowed_put"]) > 0 and not resource_model.ifValidResourcesExists(req.body["allowed_put"]):
-				appResponce["allowed_put"] = "Invalid put resources provided"
+				appResponce["allowed_put"] = self._getError(16, data={"method":"put"})
 			if "allowed_delete" in req.body and len(req.body["allowed_delete"]) > 0 and not resource_model.ifValidResourcesExists(req.body["allowed_delete"]):
-				appResponce["allowed_delete"] = "Invalid delete resources provided"
+				appResponce["allowed_delete"] = self._getError(16, data={"method":"delete"})
 
 			# for update scope case
 			if is_put:
@@ -93,9 +93,9 @@ class accessScope(baseController):
 					if checkDbScopes:
 						# run query to check if atleat one resource access exists
 						if not scope_model.ifAtleastOneResourceAccessIsGiven(scope_id, checkDbScopes):
-							appResponce["allowed_resource"] = "Please provide atleast one resource access to scope"
+							appResponce["allowed_resource"] = self._getError(12)
 					else:
-						appResponce["allowed_resource"] = "Please provide atleast one resource access to scope"
+						appResponce["allowed_resource"] = self._getError(12)
 
 		if appResponce:
 			raise appException.clientException_400(appResponce)
@@ -104,11 +104,11 @@ class accessScope(baseController):
 	def __checkAllowedActionList(self, req, appResponce, allowed_method, is_put):
 		if(allowed_method in req.body):
 			if(not isinstance(req.body[allowed_method], list)):
-				appResponce[allowed_method] = "Please provide list of "+allowed_method+" resources"
+				appResponce[allowed_method] = self._getError(16, data={"method":allowed_method})
 			else:
 				nonInt = [i for i in req.body[allowed_method] if not isinstance(i, int)]
 				if nonInt:
-					appResponce[allowed_method] = "Please provide list of valid "+allowed_method+" resources"
+					appResponce[allowed_method] = self._getError(16, data={"method":allowed_method})
 		else:
 			if not is_put:
 				req.body[allowed_method] = []
@@ -122,13 +122,13 @@ class accessScope(baseController):
 		appResponce = {}
 
 		if is_put and ("scope_id" not in req.body or req.body["scope_id"] == "" or (not isinstance(req.body["scope_id"], int))):
-			appResponce["scope_id"] = "Please provide valid scope"
+			appResponce["scope_id"] = self._getError(8)
 
 		if is_put:
 			editableFields = ["scope_name", "scope_info", "allowed_get", "allowed_post", "allowed_put", "allowed_delete"]
 			fieldReceived = [i for i in editableFields if i in req.body]
 			if not fieldReceived:
-				appResponce["scope_id"] = "Please provide information to edit"
+				appResponce["scope_id"] = self._getError(9)
 
 		if(
 			is_put
@@ -138,7 +138,7 @@ class accessScope(baseController):
 			not is_put
 			and ("scope_name" not in req.body or req.body["scope_name"] == "" or (not isinstance(req.body["scope_name"], str)))
 		):
-			appResponce["scope_name"] = "Please provide valid scope name"
+			appResponce["scope_name"] = self._getError(10)
 
 
 		if(
@@ -149,11 +149,11 @@ class accessScope(baseController):
 			not is_put
 			and ("scope_info" not in req.body or req.body["scope_info"] == "" or (not isinstance(req.body["scope_info"], str)))
 		):
-			appResponce["scope_info"] = "Please provide valid scope info"
+			appResponce["scope_info"] = self._getError(11)
 
 
 		if(not is_put and "allowed_get" not in req.body and "allowed_post" not in req.body and "allowed_put" not in req.body and "allowed_delete" not in req.body):
-			appResponce["allowed_resource"] = "Please provide atleast one resource access to scope"
+			appResponce["allowed_resource"] = self._getError(12)
 		else:
 			appResponce = self.__checkAllowedActionList(req, appResponce, "allowed_get", is_put)
 			appResponce = self.__checkAllowedActionList(req, appResponce, "allowed_post", is_put)
@@ -165,7 +165,7 @@ class accessScope(baseController):
 				lstAllowedScopes = ["allowed_get", "allowed_post", "allowed_put", "allowed_delete"]
 				receivedScopes = [i for i in lstAllowedScopes if i in req.body and len(req.body[i]) > 0]
 				if not receivedScopes:
-					appResponce["allowed_resource"] = "Please provide atleast one resource access to scope"
+					appResponce["allowed_resource"] = self._getError(12)
 
 
 		if appResponce:
@@ -221,7 +221,7 @@ class accessScope(baseController):
 
 		appResponce = {}
 		if("scope_id" not in req.body or req.body["scope_id"] == "" or (not isinstance(req.body["scope_id"], int))):
-			appResponce["scope_id"] = "Please provide valid scope"
+			appResponce["scope_id"] = self._getError(8)
 
 		if appResponce:
 			raise appException.clientException_400(appResponce)
@@ -230,9 +230,9 @@ class accessScope(baseController):
 			#if skill synonym exists
 			scope_model = oauth2ScopeModel()
 			if not scope_model.ifScopeIdExists(req.body["scope_id"]):
-				appResponce["scope_id"] = "Scope does not exists"
+				appResponce["scope_id"] = self._getError(13)
 			elif not scope_model.ifScopeEditable(req.body["scope_id"]):
-				appResponce["scope_name"] = "Scope is not editable"
+				appResponce["scope_name"] = self._getError(14)
 
 		if appResponce:
 			raise appException.clientException_400(appResponce)

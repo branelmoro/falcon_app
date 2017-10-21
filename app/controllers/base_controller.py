@@ -203,5 +203,8 @@ class baseController(object):
 				data[field] = req.body[field]
 		return data
 
-	def _getError(self, error_id, lang = None):
-		return APPCACHE.getError(error_id, lang)
+	def _getError(self, error_id, lang = None, data = None):
+		message = APPCACHE.getError(error_id, lang)
+		if data:
+			message = message.format(**data)
+		return message

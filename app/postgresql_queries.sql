@@ -25,7 +25,7 @@ CREATE TABLE oauth2.resource (
  last_edit_time TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT now(),
  UNIQUE (resource_path)
 );
-INSERT INTO oauth2.resource (id, resource_path, resource_info, is_editable) VALUES (1, '/resource/', 'manage resource', false), (2, '/access-scope/', 'manage access-scope', false), (3, '/admin-user/', 'manage admin-user', false), (4, '/client/', 'manage clients', false);
+INSERT INTO oauth2.resource (id, resource_path, resource_info, is_editable) VALUES (1, '/resource/', 'manage resource', false), (2, '/access-scope/', 'manage access-scope', false), (3, '/admin-user/', 'manage admin-user', false), (4, '/client/', 'manage clients', false), (5, '/errors/', 'manage errors', false);
 ALTER SEQUENCE oauth2.resource_id_seq RESTART WITH 5;
 CREATE TABLE oauth2.scope (
  id serial PRIMARY KEY,
@@ -135,7 +135,18 @@ INSERT INTO static_text.errors (id, info, english, is_editable) VALUES (1, 'reso
 (3, 'resource api', 'Please provide some information to update!', false),
 (4, 'resource api', 'Please provide a valid resource path!', false),
 (5, 'resource api', 'Please provide some resource information!', false),
-(6, 'resource api', 'This resource is not editable!', false)
+(6, 'resource api', 'This resource is not editable!', false),
+(7, 'resource api', 'Resource id does not exists in database!', false),
+(8, 'access-scope api', 'Invalid scope provided..Please provide a valid scope!', false),
+(9, 'access-scope api', 'Please provide information to update!', false),
+(10, 'access-scope api', 'Please provide a valid scope name!', false),
+(11, 'access-scope api', 'Please provide valid scope info!', false),
+(12, 'access-scope api', 'Please provide atleast one resource access to scope!', false),
+(13, 'resource api', 'Scope id does not exists in database!', false),
+(14, 'resource api', 'This access scope is not editable!', false),
+(15, 'resource api', 'Scope name already exists in another record in database!', false),
+(16, 'access-scope api', 'Invalid {method} resources provided..Please provide valid resources!', false),
+(17, 'access-scope api', 'Please provide list of valid {method} resources!', false)
 ;
 ALTER SEQUENCE static_text.errors_id_seq RESTART WITH 3;
 CREATE TABLE static_text.labels (
