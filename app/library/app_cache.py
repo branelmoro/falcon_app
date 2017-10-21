@@ -94,7 +94,7 @@ class APPCACHE(object):
 	@classmethod
 	def addScope(cls, scope_id, method, resources):
 		if resources:
-			cls.__addScopeResources(scope_id, method, resources)
+			cls.__addScopeMethod(scope_id, method, resources)
 		else:
 			cls.__deleteScopeMethod(scope_id, method)
 

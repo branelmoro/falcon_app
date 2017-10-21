@@ -148,7 +148,7 @@ INSERT INTO static_text.errors (id, info, english, is_editable) VALUES (1, 'reso
 (16, 'access-scope api', 'Invalid {method} resources provided..Please provide valid resources!', false),
 (17, 'access-scope api', 'Please provide list of valid {method} resources!', false)
 ;
-ALTER SEQUENCE static_text.errors_id_seq RESTART WITH 3;
+ALTER SEQUENCE static_text.errors_id_seq RESTART WITH 18;
 CREATE TABLE static_text.labels (
  id serial PRIMARY KEY,
  info text NOT NULL,

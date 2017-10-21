@@ -3,13 +3,15 @@ from datetime import datetime
 # always give model class name same as model name
 from ..base_model import baseModel
 
-from ...library import APPCACHE
-
 from . import oauth2AdminUserModel
 from . import oauth2ClientModel
 
 class scope(baseModel):
 	"""entire code goes here"""
+
+	def __init__(self):
+		from ...library import APPCACHE
+		self.__APPCACHE = APPCACHE
 
 
 	def getAllScopeDetails(self):
@@ -56,14 +58,14 @@ class scope(baseModel):
 
 		for scope_detail in result:
 			scope_id = str(scope_detail[1])
-			APPCACHE.addScope(scope_id, "GET", scope_detail[2])
-			APPCACHE.addScope(scope_id, "POST", scope_detail[3])
-			APPCACHE.addScope(scope_id, "PUT", scope_detail[4])
-			APPCACHE.addScope(scope_id, "DELETE", scope_detail[5])
+			self.__APPCACHE.addScope(scope_id, "GET", scope_detail[2])
+			self.__APPCACHE.addScope(scope_id, "POST", scope_detail[3])
+			self.__APPCACHE.addScope(scope_id, "PUT", scope_detail[4])
+			self.__APPCACHE.addScope(scope_id, "DELETE", scope_detail[5])
 
 
 	def __deleteScopeFromCache(self,scope_id):
-		APPCACHE.deleteScope(scope_id)
+		self.__APPCACHE.deleteScope(scope_id)
 
 
 	def ifScopeNameExists(self, scope_name, not_id=None):
