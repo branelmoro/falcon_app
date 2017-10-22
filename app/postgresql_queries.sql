@@ -132,13 +132,13 @@ CREATE TABLE static_text.errors (
 
 INSERT INTO static_text.errors (id, info, english, is_editable) VALUES (1, 'resource api', 'Resource path already exists in another record in database!', false),
 (2, 'resource api', 'Please provide a valid resource id!', false),
-(3, 'resource api', 'Please provide some information to update!', false),
+(3, 'resource api', 'No resorce information provided for updation.. Please provide some information!', false),
 (4, 'resource api', 'Please provide a valid resource path!', false),
 (5, 'resource api', 'Please provide some resource information!', false),
 (6, 'resource api', 'This resource is not editable!', false),
 (7, 'resource api', 'Resource id does not exists in database!', false),
 (8, 'access-scope api', 'Invalid scope provided..Please provide a valid scope!', false),
-(9, 'access-scope api', 'Please provide information to update!', false),
+(9, 'access-scope api', 'No scope information provided for updation.. Please provide some information!', false),
 (10, 'access-scope api', 'Please provide a valid scope name!', false),
 (11, 'access-scope api', 'Please provide valid scope info!', false),
 (12, 'access-scope api', 'Please provide atleast one resource access to scope!', false),
@@ -146,7 +146,17 @@ INSERT INTO static_text.errors (id, info, english, is_editable) VALUES (1, 'reso
 (14, 'resource api', 'This access scope is not editable!', false),
 (15, 'resource api', 'Scope name already exists in another record in database!', false),
 (16, 'access-scope api', 'Invalid {method} resources provided..Please provide valid resources!', false),
-(17, 'access-scope api', 'Please provide list of valid {method} resources!', false)
+(17, 'access-scope api', 'Please provide list of valid {method} resources!', false),
+(18, 'admin-user api', 'Please provide a valid admin user id!', false),
+(19, 'admin-user api', 'No admin-user information provided for updation.. Please provide some information!', false),
+(20, 'admin-user api', 'Please provide a valid username for admin user!', false),
+(21, 'admin-user api', 'Please provide a password for admin user account!', false),
+(22, 'admin-user api', 'Please provide list of valid access scopes!', false),
+(23, 'admin-user api', 'Please provide at least one access scope to admin user!', false),
+(24, 'admin-user api', 'Admin User id does not exist!', false),
+(25, 'admin-user api', 'Admin user is not editable!', false),
+(26, 'admin-user api', 'Username already exists in database!', false),
+(27, 'admin-user api', 'Invalid scopes provided..Please provide list of valid access scopes!', false)
 ;
 ALTER SEQUENCE static_text.errors_id_seq RESTART WITH 18;
 CREATE TABLE static_text.labels (

@@ -65,16 +65,16 @@ class adminUser(baseController):
 		admin_user_model = oauth2AdminUserModel()
 
 		if is_put and not admin_user_model.ifAdminUserIdExists(admin_user_id):
-			appResponce["admin_user_id"] = "Admin User id does not exist"
+			appResponce["admin_user_id"] = self._getError(24)
 		elif is_put and not admin_user_model.ifAdminUserEditable(admin_user_id):
-			appResponce["username"] = "Admin user is not editable"
+			appResponce["username"] = self._getError(25)
 		else:
 			if "username" in req.body and admin_user_model.ifUserNameExists(req.body["username"], admin_user_id):
-				appResponce["username"] = "Username already exists in database"
+				appResponce["username"] = self._getError(26)
 
 			scope_model = oauth2ScopeModel()
 			if "scope" in req.body and len(req.body["scope"]) > 0 and not scope_model.ifValidScopesExists(req.body["scope"]):
-				appResponce["scope"] = "Invalid scopes provided"
+				appResponce["scope"] = self._getError(27)
 
 		if appResponce:
 			raise appException.clientException_400(appResponce)
@@ -87,13 +87,13 @@ class adminUser(baseController):
 		appResponce = {}
 
 		if is_put and ("admin_user_id" not in req.body or req.body["admin_user_id"] == "" or (not isinstance(req.body["admin_user_id"], int))):
-			appResponce["admin_user_id"] = "Please provide valid admin id"
+			appResponce["admin_user_id"] = self._getError(18)
 
 		if is_put:
 			editableFields = ["username", "password", "scope"]
 			fieldReceived = [i for i in editableFields if i in req.body]
 			if not fieldReceived:
-				appResponce["admin_user_id"] = "Please provide information to edit"
+				appResponce["admin_user_id"] = self._getError(19)
 
 		if(
 			is_put
@@ -103,7 +103,7 @@ class adminUser(baseController):
 			not is_put
 			and ("username" not in req.body or req.body["username"] == "" or (not isinstance(req.body["username"], str)))
 		):
-			appResponce["username"] = "Please provide valid user name"
+			appResponce["username"] = self._getError(20)
 
 		if(
 			is_put
@@ -113,7 +113,7 @@ class adminUser(baseController):
 			not is_put
 			and ("password" not in req.body or req.body["password"] == "" or (not isinstance(req.body["password"], str)))
 		):
-			appResponce["password"] = "Please provide valid password"
+			appResponce["password"] = self._getError(21)
 
 		if(
 			is_put
@@ -123,15 +123,15 @@ class adminUser(baseController):
 			not is_put
 			and ("scope" not in req.body or not isinstance(req.body["scope"], list))
 		):
-			appResponce["scope"] = "Please provide list of scopes"
+			appResponce["scope"] = self._getError(22)
 		else:
 			if "scope" in req.body:
 				if req.body["scope"]:
 					nonInt = [i for i in req.body["scope"] if not isinstance(i, int)]
 					if nonInt:
-						appResponce["scope"] = "Please provide list of valid scopes"
+						appResponce["scope"] = self._getError(22)
 				else:
-					appResponce["scope"] = "Please provide at least one access scope"
+					appResponce["scope"] = self._getError(23)
 
 		if appResponce:
 			raise appException.clientException_400(appResponce)
@@ -184,7 +184,7 @@ class adminUser(baseController):
 
 		appResponce = {}
 		if("admin_user_id" not in req.body or req.body["admin_user_id"] == "" or (not isinstance(req.body["admin_user_id"], int))):
-			appResponce["admin_user_id"] = "Please provide valid user id"
+			appResponce["admin_user_id"] = self._getError(18)
 
 		if appResponce:
 			raise appException.clientException_400(appResponce)
@@ -194,9 +194,9 @@ class adminUser(baseController):
 			admin_user_model = oauth2AdminUserModel()
 
 			if not admin_user_model.ifAdminUserIdExists(req.body["admin_user_id"]):
-				appResponce["admin_user_id"] = "Admin User id does not exist"
+				appResponce["admin_user_id"] = self._getError(24)
 			elif not admin_user_model.ifAdminUserEditable(req.body["admin_user_id"]):
-				appResponce["username"] = "Admin user is not editable"
+				appResponce["username"] = self._getError(25)
 
 		if appResponce:
 			raise appException.clientException_400(appResponce)
