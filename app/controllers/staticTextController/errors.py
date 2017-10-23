@@ -28,7 +28,7 @@ class skillParent(baseController):
 
 		error_model = errorsModel()
 
-		arrFields = self.getAllLangs();
+		arrFields = self.getAllLangs()
 		arrFields.extend(["info"])
 		error_detail = self._getFilteredRequestData(req, arrFields)
 
@@ -53,13 +53,13 @@ class skillParent(baseController):
 		appResponce = {}
 
 		if is_put and ("error_id" not in req.body or (not isinstance(req.body["error_id"], int))):
-			appResponce["error_id"] = "Please provide error id"
+			appResponce["error_id"] = self._getError(36)
 			raise appException.clientException_400(appResponce)
 
-		arrLangs = self.getAllLangs();
+		arrLangs = self.getAllLangs()
 		langsToAdd = [a for a in arrLangs if a in req.body]
 		if is_put and ("info" not in req.body and not langsToAdd):
-			appResponce["error_id"] = "Please provide information to update"
+			appResponce["error_id"] = self._getError(37)
 			raise appException.clientException_400(appResponce)
 
 		if(
@@ -70,7 +70,7 @@ class skillParent(baseController):
 			not is_put
 			and ("info" not in req.body or req.body["info"] == "" or (not isinstance(req.body["info"], str)))
 		):
-			appResponce["info"] = "Please provide error info"
+			appResponce["info"] = self._getError(38)
 
 		if(
 			is_put
@@ -80,13 +80,13 @@ class skillParent(baseController):
 			not is_put
 			and ("english" not in req.body or req.body["english"] == "" or (not isinstance(req.body["english"], str)))
 		):
-			appResponce["english"] = "Please provide error in english"
+			appResponce["english"] = self._getError(39, data={"language":"english"})
 
 		if langsToAdd:
 			invalidLangs = [a for a in langsToAdd if not isinstance(a, str) or a == ""]
 			if invalidLangs:
 				for lang in invalidLangs:
-					appResponce[lang] = "Please provide valid error in " + lang
+					appResponce[lang] = self._getError(39, data={"language":lang})
 
 		if appResponce:
 			raise appException.clientException_400(appResponce)
@@ -108,12 +108,12 @@ class skillParent(baseController):
 		error_model = errorsModel()
 
 		if is_put and not error_model.ifErrorIdExists(error_id):
-			appResponce["error_id"] = "Error id does not exist"
+			appResponce["error_id"] = self._getError(40)
 		elif is_put and not error_model.ifErrorEditable(error_id):
-			appResponce["error_id"] = "Error is not editable"
+			appResponce["error_id"] = self._getError(41)
 		else:
 			if "english" in req.body and error_model.ifEnglishErrorExists(req.body["english"], error_id):
-				appResponce["english"] = "Error in english already exists in database"
+				appResponce["english"] = self._getError(42, data={"language":"english"})
 
 		if appResponce:
 			raise appException.clientException_400(appResponce)
@@ -126,7 +126,7 @@ class skillParent(baseController):
 		# this is valid request
 		appResponce = {}
 
-		arrFields = self.getAllLangs();
+		arrFields = self.getAllLangs()
 		arrFields.extend(["error_id","info"])
 		error_detail = self._getFilteredRequestData(req, arrFields)
 
@@ -168,9 +168,9 @@ class skillParent(baseController):
 			error_detail = errorsModel()
 
 			if not error_detail.ifErrorIdExists(req.body["error_id"]):
-				appResponce["error_id"] = "Error id does not exist"
+				appResponce["error_id"] = self._getError(40)
 			elif not error_detail.ifErrorEditable(req.body["error_id"]):
-				appResponce["error_id"] = "Error is not editable"
+				appResponce["error_id"] = self._getError(41)
 
 		if appResponce:
 			raise appException.clientException_400(appResponce)

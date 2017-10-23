@@ -164,7 +164,14 @@ INSERT INTO static_text.errors (id, info, english, is_editable) VALUES (1, 'reso
 (32, 'client api', 'Please provide a valid client id!', false),
 (33, 'client api', 'Please provide valid app id!', false),
 (34, 'client api', 'Please provide valid user type!', false),
-(35, 'client api', 'Please provide valid app secret!', false)
+(35, 'client api', 'Please provide valid app secret!', false),
+(36, 'errors api', 'Please provide a valid error id!', false),
+(37, 'errors api', 'No error information provided for updation.. Please provide some information!', false),
+(38, 'errors api', 'Please provide error information!', false),
+(39, 'errors api', 'Please provide a valid error message in {language}!', false),
+(40, 'errors api', 'Error id does not exist!', false),
+(41, 'errors api', 'Error is not editable!', false),
+(42, 'errors api', 'Error in {language} already exists in database!', false)
 ;
 ALTER SEQUENCE static_text.errors_id_seq RESTART WITH 18;
 CREATE TABLE static_text.labels (
