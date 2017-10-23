@@ -5,6 +5,8 @@ from ..base_model import baseModel
 
 from . import oauth2AdminUserModel
 from . import oauth2ClientModel
+# import uwsgi
+# uwsgi.reload()
 
 class scope(baseModel):
 	"""entire code goes here"""

@@ -171,7 +171,18 @@ INSERT INTO static_text.errors (id, info, english, is_editable) VALUES (1, 'reso
 (39, 'errors api', 'Please provide a valid error message in {language}!', false),
 (40, 'errors api', 'Error id does not exist!', false),
 (41, 'errors api', 'Error is not editable!', false),
-(42, 'errors api', 'Error in {language} already exists in database!', false)
+(42, 'errors api', 'Error in {language} already exists in database!', false),
+(43, 'token api', 'Grant Authorization code not implemented yet!', false),
+(44, 'token api', 'Please provide authorization credentials!', false),
+(45, 'token api', 'Invalid client app credentials provided for authorization!', false),
+(46, 'token api', 'Please provide a grant type!', false),
+(47, 'token api', 'Invalid grant type provided..Please provide a valid grant type!', false),
+(48, 'token api', 'Please provide username!', false),
+(49, 'token api', 'Please provide password!', false),
+(50, 'token api', 'Please provide refresh token!', false),
+(51, 'token api', 'Authorization code not implemented yet!', false),
+(52, 'token api', 'Username and password do not match!', false),
+(53, 'token api', 'Please provide access token or refresh token!', false)
 ;
 ALTER SEQUENCE static_text.errors_id_seq RESTART WITH 18;
 CREATE TABLE static_text.labels (

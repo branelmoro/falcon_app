@@ -55,7 +55,7 @@ class index(baseController):
 			token_data = self.__generateTokenFromRefreshToken(req);
 		elif(req.body["grant_type"] == "authorization_code"):
 			appResponce = {}
-			appResponce["grant_type"] = "Authorization code not implemented yet"
+			appResponce["grant_type"] = self._getError(43)
 			raise appException.clientException_400(appResponce)
 
 		resp.body = json.encode(token_data)
@@ -68,7 +68,7 @@ class index(baseController):
 		# data validation
 		appResponce = {}
 		if("AUTHORIZATION" not in req.headers):
-			appResponce["authorization"] = "Invalid client app credentials provided for authorization"
+			appResponce["authorization"] = self._getError(44)
 		else:
 			arr = req.headers["AUTHORIZATION"].split(' ')
 			authCredentials = base64.b64decode(arr[-1]).decode('utf8').split(':')
@@ -76,24 +76,24 @@ class index(baseController):
 				req.body["client_id"] = authCredentials[0]
 				req.body["client_secret"] = authCredentials[1]
 			else:
-				appResponce["authorization"] = "Invalid client app credentials provided for authorization"
+				appResponce["authorization"] = self._getError(45)
 
 		if("grant_type" not in req.body):
-			appResponce["grant_type"] = "Please provide grant type"
+			appResponce["grant_type"] = self._getError(46)
 		elif(req.body["grant_type"] != "authorization_code" and req.body["grant_type"] != "password" and req.body["grant_type"] != "client_credentials" and req.body["grant_type"] != "refresh_token"):
-			appResponce["grant_type"] = "Please provide valid grant type"
+			appResponce["grant_type"] = self._getError(47)
 		elif(req.body["grant_type"] == "password"):
 			if("username" not in req.body or (not isinstance(req.body["username"], str)) or req.body["username"] == ""):
-				appResponce["username"] = "Please provide username"
+				appResponce["username"] = self._getError(48)
 			if("password" not in req.body or (not isinstance(req.body["password"], str)) or req.body["password"] == ""):
-				appResponce["password"] = "Please provide password"
+				appResponce["password"] = self._getError(49)
 		elif(req.body["grant_type"] == "client_credentials"):
 			pass
 		elif(req.body["grant_type"] == "refresh_token"):
 			if("refresh_token" not in req.body or (not isinstance(req.body["refresh_token"], str)) or req.body["refresh_token"] == ""):
-				appResponce["refresh_token"] = "Please provide refresh token"
+				appResponce["refresh_token"] = self._getError(50)
 		elif(req.body["grant_type"] == "authorization_code"):
-			appResponce["grant_type"] = "Authorization code not implemented yet"
+			appResponce["grant_type"] = self._getError(51)
 
 
 		if appResponce:
@@ -114,7 +114,7 @@ class index(baseController):
 		oauth2_client = oauth2ClientModel()
 		self.client_app_data = oauth2_client.get_user_type_scope(client_id, client_secret)
 		if(not self.client_app_data):
-			appResponce["authorization"] = "Invalid client app credentials provided for authorization"
+			appResponce["authorization"] = self._getError(45)
 
 		if appResponce:
 			raise appException.clientException_400(appResponce)
@@ -125,7 +125,7 @@ class index(baseController):
 			oauth2_admin_user = oauth2AdminUserModel()
 			self.userscope = oauth2_admin_user.get_user_scope(username, password)
 			if(self.userscope is False):
-				appResponce["username"] = "Username and password do not match"
+				appResponce["username"] = self._getError(52)
 		elif(self.client_app_data[0] == "guest"):
 			pass
 		elif(self.client_app_data[0] == "registered_user"):
@@ -243,7 +243,7 @@ class index(baseController):
 		# data validation
 		appResponce = {}
 		if("accessToken" not in req.body and "refreshToken" not in req.body):
-			appResponce["accessToken"] = "Please provide access token or refresh token"
+			appResponce["accessToken"] = self._getError(53)
 
 		if appResponce:
 			raise appException.clientException_400(appResponce)
