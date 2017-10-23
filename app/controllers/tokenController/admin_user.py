@@ -131,7 +131,7 @@ class adminUser(baseController):
 					if nonInt:
 						appResponce["scope"] = self._getError(22)
 				else:
-					appResponce["scope"] = self._getError(23)
+					appResponce["scope"] = self._getError(23, data={"endpoint":"admin user"})
 
 		if appResponce:
 			raise appException.clientException_400(appResponce)

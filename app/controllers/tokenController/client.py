@@ -67,16 +67,16 @@ class client(baseController):
 		client_model = oauth2ClientModel()
 
 		if is_put and not client_model.ifClientIdExists(client_id):
-			appResponce["client_id"] = "Client id does not exist"
+			appResponce["client_id"] = self._getError(28)
 		elif is_put and not client_model.ifClientEditable(client_id):
-			appResponce["client_id"] = "Client is not editable"
+			appResponce["client_id"] = self._getError(29)
 		else:
 			if "app_id" in req.body and client_model.ifAppIdExists(req.body["app_id"], client_id):
-				appResponce["app_id"] = "App Id already exists in database"
+				appResponce["app_id"] = self._getError(30)
 
 			scope_model = oauth2ScopeModel()
 			if "scope" in req.body and len(req.body["scope"]) > 0 and not scope_model.ifValidScopesExists(req.body["scope"]):
-				appResponce["scope"] = "Invalid scopes provided"
+				appResponce["scope"] = self._getError(27)
 
 		if appResponce:
 			raise appException.clientException_400(appResponce)
@@ -89,13 +89,13 @@ class client(baseController):
 		appResponce = {}
 
 		if is_put and ("client_id" not in req.body or req.body["client_id"] == "" or (not isinstance(req.body["client_id"], int))):
-			appResponce["client_id"] = "Please provide valid client id"
+			appResponce["client_id"] = self._getError(32)
 
 		if is_put:
 			editableFields = ["app_id", "app_secret", "scope", "user_type"]
 			fieldReceived = [i for i in editableFields if i in req.body]
 			if not fieldReceived:
-				appResponce["app_id"] = "Please provide information to edit"
+				appResponce["app_id"] = self._getError(31)
 
 		if(
 			is_put
@@ -105,7 +105,7 @@ class client(baseController):
 			not is_put
 			and ("app_id" not in req.body or req.body["app_id"] == "" or (not isinstance(req.body["app_id"], str)))
 		):
-			appResponce["app_id"] = "Please provide valid app id"
+			appResponce["app_id"] = self._getError(33)
 
 
 		if(
@@ -116,7 +116,7 @@ class client(baseController):
 			not is_put
 			and ("user_type" not in req.body or req.body["user_type"] == "" or (not isinstance(req.body["user_type"], str)) or req.body["user_type"] not in self.__allowed_user_types)
 		):
-			appResponce["user_type"] = "Please provide valid user type"
+			appResponce["user_type"] = self._getError(34)
 
 
 		if(
@@ -127,7 +127,7 @@ class client(baseController):
 			not is_put
 			and ("app_secret" not in req.body or req.body["app_secret"] == "" or (not isinstance(req.body["app_secret"], str)))
 		):
-			appResponce["app_secret"] = "Please provide valid app secret"
+			appResponce["app_secret"] = self._getError(35)
 
 		if(
 			is_put
@@ -137,15 +137,15 @@ class client(baseController):
 			not is_put
 			and ("scope" not in req.body or not isinstance(req.body["scope"], list))
 		):
-			appResponce["scope"] = "Please provide list of scopes"
+			appResponce["scope"] = self._getError(22)
 		else:
 			if "scope" in req.body:
 				if req.body["scope"]:
 					nonInt = [i for i in req.body["scope"] if not isinstance(i, int)]
 					if nonInt:
-						appResponce["scope"] = "Please provide list of valid scopes"
+						appResponce["scope"] = self._getError(27)
 				else:
-					appResponce["scope"] = "Please provide at least one access scope"
+					appResponce["scope"] = self._getError(23, data={"endpoint":"client"})
 
 		if appResponce:
 			raise appException.clientException_400(appResponce)
@@ -198,7 +198,7 @@ class client(baseController):
 
 		appResponce = {}
 		if("client_id" not in req.body or req.body["client_id"] == "" or (not isinstance(req.body["client_id"], int))):
-			appResponce["client_id"] = "Please provide valid client id"
+			appResponce["client_id"] = self._getError(32)
 
 		if appResponce:
 			raise appException.clientException_400(appResponce)
@@ -208,9 +208,9 @@ class client(baseController):
 			client_model = oauth2ClientModel()
 
 			if not client_model.ifClientIdExists(req.body["client_id"]):
-				appResponce["client_id"] = "Client id does not exist"
+				appResponce["client_id"] = self._getError(28)
 			elif not client_model.ifClientEditable(req.body["client_id"]):
-				appResponce["client_id"] = "Client is not editable"
+				appResponce["client_id"] = self._getError(29)
 
 		if appResponce:
 			raise appException.clientException_400(appResponce)

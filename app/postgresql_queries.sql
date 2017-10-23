@@ -151,12 +151,20 @@ INSERT INTO static_text.errors (id, info, english, is_editable) VALUES (1, 'reso
 (19, 'admin-user api', 'No admin-user information provided for updation.. Please provide some information!', false),
 (20, 'admin-user api', 'Please provide a valid username for admin user!', false),
 (21, 'admin-user api', 'Please provide a password for admin user account!', false),
-(22, 'admin-user api', 'Please provide list of valid access scopes!', false),
-(23, 'admin-user api', 'Please provide at least one access scope to admin user!', false),
+(22, 'admin-user api, client api', 'Please provide list of valid access scopes!', false),
+(23, 'admin-user api, client api', 'Please provide at least one access scope to {endpoint}!', false),
 (24, 'admin-user api', 'Admin User id does not exist!', false),
 (25, 'admin-user api', 'Admin user is not editable!', false),
 (26, 'admin-user api', 'Username already exists in database!', false),
-(27, 'admin-user api', 'Invalid scopes provided..Please provide list of valid access scopes!', false)
+(27, 'admin-user api, client api', 'Invalid scopes provided..Please provide list of valid access scopes!', false),
+(28, 'client api', 'Client id does not exist!', false),
+(29, 'client api', 'Client is not editable!', false),
+(30, 'client api', 'Client App Id already exists in database!', false),
+(31, 'client api', 'No client information provided for updation.. Please provide some information!', false),
+(32, 'client api', 'Please provide a valid client id!', false),
+(33, 'client api', 'Please provide valid app id!', false),
+(34, 'client api', 'Please provide valid user type!', false),
+(35, 'client api', 'Please provide valid app secret!', false)
 ;
 ALTER SEQUENCE static_text.errors_id_seq RESTART WITH 18;
 CREATE TABLE static_text.labels (
