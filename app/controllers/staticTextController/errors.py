@@ -12,7 +12,8 @@ from ...models.staticTextModel import errorsModel
 class skillParent(baseController):
 
 	def __init__(self):
-		self.__path = "/errors/"
+		super().__init__(5)
+		# self.__path = "/errors/"
 
 	def getPath(self):
 		return self.__path
