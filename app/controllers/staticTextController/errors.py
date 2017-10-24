@@ -131,8 +131,8 @@ class errors(baseController):
 		arrFields.extend(["error_id","info"])
 		error_detail = self._getFilteredRequestData(req, arrFields)
 
-		error_detail = errorsModel()
-		appResponce["result"] = error_detail.updateError(error_detail)
+		error_model = errorsModel()
+		appResponce["result"] = error_model.updateError(error_detail)
 
 		resp.status = HTTP_200  # This is the default status
 
