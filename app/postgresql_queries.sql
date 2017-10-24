@@ -184,7 +184,7 @@ INSERT INTO static_text.errors (id, info, english, is_editable) VALUES (1, 'reso
 (52, 'token api', 'Username and password do not match!', false),
 (53, 'token api', 'Please provide access token or refresh token!', false)
 ;
-ALTER SEQUENCE static_text.errors_id_seq RESTART WITH 18;
+ALTER SEQUENCE static_text.errors_id_seq RESTART WITH 54;
 CREATE TABLE static_text.labels (
  id serial PRIMARY KEY,
  info text NOT NULL,
