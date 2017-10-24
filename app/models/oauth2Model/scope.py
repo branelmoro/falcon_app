@@ -12,8 +12,9 @@ class scope(baseModel):
 	"""entire code goes here"""
 
 	def __init__(self):
-		from ...library import APPCACHE
-		self.__APPCACHE = APPCACHE
+		# from ...library import APPCACHE
+		# self.__APPCACHE = APPCACHE
+		pass
 
 
 	def getAllScopeDetails(self):
@@ -57,17 +58,19 @@ class scope(baseModel):
 
 
 	def __addScopeToCache(self, result):
+		return
 
-		for scope_detail in result:
-			scope_id = str(scope_detail[1])
-			self.__APPCACHE.addScope(scope_id, "GET", scope_detail[2])
-			self.__APPCACHE.addScope(scope_id, "POST", scope_detail[3])
-			self.__APPCACHE.addScope(scope_id, "PUT", scope_detail[4])
-			self.__APPCACHE.addScope(scope_id, "DELETE", scope_detail[5])
+		# for scope_detail in result:
+		# 	scope_id = str(scope_detail[1])
+		# 	self.__APPCACHE.addScope(scope_id, "GET", scope_detail[2])
+		# 	self.__APPCACHE.addScope(scope_id, "POST", scope_detail[3])
+		# 	self.__APPCACHE.addScope(scope_id, "PUT", scope_detail[4])
+		# 	self.__APPCACHE.addScope(scope_id, "DELETE", scope_detail[5])
 
 
 	def __deleteScopeFromCache(self,scope_id):
-		self.__APPCACHE.deleteScope(scope_id)
+		return
+		# self.__APPCACHE.deleteScope(scope_id)
 
 
 	def ifScopeNameExists(self, scope_name, not_id=None):
