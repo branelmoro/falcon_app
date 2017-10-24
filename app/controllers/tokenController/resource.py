@@ -1,6 +1,6 @@
 # always extend your controller from base_controller
 # always give controller class name same as filename
-from ... import falcon
+from falcon import HTTP_200
 from ..base_controller import baseController
 from ..base_controller import appException
 
@@ -30,7 +30,7 @@ class resource(baseController):
 
 		oauth2_resource = oauth2ResourceModel()
 		appResponce["result"] = oauth2_resource.createNewResource(data)
-		resp.status = falcon.HTTP_200  # This is the default status
+		resp.status = HTTP_200  # This is the default status
 		resp.body = json.encode(appResponce)
 
 	# function to handle all validation
@@ -104,7 +104,7 @@ class resource(baseController):
 
 		oauth2_resource = oauth2ResourceModel()
 		appResponce["result"] = oauth2_resource.updateResource(data)
-		resp.status = falcon.HTTP_200  # This is the default status
+		resp.status = HTTP_200  # This is the default status
 		resp.body = json.encode(appResponce)
 
 	# function to handle all validation
@@ -145,7 +145,7 @@ class resource(baseController):
 
 		oauth2_resource = oauth2ResourceModel()
 		appResponce["result"] = oauth2_resource.deleteResource(data)
-		resp.status = falcon.HTTP_200  # This is the default status
+		resp.status = HTTP_200  # This is the default status
 		resp.body = json.encode(appResponce)
 
 	def __validateHttpDelete(self, req):

@@ -6,3 +6,6 @@ from . import tokenController
 
 # all our api controllers go here
 from . import specialityController
+
+
+from . import staticTextController

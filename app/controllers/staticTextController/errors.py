@@ -9,14 +9,14 @@ from ...library import json
 # import all required models here
 from ...models.staticTextModel import errorsModel
 
-class skillParent(baseController):
+class errors(baseController):
 
 	def __init__(self):
 		super().__init__(5)
 		# self.__path = "/errors/"
 
 	def getPath(self):
-		return self.__path
+		return self._path
 
 	def post(self, req, resp):
 		"""Handles POST requests"""
@@ -25,7 +25,7 @@ class skillParent(baseController):
 		# this is valid request
 		appResponce = {}
 
-		resp.status = falcon.HTTP_200  # This is the default status
+		resp.status = HTTP_200  # This is the default status
 
 		error_model = errorsModel()
 
@@ -84,7 +84,7 @@ class skillParent(baseController):
 			appResponce["english"] = self._getError(39, data={"language":"english"})
 
 		if langsToAdd:
-			invalidLangs = [a for a in langsToAdd if not isinstance(a, str) or a == ""]
+			invalidLangs = [a for a in langsToAdd if not isinstance(req.body[a], str) or req.body[a] == ""]
 			if invalidLangs:
 				for lang in invalidLangs:
 					appResponce[lang] = self._getError(39, data={"language":lang})
@@ -134,8 +134,18 @@ class skillParent(baseController):
 		error_detail = errorsModel()
 		appResponce["result"] = error_detail.updateError(error_detail)
 
-		# update in redis
+		resp.status = HTTP_200  # This is the default status
+
 		resp.body = json.encode(appResponce)
+
+
+	def __validateHttpPut(self, req):
+		# token validation
+		self.validateHTTPRequest(req)
+
+		self.__commonPreDBValidation(req)
+
+		self.__commonPostDBValidation(req)
 
 
 	def delete(self, req, resp):
@@ -148,7 +158,7 @@ class skillParent(baseController):
 
 		appResponce["result"] = error_detail.deleteError(req.body["error_id"])
 
-		# delete in redis
+		resp.status = HTTP_200  # This is the default status
 
 		resp.body = json.encode(appResponce)
 

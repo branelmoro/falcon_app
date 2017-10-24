@@ -1,6 +1,6 @@
 # always extend your controller from base_controller
 # always give controller class name same as filename
-from ... import falcon
+from falcon import HTTP_200
 from ..base_controller import baseController
 from ..base_controller import appException
 
@@ -27,7 +27,7 @@ class accessScope(baseController):
 		# this is valid request
 		appResponce = {}
 
-		resp.status = falcon.HTTP_200  # This is the default status
+		resp.status = HTTP_200  # This is the default status
 
 		scope_model = oauth2ScopeModel()
 
@@ -186,7 +186,7 @@ class accessScope(baseController):
 		scope_model = oauth2ScopeModel()
 		appResponce["result"] = scope_model.updateScope(scope_detail)
 
-		# update in redis
+		resp.status = HTTP_200  # This is the default status
 
 		resp.body = json.encode(appResponce)
 
@@ -210,7 +210,7 @@ class accessScope(baseController):
 
 		appResponce["result"] = scope_model.deleteScope(req.body["scope_id"])
 
-		# delete in redis
+		resp.status = HTTP_200  # This is the default status
 
 		resp.body = json.encode(appResponce)
 

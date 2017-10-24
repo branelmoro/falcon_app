@@ -1,6 +1,6 @@
 # always extend your controller from base_controller
 # always give controller class name same as filename
-from ... import falcon
+from falcon import HTTP_200
 from ..base_controller import baseController
 from ..base_controller import appException
 
@@ -42,7 +42,7 @@ class index(baseController):
 
 		self.__validateHttpPost(req)
 
-		resp.status = falcon.HTTP_200  # This is the default status
+		resp.status = HTTP_200  # This is the default status
 
 		# validate usename, password and usertype
 		# if valid then generate token and store in redis cache
@@ -221,7 +221,7 @@ class index(baseController):
 
 		self.__validateHttpDelete(req)
 
-		resp.status = falcon.HTTP_200  # This is the default status
+		resp.status = HTTP_200  # This is the default status
 
 		token_data = {}
 
