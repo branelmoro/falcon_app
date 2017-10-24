@@ -158,7 +158,7 @@ class skillParent(baseController):
 
 		appResponce = {}
 		if("error_id" not in req.body or req.body["error_id"] == "" or (not isinstance(req.body["error_id"], int))):
-			appResponce["error_id"] = "Please provide valid client id"
+			appResponce["error_id"] = self._getError(36)
 
 		if appResponce:
 			raise appException.clientException_400(appResponce)
