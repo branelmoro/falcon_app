@@ -1,13 +1,39 @@
+from html import escape
 
+class BASE_HTML():
 
-
-class BASE_RENDERER(object):
+	__base_html = """
+<html>
+  <head>
+	{header}
+  </head>
+  <body>{body}</body>
+</html>"""
 
 	__all_views = {}
 
-	@classmethod
-	def getviewObj(cls, someview):
+	def __init__(self, body={}, header={}, parent=None):
+		self._body = body
+		self._header = header
+		self._parent = parent
 
+	@classmethod
+	def renderView(cls, view, body={}, header={}, parent=None, partial=False):
+		viewClass = cls.__getViewClass(view)
+		obj = viewClass(body=body, header=header, parent=parent)
+		body = obj._render()
+
+		if parent:
+			return body
+		else:
+			header = obj.__getHeaderStr()
+			if partial:
+				return header + body
+			else:
+				return cls.__base_html.format(body=body, header=header)
+
+	@classmethod
+	def __getViewClass(cls, someview):
 		if someview not in cls.__all_views:
 			try:
 				pass
@@ -15,29 +41,41 @@ class BASE_RENDERER(object):
 			except:
 				pass
 			cls.__all_views[someview] = some_view
-
 		return cls.__all_views[someview]
-		# if False:
-		#	 exit("view not found")
-		# return some_view()
 
+	def __getHeaderStr(self):
+		# format header here
+		header = self._header
+		return str(header)
 
-	@classmethod
-	def render(cls, someview, kwargs):
-		view = cls.getviewObj()
-		for k in list(kwargs):
-			if isinstance(kwargs[k], RAW):
-				kwargs[k] = kwargs[k].get()
-			elif isinstance(kwargs[k], str):
+	def _getParentView(self):
+		parent = self
+		while parent.parent is not None:
+			parent = parent.parent
+		return parent
+
+	def _mergeHeaderInParent(self, header):
+		parent = self._getParentView()
+		if parent == self:
+			return
+		parent._mergeHeader(header)
+
+	def _mergeHeader(self, header):
+		# merge header in self._header
+		self._header = self._header + header
+
+	def _render(self):
+		for k in list(self._body):
+			if isinstance(self._body[k], str):
 				# to prevent CSRF attack
-				kwargs[k] = html_special_chars(kwargs[k])
-		return view._getFormatedText(kwargs)
+				self._body[k] = escape(self._body[k])
+		parent._mergeHeaderInParent(self._header)
+		return self._getFormatedText(self._body)
 
 
 
 
-
-class some_view(BASE_RENDERER):
+class some_view(BASE_HTML):
 
 	__text = """
 <html>
@@ -48,9 +86,9 @@ class some_view(BASE_RENDERER):
 </html>
 		"""
 
-	def _getFormatedText(cls, kwargs):
+	def _getFormatedText(self):
 
 		# render inner view
-		kwargs["name"] = cls.render("anotherview", kwargs["name"])
+		self._body["name"] = BASE_HTML.renderView("anotherview", body=self._body["name"], header=self._header, parent=self)
 
-		return cls.__text.format(**kwargs)
+		self._body = self.__text.format(**self._body)
