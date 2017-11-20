@@ -17,6 +17,31 @@ class BASE_HTML():
 		self._header = header
 		self._parent = parent
 
+        if "script" not in self.header:
+            self.header["script"] = {}
+
+        if "css" not in self.header:
+            self.header["css"] = {}
+
+        if not parent:
+            self._script_count = 0
+            script = {}
+            if "script" in self._header:
+                for i in sorted(self._header["script"]):
+                    self._script_count = self._script_count + 1
+                    script[self._script_count] = self._header["script"][i]
+
+            self._css_count = 0
+            css = {}
+            if "css" in self._header:
+                for i in sorted(self._header["css"]):
+                    self._css_count = self._css_count + 1
+                    css[self._css_count] = self._header["css"][i]
+
+            self._header["script"] = script
+            self._header["css"] = css
+
+
 	@classmethod
 	def renderView(cls, view, body={}, header={}, parent=None, partial=False):
 		viewClass = cls.__getViewClass(view)
@@ -54,22 +79,29 @@ class BASE_HTML():
 			parent = parent.parent
 		return parent
 
-	def _mergeHeaderInParent(self, header):
+	def _mergeHeaderInParent(self):
 		parent = self._getParentView()
 		if parent == self:
 			return
-		parent._mergeHeader(header)
+		parent.__mergeHeader(self._header)
 
-	def _mergeHeader(self, header):
+	def __mergeHeader(self, header):
 		# merge header in self._header
-		self._header = self._header + header
+
+        for script in header["script"]:
+            self._header["script"]["view_" + script] = header["script"][script]
+
+        for css in header["css"]:
+            self._header["css"]["view_" + css] = header["css"][css]
+
+		# self._header = self._header + header
 
 	def _render(self):
 		for k in list(self._body):
 			if isinstance(self._body[k], str):
 				# to prevent CSRF attack
 				self._body[k] = escape(self._body[k])
-		parent._mergeHeaderInParent(self._header)
+		self._mergeHeaderInParent()
 		return self._getFormatedText(self._body)
 
 
@@ -89,6 +121,6 @@ class some_view(BASE_HTML):
 	def _getFormatedText(self):
 
 		# render inner view
-		self._body["name"] = BASE_HTML.renderView("anotherview", body=self._body["name"], header=self._header, parent=self)
+		self._body["name"] = BASE_HTML.renderView("anotherview", body=self._body["name"], parent=self)
 
 		self._body = self.__text.format(**self._body)
