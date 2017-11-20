@@ -17,29 +17,20 @@ class BASE_HTML():
 		self._header = header
 		self._parent = parent
 
-        if "script" not in self.header:
-            self.header["script"] = {}
+		if "script" not in self.header:
+			self.header["script"] = []
 
-        if "css" not in self.header:
-            self.header["css"] = {}
+		if "css" not in self.header:
+			self.header["css"] = []
 
-        if not parent:
-            self._script_count = 0
-            script = {}
-            if "script" in self._header:
-                for i in sorted(self._header["script"]):
-                    self._script_count = self._script_count + 1
-                    script[self._script_count] = self._header["script"][i]
+		if not parent:
+			self._script_dict = {}
+			for i in self._header["script"]:
+				self._script_dict[i["id"]] = True
 
-            self._css_count = 0
-            css = {}
-            if "css" in self._header:
-                for i in sorted(self._header["css"]):
-                    self._css_count = self._css_count + 1
-                    css[self._css_count] = self._header["css"][i]
-
-            self._header["script"] = script
-            self._header["css"] = css
+			self._css_dict = {}
+			for i in self._header["css"]:
+				self._css_dict[i["id"]] = True
 
 
 	@classmethod
@@ -88,13 +79,17 @@ class BASE_HTML():
 	def __mergeHeader(self, header):
 		# merge header in self._header
 
-        for script in header["script"]:
-            self._header["script"]["view_" + script] = header["script"][script]
+		for script in header["script"]:
+			if script["id"] not in self._script_dict:
+			# if script not in self._header:
+				self._header["script"].append(script)
+				self._script_dict[script["id"]] = True
 
-        for css in header["css"]:
-            self._header["css"]["view_" + css] = header["css"][css]
-
-		# self._header = self._header + header
+		for css in header["css"]:
+			if css["id"] not in self._css_dict:
+			# if css not in self._header:
+				self._header["css"].append(css)
+				self._css_dict[css["id"]] = True
 
 	def _render(self):
 		for k in list(self._body):
