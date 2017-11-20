@@ -17,11 +17,11 @@ class BASE_HTML():
 		self._header = header
 		self._parent = parent
 
-		if "script" not in self.header:
-			self.header["script"] = []
+		if "script" not in self._header:
+			self._header["script"] = []
 
-		if "css" not in self.header:
-			self.header["css"] = []
+		if "css" not in self._header:
+			self._header["css"] = []
 
 		if not parent:
 			self._script_dict = {}
