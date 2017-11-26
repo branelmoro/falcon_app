@@ -2,8 +2,7 @@ from html import escape
 
 class BASE_HTML():
 
-	__base_html = """
-<html>
+	__base_html = """<html>
   <head>
 	{header}
   </head>
@@ -49,15 +48,17 @@ class BASE_HTML():
 				return cls.__base_html.format(body=body, header=header)
 
 	@classmethod
-	def __getViewClass(cls, someview):
-		if someview not in cls.__all_views:
+	def __getViewClass(cls, view):
+		if view not in cls.__all_views:
 			try:
-				pass
-				# from some_view import some_view
+				view_class_name = view.split(".")[-1]
+				view_module = __import__(name=("views." + view), fromlist=[view_class_name])
+				cls.__all_views[view] = getattr(view_module,view_class_name)
+			except AttributeError:
+				exit("View Logic Class - "+view_class_name+" not found")
 			except:
-				pass
-			cls.__all_views[someview] = some_view
-		return cls.__all_views[someview]
+				exit("AAwoo... view nahi mila..")
+		return cls.__all_views[view]
 
 	def __getHeaderStr(self):
 		# format header here
@@ -66,8 +67,8 @@ class BASE_HTML():
 
 	def _getParentView(self):
 		parent = self
-		while parent.parent is not None:
-			parent = parent.parent
+		while parent._parent is not None:
+			parent = parent._parent
 		return parent
 
 	def _mergeHeaderInParent(self):
@@ -97,25 +98,4 @@ class BASE_HTML():
 				# to prevent CSRF attack
 				self._body[k] = escape(self._body[k])
 		self._mergeHeaderInParent()
-		return self._getFormatedText(self._body)
-
-
-
-
-class some_view(BASE_HTML):
-
-	__text = """
-<html>
-  <head>
-	<title>Spitfire example</title>
-  </head>
-  <body><p>Hello, {name}</p></body>
-</html>
-		"""
-
-	def _getFormatedText(self):
-
-		# render inner view
-		self._body["name"] = BASE_HTML.renderView("anotherview", body=self._body["name"], parent=self)
-
-		self._body = self.__text.format(**self._body)
+		return self._getFormatedText()
