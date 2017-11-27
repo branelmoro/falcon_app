@@ -1,5 +1,6 @@
 from os import path
 from pathlib import Path
+import re
 from html import escape
 
 class BASE_HTML():
@@ -75,6 +76,7 @@ class BASE_HTML():
 			fp = open(view_template_file, 'r')
 			html = fp.read()
 			fp.close()
+			# html = re.sub(r'\n', ' ', html)
 			template = html
 		return template
 
