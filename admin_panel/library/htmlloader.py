@@ -82,8 +82,22 @@ class BASE_HTML():
 
 	def __getHeaderStr(self):
 		# format header here
-		header = self._header
-		return str(header)
+		css = ""
+		if self._header["css"]:
+			for i in self._header["css"]:
+				if isinstance(i, str):
+					css = css + i
+		if css:
+			css = '<style type="text/css">' + css + '</style>'
+
+		js = ""
+		if self._header["script"]:
+			for i in self._header["script"]:
+				if isinstance(i, str):
+					js = js + i
+		if js:
+			js = '<script type="text/javascript">' + js + '</script>'
+		return css + css
 
 	def _getParentView(self):
 		parent = self
