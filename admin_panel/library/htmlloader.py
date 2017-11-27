@@ -1,3 +1,5 @@
+from os import path
+from pathlib import Path
 from html import escape
 
 class BASE_HTML():
@@ -54,11 +56,27 @@ class BASE_HTML():
 				view_class_name = view.split(".")[-1]
 				view_module = __import__(name=("views." + view), fromlist=[view_class_name])
 				cls.__all_views[view] = getattr(view_module,view_class_name)
+
+				view_template_file = path.dirname(view_module.__file__) + "/" + view_class_name + ".html"
+				cls.__all_views[view]._template = cls.__getViewTemplate(view_template_file)
+
 			except AttributeError:
 				exit("View Logic Class - "+view_class_name+" not found")
 			except:
 				exit("AAwoo... view nahi mila..")
 		return cls.__all_views[view]
+
+
+	@classmethod
+	def __getViewTemplate(cls, view_template_file):
+		print(view_template_file)
+		template = ""
+		if(Path(view_template_file).is_file()):
+			fp = open(view_template_file, 'r')
+			html = fp.read()
+			fp.close()
+			template = html
+		return template
 
 	def __getHeaderStr(self):
 		# format header here
