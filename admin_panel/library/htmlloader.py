@@ -44,10 +44,12 @@ class BASE_HTML():
 		if parent:
 			return body
 		else:
-			header = obj.__getHeaderStr()
 			if partial:
-				return header + body
+				css = obj.__getCss()
+				js = obj.__getjs()
+				return css + body + js
 			else:
+				header = obj.__getHeaderStr()
 				return cls.__base_html.format(body=body, header=header)
 
 	@classmethod
@@ -82,6 +84,59 @@ class BASE_HTML():
 
 	def __getHeaderStr(self):
 		# format header here
+		title = ""
+		if "title" in self._header:
+			title = "<title>"+escape(self._header["title"])+"</title>"
+		# meta_data = self.__getMetaData()
+		# css = self.__getCss()
+		# js = self.__getJs()
+		return title + self.__getMetaData() + self.__getCss() + self.__getJs()
+
+
+	def __getMetaData(self):
+		# default http_equiv
+		"""<meta http-equiv="Content-type" content="text/html; charset=utf-8"/>
+		<meta http-equiv="X-UA-Compatible" content="IE=Edge" />"""
+		meta_http_equiv = {
+			# "Content-type":{
+			# 	"content":"text/html; charset=utf-8"
+			# },
+			# "X-UA-Compatible":{
+			# 	"content":"IE=Edge"
+			# }
+		}
+
+		meta_name = {
+			# "application-name":"abc",
+			# "auther":"auther",
+			# "description":"this is description",
+			# "keywords":"key,words"
+		}
+
+		custom_meta = []
+
+		if "meta" in self._header:
+			for i in self._header["meta"]:
+				if "name" in i:
+					meta_name[i["name"]] = i
+				elif "http-equiv" in i:
+					meta_http_equiv[i["http-equiv"]] = i
+				else:
+					custom_meta.append(i)
+
+		meta_data = []
+		for http_equiv in meta_http_equiv:
+			meta_data.append("<meta " + (" ".join([(attr+'='+'"'+escape(meta_http_equiv[http_equiv][attr])+'"') for attr in meta_http_equiv[http_equiv]])) + "/>")
+
+		for name in meta_name:
+			meta_data.append("<meta " + (" ".join([(attr+'='+'"'+escape(meta_name[name][attr])+'"') for attr in meta_name[name]])) + "/>")
+
+		for meta in custom_meta:
+			meta_data.append("<meta " + (" ".join([(attr+'='+'"'+escape(meta[attr])+'"') for attr in meta])) + "/>")
+
+		return "".join(meta_data)
+
+	def __getCss(self):
 		css = ""
 		if self._header["css"]:
 			for i in self._header["css"]:
@@ -89,7 +144,9 @@ class BASE_HTML():
 					css = css + i
 		if css:
 			css = '<style type="text/css">' + css + '</style>'
+		return css
 
+	def __getJs(self):
 		js = ""
 		if self._header["script"]:
 			for i in self._header["script"]:
@@ -97,7 +154,7 @@ class BASE_HTML():
 					js = js + i
 		if js:
 			js = '<script type="text/javascript">' + js + '</script>'
-		return css + css
+		return js
 
 	def _getParentView(self):
 		parent = self
