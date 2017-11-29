@@ -90,7 +90,7 @@ class BASE_HTML():
 		# meta_data = self.__getMetaData()
 		# css = self.__getCss()
 		# js = self.__getJs()
-		return title + self.__getMetaData() + self.__getCss() + self.__getJs()
+		return "".join([title, self.__getMetaData(), self.__getCss(), self.__getJs()])
 
 
 	def __getMetaData(self):
