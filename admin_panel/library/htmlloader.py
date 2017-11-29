@@ -95,8 +95,8 @@ class BASE_HTML():
 
 	def __getMetaData(self):
 		# default http_equiv
-		"""<meta http-equiv="Content-type" content="text/html; charset=utf-8"/>
-		<meta http-equiv="X-UA-Compatible" content="IE=Edge" />"""
+		# <meta http-equiv="Content-type" content="text/html; charset=utf-8"/>
+		# <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
 		meta_http_equiv = {
 			# "Content-type":{
 			# 	"content":"text/html; charset=utf-8"
