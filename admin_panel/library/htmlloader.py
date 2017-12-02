@@ -1,9 +1,39 @@
-from os import path
+from os.path import dirname, abspath
 from pathlib import Path
 import re
 from html import escape
 
-from .staticloader import CSS, JS
+class BASE_STATIC_LOADER(object):
+
+	@classmethod
+	def get(cls, file_name):
+
+		if file_name not in cls._static_content:
+			file_path = cls._folder + file_name
+			if(Path(file_path).is_file()):
+				fp = open(file_path, 'r')
+				d = fp.read()
+				fp.close()
+				cls._static_content[file_name] = d
+			else:
+				exit("file not found - " + file_path)
+		return cls._static_content[file_name]
+
+
+class CSS(BASE_STATIC_LOADER):
+	_folder = dirname(dirname(abspath(__file__))) + "/static/css/"
+	_static_content = {}
+
+
+class JS(BASE_STATIC_LOADER):
+	_folder = dirname(dirname(abspath(__file__))) + "/static/js/"
+	_static_content = {}
+
+
+# class HTML(BASE_STATIC_LOADER):
+# 	_folder = dirname(dirname(abspath(__file__))) + "/static/html/"
+# 	_static_content = {}
+
 
 class BASE_HTML():
 
@@ -55,7 +85,7 @@ class BASE_HTML():
 				view_module = __import__(name=("views." + view), fromlist=[view_class_name])
 				cls.__all_views[view] = getattr(view_module,view_class_name)
 
-				view_template_file = path.dirname(view_module.__file__) + "/" + view_class_name + ".html"
+				view_template_file = dirname(view_module.__file__) + "/" + view_class_name + ".html"
 				cls.__all_views[view]._template = cls.__getViewTemplate(view_template_file)
 
 			except AttributeError:
@@ -82,9 +112,6 @@ class BASE_HTML():
 		title = ""
 		if "title" in self.__header:
 			title = "<title>"+escape(self.__header["title"])+"</title>"
-		# meta_data = self.__getMetaData()
-		# css = self.__getCss()
-		# js = self.__getJs()
 		return "".join([title, self.__getMetaData(), self.__getCss(), self.__getJs()])
 
 
