@@ -37,7 +37,7 @@ class JS(BASE_STATIC_LOADER):
 
 class BASE_HTML():
 
-	__base_html = """<html>
+	__base_html = """<!DOCTYPE html><html>
   <head>
 	{header}
   </head>
