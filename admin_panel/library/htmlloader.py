@@ -3,6 +3,8 @@ from pathlib import Path
 import re
 from html import escape
 
+from .staticloader import CSS, JS
+
 class BASE_HTML():
 
 	__base_html = """<html>
@@ -16,23 +18,16 @@ class BASE_HTML():
 
 	def __init__(self, body={}, header={}, parent=None):
 		self._body = body
-		self._header = header
-		self._parent = parent
+		self.__header = header
+		self.__parent = parent
 
-		if "script" not in self._header:
-			self._header["script"] = []
+		if parent is None:
 
-		if "css" not in self._header:
-			self._header["css"] = []
+			self.__css = []
+			self.__css_dict = {}
 
-		if not parent:
-			self._script_dict = {}
-			for i in self._header["script"]:
-				self._script_dict[i["id"]] = True
-
-			self._css_dict = {}
-			for i in self._header["css"]:
-				self._css_dict[i["id"]] = True
+			self.__js = []
+			self.__js_dict = {}
 
 
 	@classmethod
@@ -85,8 +80,8 @@ class BASE_HTML():
 	def __getHeaderStr(self):
 		# format header here
 		title = ""
-		if "title" in self._header:
-			title = "<title>"+escape(self._header["title"])+"</title>"
+		if "title" in self.__header:
+			title = "<title>"+escape(self.__header["title"])+"</title>"
 		# meta_data = self.__getMetaData()
 		# css = self.__getCss()
 		# js = self.__getJs()
@@ -115,8 +110,8 @@ class BASE_HTML():
 
 		custom_meta = []
 
-		if "meta" in self._header:
-			for i in self._header["meta"]:
+		if "meta" in self.__header:
+			for i in self.__header["meta"]:
 				if "name" in i:
 					meta_name[i["name"]] = i
 				elif "http-equiv" in i:
@@ -137,56 +132,45 @@ class BASE_HTML():
 		return "".join(meta_data)
 
 	def __getCss(self):
-		css = ""
-		if self._header["css"]:
-			for i in self._header["css"]:
-				if isinstance(i, str):
-					css = css + i
-		if css:
-			css = '<style type="text/css">' + css + '</style>'
-		return css
+		if self.__css:
+			return '<style type="text/css">' + ''.join(self.__css) + '</style>'
+		else:
+			return ''
 
 	def __getJs(self):
-		js = ""
-		if self._header["script"]:
-			for i in self._header["script"]:
-				if isinstance(i, str):
-					js = js + i
-		if js:
-			js = '<script type="text/javascript">' + js + '</script>'
-		return js
+		if self.__js:
+			return '<script type="text/javascript">' + ''.join(self.__js) + '</script>'
+		else:
+			return ''
+
+	def _addCss(self, css, inline=False):
+		parent = self._getParentView()
+		if css not in parent.__css_dict:
+			if inline:
+				parent.__css.append(css)
+			else:
+				parent.__css.append(CSS.get(css))
+			parent.__css_dict[css] = True
+
+
+	def _addJs(self, js, inline=False):
+		parent = self._getParentView()
+		if js not in parent.__js_dict:
+			if inline:
+				parent.__js.append(js)
+			else:
+				parent.__js.append(JS.get(js))
+			parent.__js_dict[js] = True
 
 	def _getParentView(self):
 		parent = self
-		while parent._parent is not None:
-			parent = parent._parent
+		while parent.__parent is not None:
+			parent = parent.__parent
 		return parent
-
-	def _mergeHeaderInParent(self):
-		parent = self._getParentView()
-		if parent == self:
-			return
-		parent.__mergeHeader(self._header)
-
-	def __mergeHeader(self, header):
-		# merge header in self._header
-
-		for script in header["script"]:
-			if script["id"] not in self._script_dict:
-			# if script not in self._header:
-				self._header["script"].append(script)
-				self._script_dict[script["id"]] = True
-
-		for css in header["css"]:
-			if css["id"] not in self._css_dict:
-			# if css not in self._header:
-				self._header["css"].append(css)
-				self._css_dict[css["id"]] = True
 
 	def _render(self):
 		for k in list(self._body):
 			if isinstance(self._body[k], str):
 				# to prevent CSRF attack
 				self._body[k] = escape(self._body[k])
-		self._mergeHeaderInParent()
 		return self._getFormatedText()
