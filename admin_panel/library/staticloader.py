@@ -20,10 +20,10 @@ class BASE_STATIC_LOADER(object):
 		return cls._static_content[file_name]
 
 class CSS(BASE_STATIC_LOADER):
-	_folder = dirname(dirname(abspath(__file__))) + "/css/"
+	_folder = dirname(dirname(abspath(__file__))) + "/static/css/"
 	_static_content = {}
 
 
 class JS(BASE_STATIC_LOADER):
-	_folder = dirname(dirname(abspath(__file__))) + "/js/"
+	_folder = dirname(dirname(abspath(__file__))) + "/static/js/"
 	_static_content = {}

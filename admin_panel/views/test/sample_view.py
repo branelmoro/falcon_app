@@ -4,6 +4,8 @@ class sample_view(BASE_HTML):
 
 	def _getFormatedText(self):
 
+		self._addCss("abc.css")
+
 		# render inner view
 		self._body["here"] = BASE_HTML.renderView("sample_view", body={"at":" here"}, parent=self)
 
