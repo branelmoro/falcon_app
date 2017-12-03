@@ -4,6 +4,7 @@ from falcon import HTTP_400, HTTP_401, HTTP_403, HTTP_404, HTTP_405, HTTP_406, H
 from .. import exception as appException
 from ..library import json
 from ..library import APPCACHE
+from ..library import BASE_HTML
 import sys
 import traceback
 
@@ -211,3 +212,11 @@ class baseController(object):
 		if data:
 			message = message.format(**data)
 		return message
+
+
+	def _render(self, view, body={}, header={}):
+		return BASE_HTML.renderView(view=view, body=body, header=header, partial=False)
+
+
+	def _renderPartial(self, view, body={}, header={}):
+		return BASE_HTML.renderView(view=view, body=body, header=header, partial=True)
