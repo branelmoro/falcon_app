@@ -2,9 +2,8 @@
 import sys
 from .. import exception as appException
 
-# from ..resources.redis import redis
-from ..models.oauth2Model import oauth2ScopeModel
-from ..models.staticTextModel import errorsModel
+# from ..models.oauth2Model import oauth2ScopeModel
+# from ..models.staticTextModel import errorsModel
 
 class APPCACHE(object):
 

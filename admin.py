@@ -1,5 +1,5 @@
 import types
-import app as app_wrapper
+import admin_panel as app_wrapper
 
 controllers = app_wrapper.controllers
 

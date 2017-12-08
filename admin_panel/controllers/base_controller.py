@@ -10,10 +10,9 @@ import traceback
 
 
 from ..resources.redis import redis as SESSION
-from ..models.oauth2Model import oauth2ResourceModel
 
 
-APPCACHE.loadCache()
+# APPCACHE.loadCache()
 
 class baseController(object):
 	"""This is base controller and all other controllers will be child"""
