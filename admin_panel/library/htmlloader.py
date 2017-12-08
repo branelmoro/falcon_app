@@ -3,6 +3,11 @@ from pathlib import Path
 import re
 from html import escape
 
+from .. import exception as appException
+
+# from .. import views
+# print(views)
+# print("----------------------------------------")
 class BASE_STATIC_LOADER(object):
 
 	@classmethod
@@ -82,7 +87,8 @@ class BASE_HTML():
 		if view not in cls.__all_views:
 			try:
 				view_class_name = view.split(".")[-1]
-				view_module = __import__(name=("views." + view), fromlist=[view_class_name])
+				view_module = __import__(name=("admin_panel.views." + view), fromlist=[view_class_name])
+				
 				cls.__all_views[view] = getattr(view_module,view_class_name)
 
 				view_template_file = dirname(view_module.__file__) + "/" + view_class_name + ".html"
@@ -92,12 +98,13 @@ class BASE_HTML():
 				exit("View Logic Class - "+view_class_name+" not found")
 			except:
 				exit("AAwoo... view nahi mila..")
+				# raise appException.serverException_500()
 		return cls.__all_views[view]
 
 
 	@classmethod
 	def __getViewTemplate(cls, view_template_file):
-		print(view_template_file)
+		# print(view_template_file)
 		template = ""
 		if(Path(view_template_file).is_file()):
 			fp = open(view_template_file, 'r')

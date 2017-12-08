@@ -45,4 +45,6 @@ class index(baseController):
 
 		params["running_from"] = str(current_time - server_start_time)
 
-		resp.body = json.encode(params)
+		resp.body = self._render(view="test.sample_view")
+
+		# resp.body = json.encode(params)

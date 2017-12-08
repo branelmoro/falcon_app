@@ -1,4 +1,4 @@
-from library import BASE_HTML
+from ...library import BASE_HTML
 
 class sample_view(BASE_HTML):
 

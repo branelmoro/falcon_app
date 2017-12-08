@@ -12,6 +12,8 @@ import traceback
 from ..resources.redis import redis as SESSION
 
 
+print(BASE_HTML.renderView(view="test.sample_view"))
+
 # APPCACHE.loadCache()
 
 class baseController(object):
