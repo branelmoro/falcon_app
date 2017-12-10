@@ -24,10 +24,6 @@ class index(baseController):
 	def getPath(self):
 		return self.__path
 
-	def demo(self):
-		print("workng")
-		sampleModel().test()
-
 	"""This is sample controller"""
 	def get(self, req, resp):
 		"""Handles GET requests"""

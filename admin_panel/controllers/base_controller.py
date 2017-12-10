@@ -130,7 +130,7 @@ class baseController(object):
 
 		resp.body = json.encode(params)
 
-	def __sendError(self, req, resp, exc_value):
+	def __sendError(self, resp, exc_value):
 		http_status = exc_value.getHttpStatus()
 		if http_status == 401:
 			resp.status = HTTP_401
@@ -155,7 +155,7 @@ class baseController(object):
 			resp.set_header("content-type", "text/html")
 			self.get(req, resp)
 		except appException.clientException as e:
-			self.__sendError(req, resp, e)
+			self.__sendError(resp, e)
 		except:
 			#catch error
 			self.__internalServerError(req, resp)
@@ -165,7 +165,7 @@ class baseController(object):
 			resp.set_header("content-type", "text/html")
 			self.post(req, resp)
 		except appException.clientException as e:
-			self.__sendError(req, resp, e)
+			self.__sendError(resp, e)
 		except:
 			#catch error
 			self.__internalServerError(req, resp)
@@ -175,7 +175,7 @@ class baseController(object):
 			resp.set_header("content-type", "text/html")
 			self.put(req, resp)
 		except appException.clientException as e:
-			self.__sendError(req, resp, e)
+			self.__sendError(resp, e)
 		except:
 			#catch error
 			self.__internalServerError(req, resp)
@@ -184,7 +184,7 @@ class baseController(object):
 		try:
 			self.delete(req, resp)
 		except appException.clientException as e:
-			self.__sendError(req, resp, e)
+			self.__sendError(resp, e)
 		except:
 			#catch error
 			self.__internalServerError(req, resp)
