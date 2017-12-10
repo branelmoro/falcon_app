@@ -162,6 +162,7 @@ class baseController(object):
 
 	def on_post(self, req, resp):
 		try:
+			resp.set_header("content-type", "text/html")
 			self.post(req, resp)
 		except appException.clientException as e:
 			self.__sendError(req, resp, e)
@@ -171,6 +172,7 @@ class baseController(object):
 
 	def on_put(self, req, resp):
 		try:
+			resp.set_header("content-type", "text/html")
 			self.put(req, resp)
 		except appException.clientException as e:
 			self.__sendError(req, resp, e)
