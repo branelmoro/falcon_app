@@ -11,9 +11,6 @@ import traceback
 
 from ..resources.redis import redis as SESSION
 
-
-print(BASE_HTML.renderView(view="test.sample_view"))
-
 # APPCACHE.loadCache()
 
 class baseController(object):
@@ -155,6 +152,7 @@ class baseController(object):
 
 	def on_get(self, req, resp):
 		try:
+			resp.set_header("content-type", "text/html")
 			self.get(req, resp)
 		except appException.clientException as e:
 			self.__sendError(req, resp, e)

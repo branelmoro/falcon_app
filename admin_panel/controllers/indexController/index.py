@@ -31,7 +31,7 @@ class index(baseController):
 		sampleModel().test()
 
 	"""This is sample controller"""
-	def on_get(self, req, resp):
+	def get(self, req, resp):
 		"""Handles GET requests"""
 		resp.status = HTTP_200  # This is the default status
 
@@ -46,5 +46,3 @@ class index(baseController):
 		params["running_from"] = str(current_time - server_start_time)
 
 		resp.body = self._render(view="test.sample_view")
-
-		# resp.body = json.encode(params)
