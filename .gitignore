@@ -1,2 +1,4 @@
 __pycache__
 mimeparse.py
+app/config/env.py
+admin_panel/config/env.py
