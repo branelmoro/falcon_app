@@ -1,4 +1,5 @@
 import pycurl
+from io import BytesIO
 
 class BACKEND_API(object):
 
@@ -20,4 +21,13 @@ class BACKEND_API(object):
 
 	@classmethod
 	def __excecute(cls):
+		http_buffer = BytesIO()
+		c = pycurl.Curl()
+		c.setopt(c.URL, 'http://pycurl.io/')
+		c.setopt(c.WRITEDATA, http_buffer)
+		c.perform()
+		c.close()
+
+		body = http_buffer.getvalue()
+		http_buffer.close()
 		pass
