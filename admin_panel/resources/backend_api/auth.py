@@ -1,20 +1,16 @@
 import pycurl
 from .resource_api import BACKEND_API
 
+from ...config import CLIENT_APP_CREDENTIALS
+
 class Auth(BACKEND_API):
 
-	client_credentials = [
-		"client_session_id",
-		"client_password"
-	]
-
 	def __authorize(data):
-		path = "/token/"
 		headers = {
 			"Content-Type":"application/json",
-			"Authorization":"Basic" + base64.b64encode(cls.client_credentials[0]+":"+cls.client_credentials[1])
+			"Authorization":"Basic" + base64.b64encode(CLIENT_APP_CREDENTIALS[0]+":"+CLIENT_APP_CREDENTIALS[1])
 		}
-		return cls.post(path=path, data=data, header=header)
+		return cls.post(path="/token/", data=data, header=header)
 
 	def grant_type_authorization_code(data):
 		# not needed for our own apps
@@ -36,11 +32,10 @@ class Auth(BACKEND_API):
 		return cls.__authorize(data)
 
 	def destroyTokens(data):
-		path = "/token/"
 		headers = {
 			"Content-Type":"application/json"
 		}
-		return cls.delete(path=path, data=data, header=header)
+		return cls.delete(path="/token/", data=data, header=header)
 
 <?php
 namespace App\Resources;

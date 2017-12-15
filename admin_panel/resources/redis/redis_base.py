@@ -1,4 +1,5 @@
 import redis
+from ...config import REDIS_DB_CREDENTIALS
 
 # from app import exception as appException
 
@@ -52,6 +53,7 @@ Accordingly changes need to be done in code to handle connection to all shards a
 class redisBase(object):
 
 	__connections = {}
+	__dbconfig = REDIS_DB_CREDENTIALS
 
 	@classmethod
 	def setConfig(cls):
@@ -86,7 +88,7 @@ class redisBase(object):
 
 	@classmethod
 	def is_validDB(cls,dbName):
-		cls.setConfig()
+		# cls.setConfig()
 		if not dbName in cls.__dbconfig:
 			raise rdException({"redis":"Invalid redis database server provided"})
 

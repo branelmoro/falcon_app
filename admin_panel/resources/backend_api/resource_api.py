@@ -2,6 +2,7 @@ import pycurl
 from io import BytesIO
 
 from ...library import json
+from ...config import BACKEND_API_URL
 
 class BACKEND_API(object):
 
@@ -41,7 +42,7 @@ class BACKEND_API(object):
 		c.setopt(c.HTTPHEADER, [i+": "+str(header[i]) for i in header])
 
 		# c.setopt(c.HTTPHEADER, ["Content-Type: application/json"])
-		c.setopt(c.URL, 'http://127.0.0.1:3032')
+		c.setopt(c.URL, BACKEND_API_URL)
 
 		c.setopt(c.WRITEDATA, http_buffer)
 		try:
