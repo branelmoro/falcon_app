@@ -3,9 +3,44 @@ from .resource_api import BACKEND_API
 
 class Auth(BACKEND_API):
 
+	client_credentials = [
+		"client_session_id",
+		"client_password"
+	]
 
-	pass
+	def __authorize(data):
+		path = "/token/"
+		headers = {
+			"Content-Type":"application/json",
+			"Authorization":"Basic" + base64.b64encode(cls.client_credentials[0]+":"+cls.client_credentials[1])
+		}
+		return cls.post(path=path, data=data, header=header)
 
+	def grant_type_authorization_code(data):
+		# not needed for our own apps
+		pass
+
+	def grant_type_password(data):
+		data["grant_type"] = "password";
+		return cls.__authorize(data)
+
+	def grant_type_client_credentials():
+		data["grant_type"] = "client_credentials";
+		return cls.__authorize(data)
+
+	def grant_type_refresh_token():
+		$data = {
+			"refresh_token":"asdfsdfsdfsdfsdfsdfsdfsdfsdf",
+			"grant_type":"refresh_token"
+		};
+		return cls.__authorize(data)
+
+	def destroyTokens(data):
+		path = "/token/"
+		headers = {
+			"Content-Type":"application/json"
+		}
+		return cls.delete(path=path, data=data, header=header)
 
 <?php
 namespace App\Resources;

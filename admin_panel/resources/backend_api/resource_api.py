@@ -41,7 +41,7 @@ class BACKEND_API(object):
 		c.setopt(c.HTTPHEADER, [i+": "+str(header[i]) for i in header])
 
 		# c.setopt(c.HTTPHEADER, ["Content-Type: application/json"])
-		c.setopt(c.URL, 'http://127.0.0.1:3032/')
+		c.setopt(c.URL, 'http://127.0.0.1:3032')
 
 		c.setopt(c.WRITEDATA, http_buffer)
 		try:
@@ -58,5 +58,15 @@ class BACKEND_API(object):
 
 		c.close()
 
-		body = http_buffer.getvalue()
+		response = http_buffer.getvalue()
 		http_buffer.close()
+
+		if httpcode in [500,501,502,503,504,505]:
+			# throw backend api server error
+			pass
+
+		return {
+			"response" => response,
+			# "error_no" => os_errno,
+			"httpcode" => httpcode
+		};
