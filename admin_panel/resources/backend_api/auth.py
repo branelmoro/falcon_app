@@ -7,7 +7,7 @@ class Auth(BACKEND_API):
 
 	def __authorize(data):
 		headers = {
-			"Content-Type":"application/json",
+			# "Content-Type":"application/json",
 			"Authorization":"Basic" + base64.b64encode(CLIENT_APP_CREDENTIALS[0]+":"+CLIENT_APP_CREDENTIALS[1])
 		}
 		return cls.post(path="/token/", data=data, header=header)
@@ -32,10 +32,7 @@ class Auth(BACKEND_API):
 		return cls.__authorize(data)
 
 	def destroyTokens(data):
-		headers = {
-			"Content-Type":"application/json"
-		}
-		return cls.delete(path="/token/", data=data, header=header)
+		return cls.delete(path="/token/", data=data)
 
 <?php
 namespace App\Resources;
