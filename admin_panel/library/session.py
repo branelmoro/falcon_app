@@ -1,142 +1,70 @@
+import random
 import hashlib
+import datetime
 from ..resources.redis import redis as redisCrud
+from . import json
 
-redisCrud("sessionDb")
+SESSION_DB = redisCrud("sessionDb")
 
 class Session(object):
 
 	__session_id = None
+	__session_key = "x-session"
+	__sessionData = {}
 
-	def __init__(self, req):
-		self.__session_db = redisCrud("sessionDb")
+	__req = None
+	__res = None
 
-
-	def generateUniqueIdFromKey($key = null):
-		if($key === null) {
-			$key = "random number + timestamp";
-		}
-		while($this->RedisCache->exists($key)) {
-			$key = $this->generateUniqueIdFromKey($key);
-		}
-		return md5($key);
-
-
-	def load(self, req):
+	def __init__(self, req, res):
+		self.__req = req
+		self.__res = res
 		# load session
-		if(isset($_COOKIE["x-session"])) {
-			if($this->RedisCache->exists($_COOKIE["x-session"])) {
-				$this->sessionData = json_decode($this->RedisCache->get($_COOKIE["x-session"]), true);
-				$this->session_id = $_COOKIE["x-session"];
-			} else {
-				// unset session cookie
-				setcookie("x-session", $this->session_id, time()-100000);
-			}
-		}
-		pass
+		if self.__session_key in self.__req.cookies:
+			if SESSION_DB.exists(self.__req.cookies[self.__session_key]):
+				self.__sessionData = SESSION_DB.hgetall(self.__req.cookies[self.__session_key])
+				self.__session_id = self.__req.cookies[self.__session_key];
+			else:
+				# session is expired hence unset cookie
+				self.__res.unset_cookie(self.__req.cookies[self.__session_key])
+
+	def __generateUniqueIdFromKey(self):
+		key = hashlib.md5(str(random.random()) + str(datetime.datetime.now()))
+		while SESSION_DB.exists(key):
+			key = hashlib.md5(key)
+		return key
 
 	def exists(self):
-		return (self->session_id is not None);
+		return (self.__session_id is not None)
 
+	def start(self, expiry = 900, data={}):
+		self.__session_id = self.__generateUniqueIdFromKey()
+		self.__res.set_cookie(name=self.__session_key, value=self.__session_id, max_age=expiry)
+		# self.__res.set_cookie(name=self.__session_key, value=self.__session_id, expires=None, max_age=900, domain=None, path=None, secure=None, http_only=True)
+		if data:
+			self.setData(data)
 
+	def setData(self, data):
+		self.__sessionData.update(data)
+		SESSION_DB.hmset(self.__session_id, data)
 
-<?php
-namespace App\Library;
+	def getData(self):
+		return self.__sessionData
 
-use App\Resources\RedisCache;
+	def set(self, key, value):
+		self.__sessionData[key] = value
+		SESSION_DB = hset(self.__session_id, key, value)
 
-use Psr\Container\ContainerInterface;
-// ini_set('display_errors', 1);
-// ini_set('display_startup_errors', 1);
-// error_reporting(E_ALL);
-class Session {
+	def get(self, key):
+		return self.__sessionData[key]
 
-	private $sessionData = [];
+	def destroy(self):
+		SESSION_DB.delete(self.__session_id)
+		self.__res.unset_cookie(self.__session_id)
+		self.__session_id = None;
+		self.__sessionData = {};
 
-	private $session_id = null;
-
-	private $RedisCache = null;
-
-	private $container = null;
-
-	public function __construct(ContainerInterface $container) {
-		$this->container = $container;
-		$this->RedisCache = new RedisCache($this->container->get('settings')["redis"]["sessionDb"]);
-
-		// load existing session
-		$this->load();
-	}
-
-	private function generateUniqueIdFromKey($key = null) {
-		if($key === null) {
-			$key = "random number + timestamp";
-		}
-		while($this->RedisCache->exists($key)) {
-			$key = $this->generateUniqueIdFromKey($key);
-		}
-		return md5($key);
-	}
-
-	public function exists() {
-		return ($this->session_id !== null);
-	}
-
-	public function init($session_id = null, $expiry = 900) {
-		$this->session_id = $this->generateUniqueIdFromKey($session_id);
-
-		// create cookie and save session in cache
-		$this->write_session_to_cache($expiry);
-		setcookie("x-session", $this->session_id, time()+$expiry);
-	}
-
-	private function load() {
-		// load session from cookie
-		if(isset($_COOKIE["x-session"])) {
-			if($this->RedisCache->exists($_COOKIE["x-session"])) {
-				$this->sessionData = json_decode($this->RedisCache->get($_COOKIE["x-session"]), true);
-				$this->session_id = $_COOKIE["x-session"];
-			} else {
-				// unset session cookie
-				setcookie("x-session", $this->session_id, time()-100000);
-			}
-		}
-	}
-
-	public function setData(Array $arr) {
-		$this->sessionData = array_merge($this->sessionData, $arr);
-		$ttl = $this->RedisCache->ttl($this->session_id);
-		return $this->write_session_to_cache($ttl);
-	}
-
-	public function getData() {
-		return $this->sessionData;
-	}
-
-	public function set($key, $value) {
-		$this->sessionData[$key] = $value;
-		$ttl = $this->RedisCache->ttl($this->session_id);
-		$this->write_session_to_cache();
-	}
-
-	private function write_session_to_cache($expiry) {
-		$this->RedisCache->set($this->session_id, json_encode($this->sessionData), $expiry);
-	}
-
-	public function get($key) {
-		return $this->sessionData[$key];
-	}
-
-	public function refresh(Array $data) {
-		$this->sessionData = array_merge($this->sessionData, $arr);
-		$this->init($data["refreshToken"], $data["refreshTokenExpiry"]);
-		$this->setData($data);
-	}
-
-	public function destroy() {
-		$this->RedisCache->delete($this->session_id);
-		$this->session_id = null;
-		$this->sessionData = [];
-		setcookie("x-session", $this->session_id, time()-100000);
-		unset($_COOKIE["x-session"]);
-	}
-
-}
+	def refresh(self, data):
+		sessionData = self.__sessionData
+		sessionData.update(data)
+		self.destroy()
+		self.start(expiry = data["refreshTokenExpiry"], data=sessionData)

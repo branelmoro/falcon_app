@@ -5,26 +5,26 @@ from ...config import CLIENT_APP_CREDENTIALS
 
 class Auth(BACKEND_API):
 
-	def __authorize(data):
+	def __authorize(cls, data):
 		headers = {
 			# "Content-Type":"application/json",
 			"Authorization":"Basic" + base64.b64encode(CLIENT_APP_CREDENTIALS[0]+":"+CLIENT_APP_CREDENTIALS[1])
 		}
 		return cls.post(path="/token/", data=data, header=header)
 
-	def grant_type_authorization_code(data):
+	def grant_type_authorization_code(cls, data):
 		# not needed for our own apps
 		pass
 
-	def grant_type_password(data):
+	def grant_type_password(cls, data={}):
 		data["grant_type"] = "password";
 		return cls.__authorize(data)
 
-	def grant_type_client_credentials():
+	def grant_type_client_credentials(cls, data={}):
 		data["grant_type"] = "client_credentials";
 		return cls.__authorize(data)
 
-	def grant_type_refresh_token():
+	def grant_type_refresh_token(cls, data={}):
 		$data = {
 			"refresh_token":"asdfsdfsdfsdfsdfsdfsdfsdfsdf",
 			"grant_type":"refresh_token"
