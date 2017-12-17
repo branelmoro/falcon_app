@@ -22,7 +22,7 @@ class APP_API(object):
 	def put(self, path, data = None, header={}):
 		return self.__getDataFromAPI(method="PUT", path=path, data=data, header=header)
 
-	def delete(self, path, data, header={}):DELETE
+	def delete(self, path, data, header={}):
 		return self.__getDataFromAPI(method="DELETE", path=path, data=data, header=header)
 
 	def __getDataFromAPI(self, method, path, data=None, header={}):
