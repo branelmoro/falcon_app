@@ -4,11 +4,11 @@ from ..resources.backend_api import BACKEND_API, Auth
 
 from .. import exception as appException
 
-from ..config import CLIENT_APP_CREDENTIALS
-
 class APP_API(object):
 
 	__session = None
+
+	__client_session = {}
 
 	def __init__(self, session = None):
 		self.__session = session
@@ -40,8 +40,8 @@ class APP_API(object):
 			# unauthorised token found, regenerate token
 			self.__generateToken()
 			return self.__getDataFromAPI(method=method, path=path, data=data, header=header)
-		elif response["httpcode"] == 403:
-			# throw access not allowed error
+		elif response["httpcode"] == 404:
+			# throw error, api does not exists
 			pass
 		else:
 			if int(response["httpcode"]/100) == 5:
@@ -58,26 +58,23 @@ class APP_API(object):
 		else:
 			self.__session.refresh(arrResponce["response"])
 
-	def __generateClientToken(self):
-		client_session_id = hashlib.md5(json.encode(CLIENT_APP_CREDENTIALS))
+	@classmethod
+	def __generateClientToken(cls):
+		if "token_api_call" in cls.__client_session:
+			bln_wait = cls.__client_session["token_api_call"]
+			while cls.__client_session["token_api_call"]:
+				time.sleep(0.1)
+			if bln_wait:
+				return
 
-		bln_wait = False
-		while APPCACHE.hget(client_session_id, "token_api_call")=="yes":
-			time.sleep(0.1)
-			bln_wait = True
-
-		if bln_wait:
-			return
-
-		APPCACHE.hset(client_session_id, "token_api_call", "yes")
+		cls.__client_session["token_api_call"] = True
 
 		arrResponce = Auth.grant_type_client_credentials()
 		if arrResponce["httpcode"] == 400:
-			# throw new \Exception("Clientapp authorization failed");
-			pass
-		client_data = arrResponce["response"]
-		client_data["token_api_call"] = "no"
-		APPCACHE.hmset(client_session_id,client_data)
+			raise appException.serverException_500({"app":"APP authorization failed"})
+		cls.__client_session = arrResponce["response"]
+
+		cls.__client_session["token_api_call"] = False
 
 	def __generateToken(self):
 		if self.__session is not None and self.__session.exists():
@@ -86,13 +83,11 @@ class APP_API(object):
 			# client doesn't have right throw exception
 			self.__generateClientToken()
 
-	def __getClientToken(self):
-		client_session_id = hashlib.md5(json.encode(CLIENT_APP_CREDENTIALS))
-		client_data = APPCACHE.hgetall(client_session_id)
-		if not client_data:
-			self.__generateClientToken()
-			client_data = APPCACHE.hgetall(client_session_id)
-		return client_data["accessToken"]
+	@classmethod
+	def __getClientToken(cls):
+		if "accessToken" not in cls.__client_session:
+			cls.__generateClientToken()
+		return cls.__client_session["accessToken"]
 
 	def __getToken(self):
 		if self.__session is not None and self.__session.exists():

@@ -5,11 +5,15 @@ from .. import exception as appException
 from ..library import json
 from ..library import APPCACHE
 from ..library import BASE_HTML
+from ..library import SESSION
+from ..library import APP_API
 import sys
 import traceback
 
 
-from ..resources.redis import redis as SESSION
+from ..resources.redis import redis
+
+TOKENDB = redis("access_tokenDb")
 
 # APPCACHE.loadCache()
 
@@ -40,8 +44,7 @@ class baseController(object):
 		is_valid = False
 		
 		if("X-ACCESS-TOKEN" in req.headers):
-			aTokenDb = SESSION("access_tokenDb");
-			if(aTokenDb.exists(req.headers["X-ACCESS-TOKEN"])):
+			if(TOKENDB.exists(req.headers["X-ACCESS-TOKEN"])):
 				is_valid = True
 
 		# req.headers["X-ACCESS-TOKEN"]
@@ -53,8 +56,7 @@ class baseController(object):
 		# path = self.getPath()
 		is_valid = False
 
-		aTokenDb = SESSION("access_tokenDb");
-		scopes = aTokenDb.smembers(req.headers["X-ACCESS-TOKEN"])
+		scopes = TOKENDB.smembers(req.headers["X-ACCESS-TOKEN"])
 
 		for scope in scopes:
 			if APPCACHE.ifResourceExistsInScopes(scope, req.method, self.__resource_id):
@@ -150,9 +152,20 @@ class baseController(object):
 		params = exc_value.getErrorMessages();
 		resp.body = json.encode(params)
 
+	def __defaultRequestSetup(self, req, resp):
+		res.set_header("content-type", "text/html")
+		session = SESSION(req=req, resp=resp)
+		self._SESSION = session
+		self._BAKENDAPI = APP_API(self._SESSION)
+		# if session.exists():
+		# 	self._SESSION = session
+		# 	self._BAKENDAPI = APP_API(self._SESSION)
+		# else:
+		# 	self._BAKENDAPI = APP_API()
+
 	def on_get(self, req, resp):
 		try:
-			resp.set_header("content-type", "text/html")
+			self.__defaultRequestSetup(req, resp)
 			self.get(req, resp)
 		except appException.clientException as e:
 			self.__sendError(resp, e)
@@ -162,7 +175,7 @@ class baseController(object):
 
 	def on_post(self, req, resp):
 		try:
-			resp.set_header("content-type", "text/html")
+			self.__defaultRequestSetup(req, resp)
 			self.post(req, resp)
 		except appException.clientException as e:
 			self.__sendError(resp, e)
@@ -172,7 +185,7 @@ class baseController(object):
 
 	def on_put(self, req, resp):
 		try:
-			resp.set_header("content-type", "text/html")
+			self.__defaultRequestSetup(req, resp)
 			self.put(req, resp)
 		except appException.clientException as e:
 			self.__sendError(resp, e)
@@ -182,6 +195,7 @@ class baseController(object):
 
 	def on_delete(self, req, resp):
 		try:
+			self.__defaultRequestSetup(req, resp)
 			self.delete(req, resp)
 		except appException.clientException as e:
 			self.__sendError(resp, e)
@@ -221,3 +235,13 @@ class baseController(object):
 
 	def _renderPartial(self, view, body={}, header={}):
 		return BASE_HTML.renderView(view=view, body=body, header=header, partial=True)
+
+
+
+# static page - no need of api
+	# 1) need session
+	# 2) no need of session
+# dynamic:
+	# 1) api needed, no need of session
+	# 2) session needed, no need of api
+	# 3) session and api both needed
