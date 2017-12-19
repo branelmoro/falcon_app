@@ -8,7 +8,9 @@ class APP_API(object):
 
 	__session = None
 
-	__client_session = {}
+	__client_session = {
+		"token_api_call":False
+	}
 
 	def __init__(self, session = None):
 		self.__session = session
@@ -60,12 +62,11 @@ class APP_API(object):
 
 	@classmethod
 	def __generateClientToken(cls):
-		if "token_api_call" in cls.__client_session:
-			bln_wait = cls.__client_session["token_api_call"]
-			while cls.__client_session["token_api_call"]:
-				time.sleep(0.1)
-			if bln_wait:
-				return
+		bln_wait = cls.__client_session["token_api_call"]
+		while cls.__client_session["token_api_call"]:
+			time.sleep(0.1)
+		if bln_wait:
+			return
 
 		cls.__client_session["token_api_call"] = True
 
