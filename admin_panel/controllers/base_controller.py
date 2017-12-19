@@ -154,14 +154,8 @@ class baseController(object):
 
 	def __defaultRequestSetup(self, req, resp):
 		res.set_header("content-type", "text/html")
-		session = SESSION(req=req, resp=resp)
-		self._SESSION = session
-		self._BAKENDAPI = APP_API(self._SESSION)
-		# if session.exists():
-		# 	self._SESSION = session
-		# 	self._BAKENDAPI = APP_API(self._SESSION)
-		# else:
-		# 	self._BAKENDAPI = APP_API()
+		req.SESSION = SESSION(req=req, resp=resp)
+		req.BAKENDAPI = APP_API(self._SESSION)
 
 	def on_get(self, req, resp):
 		try:
