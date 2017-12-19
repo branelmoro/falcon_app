@@ -65,10 +65,9 @@ class APP_API(object):
 		bln_wait = cls.__client_session["token_api_call"]
 		while cls.__client_session["token_api_call"]:
 			time.sleep(0.1)
+		cls.__client_session["token_api_call"] = True
 		if bln_wait:
 			return
-
-		cls.__client_session["token_api_call"] = True
 
 		arrResponce = Auth.grant_type_client_credentials()
 		if arrResponce["httpcode"] == 400:
