@@ -4,12 +4,11 @@
 
 import asyncio
 
-@asyncio.coroutine
 def shleepy_time(seconds):
 	print("Shleeping for {s} seconds...".format(s=seconds))
 	yield from asyncio.sleep(seconds)
-	if seconds == 5:
-		raise Exception("custom exception")
+	# if seconds == 5:
+	# 	raise Exception("custom exception")
 	print("Done Shleeping for {s} seconds...".format(s=seconds))
 
 
@@ -21,11 +20,12 @@ if __name__ == '__main__':
 	tasks = asyncio.gather(
 		asyncio.async(shleepy_time(seconds=5)),
 		asyncio.async(shleepy_time(seconds=3)),
-		asyncio.async(shleepy_time(seconds=10))
+		asyncio.async(shleepy_time(seconds=7))
 	)
 
 	try:
 		loop.run_until_complete(tasks)
+		print("done event loop")
 	except KeyboardInterrupt as e:
 		print("Caught keyboard interrupt. Canceling tasks...")
 		tasks.cancel()
