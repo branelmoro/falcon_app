@@ -125,6 +125,8 @@ if sys.argv[1]=="1":
 		m.add_handle(c)
 		reqs.append((u, http_buffer, c))
 
+	m.setopt(pycurl.M_PIPELINING, 1)
+
 	# Perform multi-request.
 	# This code copied from pycurl docs, modified to explicitly
 	# set num_handles before the outer while loop.
@@ -144,12 +146,12 @@ if sys.argv[1]=="1":
 				break
 
 
+
+	print(m.info_read())
+
 	for req in reqs:
 		# print(req[1].getvalue())
 		req[2].close()
-
-
-	print(m.info_read())
 
 	m.close()
 	# pass
