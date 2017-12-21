@@ -51,11 +51,11 @@ class BACKEND_API(object):
 			# throw backend connection error
 			pass
 
-		httpcode = c.getinfo(HTTP_CODE);
+		httpcode = c.getinfo(c.HTTP_CODE);
 
-		# response_code = c.getinfo(RESPONSE_CODE);
+		# response_code = c.getinfo(c.RESPONSE_CODE);
 
-		# os_errno = c.getinfo(OS_ERRNO);
+		# os_errno = c.getinfo(c.OS_ERRNO);
 
 		c.close()
 
@@ -67,7 +67,7 @@ class BACKEND_API(object):
 			pass
 
 		return {
-			"response" => response,
+			"response":response,
 			# "error_no" => os_errno,
-			"httpcode" => httpcode
+			"httpcode":httpcode
 		};
