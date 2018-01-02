@@ -170,6 +170,108 @@ exit()
 
 
 
+
+
+
+
+
+
+
+
+
+def getDataFromAPI(self, resources):
+	if "async" in resources:
+		# this is async call
+	else:
+		# this is sync call
+		
+
+
+	if "next" in resources:
+		self.getDataFromAPI(resources["next"])
+
+
+
+
+
+{
+	run_now:[
+		C1
+		{
+			resource1:{
+
+			},
+			callback1: {
+
+			},
+			next:{
+				run_now:[
+					c5
+					{
+						next:[
+
+						],
+						resource1:{
+
+						},
+						callback1: {
+
+						}
+					}
+				]
+			}
+		}
+
+		c2
+
+		c3
+
+	]
+	next:{
+		run_now:[
+			c6
+			{
+				next:{
+					run_now:[
+						c8
+						{
+							resource1:{
+
+							},
+							callback1: {
+
+							},
+							next:[
+
+							]
+						},
+
+
+						C9
+					]
+				}
+			}
+
+			c7
+		]
+	}
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 import asyncio
 # [(function1, data1),(function1, data1),(function1, data1)]
 

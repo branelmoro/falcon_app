@@ -7,23 +7,23 @@ from ...config import BACKEND_API_URL
 class BACKEND_API(object):
 
 	@classmethod
-	def get(cls, path, header={}):
-		return cls.__excecute(method="GET", path=path, header=header)
+	def get(cls, path, header={}, async=False):
+		return cls.__excecute(method="GET", path=path, header=header, async=async)
 
 	@classmethod
-	def post(cls, path, data = None, header={}):
-		return cls.__excecute(method="POST", path=path, data=data, header=header)
+	def post(cls, path, data = None, header={}, async=False):
+		return cls.__excecute(method="POST", path=path, data=data, header=header, async=async)
 
 	@classmethod
-	def put(cls, path, data = None, header={}):
-		return cls.__excecute(method="PUT", path=path, data=data, header=header)
+	def put(cls, path, data = None, header={}, async=False):
+		return cls.__excecute(method="PUT", path=path, data=data, header=header, async=async)
 
 	@classmethod
-	def delete(cls, path, data, header={}):
-		return cls.__excecute(method="DELETE", path=path, data=data, header=header)
+	def delete(cls, path, data, header={}, async=False):
+		return cls.__excecute(method="DELETE", path=path, data=data, header=header, async=async)
 
 	@classmethod
-	def __excecute(cls, method, path, data = None, header):
+	def __excecute(cls, method, path, data = None, header, async=False):
 		http_buffer = BytesIO()
 		c = pycurl.Curl()
 		c.setopt(c.CUSTOMREQUEST, method);
@@ -45,6 +45,10 @@ class BACKEND_API(object):
 		c.setopt(c.URL, BACKEND_API_URL)
 
 		c.setopt(c.WRITEDATA, http_buffer)
+
+		if async:
+			return (c, http_buffer)
+
 		try:
 			c.perform()
 		except:

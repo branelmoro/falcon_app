@@ -232,6 +232,25 @@ class baseController(object):
 
 
 
+
+
+
+
+
+
+	def getDataFromAPI(self, resources):
+		if "async" in resources:
+			# this is async call
+
+
+		else:
+			# this is sync call
+			
+
+
+		if "next" in resources:
+			self.getDataFromAPI(resources["next"])
+
 # static page - no need of api
 	# 1) need session
 	# 2) no need of session
