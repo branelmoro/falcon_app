@@ -4,6 +4,41 @@ from io import BytesIO
 from ...library import json
 from ...config import BACKEND_API_URL
 
+class CUSTOM_CURL(pycurl.Curl):
+
+	def __init__(self):
+		super.__init__()
+		self.__buffer = BytesIO()
+		self.setopt(self.WRITEDATA, self.__buffer)
+		self.__api_callback = None
+		self.__next_api = None
+
+	def get_buffer(self):
+		return self.__buffer
+
+	def set_callback(self, callback):
+		self.__api_callback = callback
+
+	def get_callback(self):
+		return self.__api_callback
+
+	def set_next(self, next):
+		self.__next_api = next
+
+	def get_next(self):
+		return self.__next_api
+
+	def getResponce(self):
+		data = self.__buffer.getvalue()
+		self.__buffer.close()
+		return data
+
+	# def __del__(self):
+	# 	self.__buffer.close()
+
+
+
+
 class BACKEND_API(object):
 
 	@classmethod
@@ -24,8 +59,11 @@ class BACKEND_API(object):
 
 	@classmethod
 	def __excecute(cls, method, path, data = None, header, async=False):
-		http_buffer = BytesIO()
-		c = pycurl.Curl()
+		# if async:
+		# 	c = CUSTOM_CURL()
+		# else:
+		# 	c = CUSTOM_CURL(pycurl.Curl)
+		c = CUSTOM_CURL()
 		c.setopt(c.CUSTOMREQUEST, method);
 
 		default_headers = {
@@ -44,10 +82,9 @@ class BACKEND_API(object):
 		# c.setopt(c.HTTPHEADER, ["Content-Type: application/json"])
 		c.setopt(c.URL, BACKEND_API_URL)
 
-		c.setopt(c.WRITEDATA, http_buffer)
 
 		if async:
-			return (c, http_buffer)
+			return c
 
 		try:
 			c.perform()
@@ -63,8 +100,7 @@ class BACKEND_API(object):
 
 		c.close()
 
-		response = http_buffer.getvalue()
-		http_buffer.close()
+		response = c.getResponce()
 
 		if httpcode in [500,501,502,503,504,505]:
 			# throw backend api server error

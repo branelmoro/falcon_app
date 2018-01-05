@@ -132,16 +132,19 @@ if sys.argv[1]=="1":
 	# set num_handles before the outer while loop.
 	SELECT_TIMEOUT = 1.0
 	num_handles = len(reqs)
+	old_handles = num_handles
 	while num_handles:
 		ret = m.select(SELECT_TIMEOUT)
-		print(ret)
 		if ret == -1:
-			print("here", ret)
 			continue
 		while 1:
 			ret, num_handles = m.perform()
 			print(ret,num_handles)
-			# exit()
+			if old_handles != num_handles:
+				# check completed request
+				print(m.info_read())
+				old_handles=num_handles
+				pass
 			if ret != pycurl.E_CALL_MULTI_PERFORM: 
 				break
 
@@ -179,83 +182,83 @@ exit()
 
 
 
-def getDataFromAPI(self, resources):
-	if "async" in resources:
-		# this is async call
-	else:
-		# this is sync call
+# def getDataFromAPI(self, resources):
+# 	if "async" in resources:
+# 		# this is async call
+# 	else:
+# 		# this is sync call
 		
 
 
-	if "next" in resources:
-		self.getDataFromAPI(resources["next"])
+# 	if "next" in resources:
+# 		self.getDataFromAPI(resources["next"])
 
 
 
 
 
-{
-	run_now:[
-		C1
-		{
-			resource1:{
+# {
+# 	run_now:[
+# 		C1
+# 		{
+# 			resource1:{
 
-			},
-			callback1: {
+# 			},
+# 			callback1: {
 
-			},
-			next:{
-				run_now:[
-					c5
-					{
-						next:[
+# 			},
+# 			next:{
+# 				run_now:[
+# 					c5
+# 					{
+# 						next:[
 
-						],
-						resource1:{
+# 						],
+# 						resource1:{
 
-						},
-						callback1: {
+# 						},
+# 						callback1: {
 
-						}
-					}
-				]
-			}
-		}
+# 						}
+# 					}
+# 				]
+# 			}
+# 		}
 
-		c2
+# 		c2
 
-		c3
+# 		c3
 
-	]
-	next:{
-		run_now:[
-			c6
-			{
-				next:{
-					run_now:[
-						c8
-						{
-							resource1:{
+# 	]
+# 	next:{
+# 		run_now:[
+# 			c6
+# 			{
+# 				next:{
+# 					run_now:[
+# 						c8
+# 						{
+# 							resource1:{
 
-							},
-							callback1: {
+# 							},
+# 							callback1: {
 
-							},
-							next:[
+# 							},
+# 							next:[
 
-							]
-						},
+# 							]
+# 						},
 
 
-						C9
-					]
-				}
-			}
+# 						C9
+# 					]
+# 				}
+# 			}
 
-			c7
-		]
-	}
-}
+# 			c7
+# 		]
+# 	}
+# }
 
 
 

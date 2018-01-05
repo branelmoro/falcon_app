@@ -16,27 +16,30 @@ class APP_API(object):
 		self.__session = session
 
 	def async(self, resources):
-		reqs = [] 
 		# Build multi-request object.
 		m = pycurl.CurlMulti()
 
 		for resource in resources:
 
-			curl_obj, http_buffer = self.__getDataFromAPI(async=True, **resource)
+			if "api_detail" not in resource:
+				# throw api server error
+				pass
 
+			if isinstance(resource["api_detail"], dict):
+				api_detail = resource["api_detail"]
+			else:
+				api_detail = resource["api_detail"]()
 
-			pass
+			curl_obj = self.__getDataFromAPI(async=True, **api_detail)
 
+			if "api_callback" in resource:
+				curl_obj.set_callback(resource["api_callback"])
 
-		
-		for u in urls:
+			if "next_api" in resource:
+				curl_obj.set_next(resource["next_api"])
 
+			m.add_handle(curl_obj)
 
-			c = excecute(u, True)
-			http_buffer = BytesIO()
-			c.setopt(c.WRITEDATA, http_buffer)
-			m.add_handle(c)
-			reqs.append((u, http_buffer, c))
 
 		m.setopt(pycurl.M_PIPELINING, 1)
 
@@ -45,29 +48,41 @@ class APP_API(object):
 		# set num_handles before the outer while loop.
 		SELECT_TIMEOUT = 1.0
 		num_handles = len(reqs)
+		old_handles = num_handles
 		while num_handles:
 			ret = m.select(SELECT_TIMEOUT)
-			print(ret)
 			if ret == -1:
-				print("here", ret)
 				continue
 			while 1:
 				ret, num_handles = m.perform()
 				print(ret,num_handles)
-				# exit()
+				if old_handles != num_handles:
+					# check completed request
+					old_handles=num_handles
+					queued_messages, successful_curls, failed_curls = m.info_read()
+					if failed_curls:
+						# throw api server error
+						pass
+					if successful_curls:
+						for curl_obj in successful_curls:
+							callback = curl_obj.get_callback()
+							if callback:
+								callback(curl_obj.getResponce())
+							next_api = curl_obj.get_next()
+							if next_api:
+								pass
+
+							curl_obj.close()
 				if ret != pycurl.E_CALL_MULTI_PERFORM: 
 					break
 
+		# print(m.info_read())
 
-
-		print(m.info_read())
-
-		for req in reqs:
-			# print(req[1].getvalue())
-			req[2].close()
+		# for req in reqs:
+		# 	# print(req[1].getvalue())
+		# 	req[2].close()
 
 		m.close()
-		pass
 
 	def get(self, path, header={}):
 		return self.__getDataFromAPI(method="GET", path=path, header=header)
