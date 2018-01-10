@@ -33,8 +33,8 @@ class CUSTOM_CURL(pycurl.Curl):
 		self.__buffer.close()
 		return data
 
-	# def __del__(self):
-	# 	self.__buffer.close()
+	def __del__(self):
+		self.__buffer.close()
 
 
 
