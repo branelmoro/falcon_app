@@ -67,7 +67,7 @@ class APP_API(object):
 						for curl_obj in successful_curls:
 							callback = curl_obj.get_callback()
 							if callback:
-								callback(curl_obj.getResponce())
+								callback(curl_obj.getResponse())
 							next_api = curl_obj.get_next()
 							if next_api:
 								pass
@@ -123,6 +123,22 @@ class APP_API(object):
 				pass
 			else:
 				return response
+
+	def handleResponse(self, response):
+		if response["httpcode"] == 401:
+			# unauthorised token found, regenerate token
+			self.__generateToken()
+			return self.__getDataFromAPI(method=method, path=path, data=data, header=header)
+		elif response["httpcode"] == 404:
+			# throw error, api does not exists
+			pass
+		else:
+			if int(response["httpcode"]/100) == 5:
+				# throw api server error
+				pass
+			else:
+				return response
+
 
 	def __refreshUserToken(self):
 		refresh_token = self.__session.get("refreshToken")

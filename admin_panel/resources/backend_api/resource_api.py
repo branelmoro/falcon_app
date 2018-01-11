@@ -28,13 +28,33 @@ class CUSTOM_CURL(pycurl.Curl):
 	def get_next(self):
 		return self.__next_api
 
-	def getResponce(self):
-		data = self.__buffer.getvalue()
-		self.__buffer.close()
+	def __getResponseCode(self):
+		httpcode = self.getinfo(self.HTTP_CODE);
+		if httpcode in [500,501,502,503,504,505]:
+			self.__doCleanUp()
+			# throw backend api server error
+			pass
+		return httpcode;
+
+	def __getResponseBody(self):
+		return self.__buffer.getvalue()
+
+	def getResponse(self):
+		# os_errno = self.getinfo(self.OS_ERRNO);
+		data = {
+			"response":self.__getResponseBody(),
+			# "error_no" => os_errno,
+			"httpcode":self.__getResponseCode()
+		}
+		self.__doCleanUp()
 		return data
 
-	def __del__(self):
+	def __doCleanUp(self)
 		self.__buffer.close()
+		self.close()
+
+	def __del__(self):
+		self.__doCleanUp()
 
 
 
@@ -92,22 +112,24 @@ class BACKEND_API(object):
 			# throw backend connection error
 			pass
 
-		httpcode = c.getinfo(c.HTTP_CODE);
+		return c.getResponse()
 
-		# response_code = c.getinfo(c.RESPONSE_CODE);
+		# httpcode = c.getResponseCode();
 
-		# os_errno = c.getinfo(c.OS_ERRNO);
+		# # response_code = c.getinfo(c.RESPONSE_CODE);
 
-		c.close()
+		# # os_errno = c.getinfo(c.OS_ERRNO);
 
-		response = c.getResponce()
+		# c.close()
 
-		if httpcode in [500,501,502,503,504,505]:
-			# throw backend api server error
-			pass
+		# response = c.getResponse()
 
-		return {
-			"response":response,
-			# "error_no" => os_errno,
-			"httpcode":httpcode
-		};
+		# if httpcode in [500,501,502,503,504,505]:
+		# 	# throw backend api server error
+		# 	pass
+
+		# return {
+		# 	"response":response,
+		# 	# "error_no" => os_errno,
+		# 	"httpcode":httpcode
+		# };
