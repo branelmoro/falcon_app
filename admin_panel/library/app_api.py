@@ -71,8 +71,7 @@ class APP_API(object):
 							next_api = curl_obj.get_next()
 							if next_api:
 								pass
-
-							curl_obj.close()
+							
 				if ret != pycurl.E_CALL_MULTI_PERFORM: 
 					break
 
@@ -110,32 +109,32 @@ class APP_API(object):
 		if async:
 			return response
 
-		if response["httpcode"] == 401:
-			# unauthorised token found, regenerate token
-			self.__generateToken()
-			return self.__getDataFromAPI(method=method, path=path, data=data, header=header)
-		elif response["httpcode"] == 404:
-			# throw error, api does not exists
-			pass
-		else:
-			if int(response["httpcode"]/100) == 5:
-				# throw api server error
-				pass
-			else:
-				return response
 
-	def handleResponse(self, response):
-		if response["httpcode"] == 401:
+
+		data = self.handleResponse(response)
+		if data == False:
 			# unauthorised token found, regenerate token
 			self.__generateToken()
 			return self.__getDataFromAPI(method=method, path=path, data=data, header=header)
+		else:
+			return data
+
+
+	def handleResponse(self, response, callback=None):
+		if response["httpcode"] == 401:
+			# unauthorised token found, regenerate token
+			return False
 		elif response["httpcode"] == 404:
 			# throw error, api does not exists
 			pass
 		else:
 			if int(response["httpcode"]/100) == 5:
 				# throw api server error
+				exit()
 				pass
+
+			if callback:
+				return callback(response)
 			else:
 				return response
 
