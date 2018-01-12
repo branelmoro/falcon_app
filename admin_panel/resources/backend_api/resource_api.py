@@ -91,7 +91,7 @@ class BACKEND_API(object):
 		}
 
 		if data and method != "GET":
-			data = json.encode($data);
+			data = json.encode(data);
 			default_headers["Content-Length"] = len(data)
 			c.setopt(c.POSTFIELDS, data);
 
@@ -101,7 +101,6 @@ class BACKEND_API(object):
 
 		# c.setopt(c.HTTPHEADER, ["Content-Type: application/json"])
 		c.setopt(c.URL, BACKEND_API_URL)
-
 
 		if async:
 			return c
@@ -113,23 +112,3 @@ class BACKEND_API(object):
 			pass
 
 		return c.getResponse()
-
-		# httpcode = c.getResponseCode();
-
-		# # response_code = c.getinfo(c.RESPONSE_CODE);
-
-		# # os_errno = c.getinfo(c.OS_ERRNO);
-
-		# c.close()
-
-		# response = c.getResponse()
-
-		# if httpcode in [500,501,502,503,504,505]:
-		# 	# throw backend api server error
-		# 	pass
-
-		# return {
-		# 	"response":response,
-		# 	# "error_no" => os_errno,
-		# 	"httpcode":httpcode
-		# };
