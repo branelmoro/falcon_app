@@ -11,7 +11,7 @@ class CUSTOM_CURL(pycurl.Curl):
 		self.__buffer = BytesIO()
 		self.setopt(self.WRITEDATA, self.__buffer)
 		self.__api_callback = None
-		self.__next_api = None
+		self.__next_api = []
 
 	def get_buffer(self):
 		return self.__buffer
@@ -22,10 +22,20 @@ class CUSTOM_CURL(pycurl.Curl):
 	def get_callback(self):
 		return self.__api_callback
 
-	def set_next(self, next):
-		self.__next_api = next
+	def add_next(self, next_api):
+		if not isinstance(next_api, list):
+			next_api = [next_api]
+		self.__next_api.extend(next_api)
+		for i in next_api:
+			i.addCount()
 
-	def get_next(self):
+	def __del_next(self):
+		for i in self.__next_api:
+			i.delCount()
+		self.__next_api = [i.get() in self.__next_api if i.getCount() == 0]
+
+	def get_next(self):__
+		# return [i.get() in self.__next_api if i.getCount() == 0]
 		return self.__next_api
 
 	def __getResponseCode(self):
@@ -47,6 +57,7 @@ class CUSTOM_CURL(pycurl.Curl):
 			"httpcode":self.__getResponseCode()
 		}
 		self.__doCleanUp()
+		self.__del_next()
 		return data
 
 	def __doCleanUp(self)

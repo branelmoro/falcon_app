@@ -4,6 +4,26 @@ from ..resources.backend_api import BACKEND_API, Auth
 
 from .. import exception as appException
 
+
+class NEXT_API(object):
+
+	def __init__(self, next):
+		self.__next = next
+		self.__count = 0
+
+	def addCount(self):
+		self.__count = self.__count + 1
+
+	def delCount(self):
+		self.__count = self.__count - 1
+
+	def getCount(self):
+		return self.__count
+
+	def get(self):
+		return self.__next
+
+
 class APP_API(object):
 
 	__session = None
@@ -15,31 +35,51 @@ class APP_API(object):
 	def __init__(self, session = None):
 		self.__session = session
 
-	def async(self, resources):
-		# Build multi-request object.
-		m = pycurl.CurlMulti()
+
+	def __addAsyncCurls(self, resources, multi_curl, async_next=None):
+		if not isinstance(resources, list):
+			resources = [resources]
 
 		for resource in resources:
 
-			if "api_detail" not in resource:
-				# throw api server error
-				pass
-
-			if isinstance(resource["api_detail"], dict):
-				api_detail = resource["api_detail"]
+			if "async" in resource:
+				next_api = async_next
+				if "next_api" in resource:
+					if next_api:
+						next_api.append(NEXT_API(resource["next_api"]))
+					else:
+						next_api = [NEXT_API(resource["next_api"])]
+				self.__addAsyncCurls(resources=resource, multi_curl=multi_curl, async_next=next_api)
 			else:
-				api_detail = resource["api_detail"]()
 
-			curl_obj = self.__getDataFromAPI(async=True, **api_detail)
+				if "api_detail" not in resource:
+					# throw api server error
+					pass
 
-			if "api_callback" in resource:
-				curl_obj.set_callback(resource["api_callback"])
+				if isinstance(resource["api_detail"], dict):
+					api_detail = resource["api_detail"]
+				else:
+					api_detail = resource["api_detail"]()
 
-			if "next_api" in resource:
-				curl_obj.set_next(resource["next_api"])
+				curl_obj = self.__getDataFromAPI(async=True, **api_detail)
 
-			m.add_handle(curl_obj)
+				if "api_callback" in resource:
+					curl_obj.set_callback(resource["api_callback"])
 
+				if async_next is not None:
+					curl_obj.add_next(async_next)
+
+				if "next_api" in resource:
+					curl_obj.add_next(NEXT_API(resource["next_api"]))
+
+				multi_curl.add_handle(curl_obj)
+
+
+	def __executeAsyncCurl(self, resources):
+		# Build multi-request object.
+		m = pycurl.CurlMulti()
+
+		self.__addAsyncCurls(resources=resources, multi_curl=m)
 
 		m.setopt(pycurl.M_PIPELINING, 1)
 
@@ -48,6 +88,7 @@ class APP_API(object):
 		# set num_handles before the outer while loop.
 		SELECT_TIMEOUT = 1.0
 		num_handles = len(reqs)
+		num_handles = 1
 		old_handles = num_handles
 		while num_handles:
 			ret = m.select(SELECT_TIMEOUT)
@@ -61,17 +102,30 @@ class APP_API(object):
 					old_handles=num_handles
 					queued_messages, successful_curls, failed_curls = m.info_read()
 					if failed_curls:
+						print("failed curls")
+						print(failed_curls)
 						# throw api server error
 						pass
 					if successful_curls:
 						for curl_obj in successful_curls:
+
+
+							response = self.handleResponse(curl_obj.getResponse())
+
+							if response is False:
+								# unauthorised token found, regenerate token
+								raise "hbjnj"
+
 							callback = curl_obj.get_callback()
 							if callback:
-								callback(curl_obj.getResponse())
+								callback(response)
+
+
 							next_api = curl_obj.get_next()
 							if next_api:
+								self.async(next_api)
 								pass
-							
+
 				if ret != pycurl.E_CALL_MULTI_PERFORM: 
 					break
 
@@ -82,6 +136,14 @@ class APP_API(object):
 		# 	req[2].close()
 
 		m.close()
+
+	def async(self, resources):
+		while True
+			try:
+				self.__executeAsyncCurl(resources)
+				break
+			except:
+				self.__generateToken()
 
 	def get(self, path, header={}):
 		return self.__getDataFromAPI(method="GET", path=path, header=header)
