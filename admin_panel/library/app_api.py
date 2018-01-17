@@ -236,6 +236,10 @@ class APP_API(object):
 		else:
 			return self.__client_session["accessToken"]
 
+	def __isTransactionLocked(pipe):
+		pipe.hset(client_session_id, "token_api_call", "yes")
+
+
 	@classmethod
 	def __generateClientToken(cls):
 		client_session_id = hashlib.md5(json.encode(CLIENT_APP_CREDENTIALS))
@@ -248,21 +252,22 @@ class APP_API(object):
 			return
 
 
-		conn = APPCACHE.getConnection("appcache")
-		conn.watch(client_session_id)
-		pipe = conn.pipeline(transaction=True)
 
 		# start transaction
-		APPCACHE.hset(client_session_id, "token_api_call", "yes")
-
+		conn = APPCACHE.getConnection("appcache")
+		pipe = conn.pipeline(transaction=True)
+		conn.watch(client_session_id)
+		pipe.hset(client_session_id, "token_api_call", "yes")
+		response = pipe.execute()
 		# end transaction
 
 
 
-		# if transaction failed:
-		# 	while APPCACHE.hget(client_session_id, "token_api_call")=="yes":
-		# 		time.sleep(0.1)
-		# 	return
+		if response:
+			while conn.hget(client_session_id, "token_api_call")=="yes":
+				time.sleep(0.1)
+			conn.close()
+			return
 
 
 
