@@ -103,6 +103,10 @@ class redisBase(object):
 			return cls.__connections[dbName]
 
 	@classmethod
+	def getFreshConnection(cls, dbName):
+		return cls.connectRedis(cls.__dbconfig[dbName]["host"],cls.__dbconfig[dbName]["port"],cls.__dbconfig[dbName]["db"])
+
+	@classmethod
 	def connectRedis(cls, host, port=6379, db=0, password=None, socket_timeout=None, connection_pool=None, charset='utf-8', errors='strict', decode_responses=False, unix_socket_path=None):
 		# return redis.StrictRedis(host, port, db, password, socket_timeout, connection_pool, charset, errors, decode_responses, unix_socket_path)
 		return redis.StrictRedis(host, port, db, password, socket_timeout, connection_pool, charset)
@@ -130,6 +134,10 @@ class redisCrud(object):
 	def __getReConnection(self,is_master=True):
 		return redisBase.reconnectDB(self.__dbname)
 
+	@classmethod
+	def getConnection(self, dbName=None):
+		redisBase.is_validDB(dbName)
+		return redisBase.getFreshConnection(dbName)
 
 	#override all StrictRedis methods
 	# key/value commands	

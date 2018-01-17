@@ -4,6 +4,8 @@ from ..resources.backend_api import BACKEND_API, Auth
 
 from .. import exception as appException
 
+from ..config import CLIENT_APP_CREDENTIALS
+
 
 class NEXT_API(object):
 
@@ -28,13 +30,10 @@ class APP_API(object):
 
 	__session = None
 
-	__client_session = {
-		"token_api_call":False
-	}
+	__client_session = None
 
 	def __init__(self, session = None):
 		self.__session = session
-
 
 	def __addAsyncCurls(self, resources, multi_curl, async_next=None):
 		if not isinstance(resources, list):
@@ -73,7 +72,6 @@ class APP_API(object):
 					curl_obj.add_next(NEXT_API(resource["next_api"]))
 
 				multi_curl.add_handle(curl_obj)
-
 
 	def __executeAsyncCurl(self, resources):
 		# Build multi-request object.
@@ -232,14 +230,60 @@ class APP_API(object):
 			# client doesn't have right throw exception
 			self.__generateClientToken()
 
-	@classmethod
-	def __getClientToken(cls):
-		if "accessToken" not in cls.__client_session:
-			cls.__generateClientToken()
-		return cls.__client_session["accessToken"]
-
 	def __getToken(self):
 		if self.__session is not None and self.__session.exists():
 			return self.__session.get("accessToken")
 		else:
-			return self.__getClientToken()
+			return self.__client_session["accessToken"]
+
+	@classmethod
+	def __generateClientToken(cls):
+		client_session_id = hashlib.md5(json.encode(CLIENT_APP_CREDENTIALS))
+		bln_wait = False
+		while APPCACHE.hget(client_session_id, "token_api_call")=="yes":
+			time.sleep(0.1)
+			bln_wait = True
+
+		if bln_wait:
+			return
+
+
+		conn = APPCACHE.getConnection("appcache")
+		conn.watch(client_session_id)
+		pipe = conn.pipeline(transaction=True)
+
+		# start transaction
+		APPCACHE.hset(client_session_id, "token_api_call", "yes")
+
+		# end transaction
+
+
+
+		# if transaction failed:
+		# 	while APPCACHE.hget(client_session_id, "token_api_call")=="yes":
+		# 		time.sleep(0.1)
+		# 	return
+
+
+
+
+		arrResponce = Auth.grant_type_client_credentials()
+		if arrResponce["httpcode"] == 400:
+			raise appException.serverException_500({"app":"APP authorization failed"})
+		cls.__client_session = arrResponce["response"]
+		cls.__client_session["token_api_call"] = "no"
+		APPCACHE.hmset(client_session_id,cls.__client_session)
+
+
+
+	@classmethod
+	def startClientSession(cls):
+		client_session_id = hashlib.md5(json.encode(CLIENT_APP_CREDENTIALS))
+		if APPCACHE.exists(client_session_id):
+			cls.__client_session = APPCACHE.hgetall(client_session_id)
+		else:
+			cls.__generateClientToken()
+
+
+# start client session
+APP_API.startClientSession()
