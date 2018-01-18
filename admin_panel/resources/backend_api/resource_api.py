@@ -12,6 +12,13 @@ class CUSTOM_CURL(pycurl.Curl):
 		self.setopt(self.WRITEDATA, self.__buffer)
 		self.__api_callback = None
 		self.__next_api = []
+		self.__details = {}
+
+	def set_details(self, details):
+		self.__details = details
+
+	def get_details(self):
+		return self.__details
 
 	def get_buffer(self):
 		return self.__buffer
