@@ -219,8 +219,7 @@ class APP_API(object):
 			return self.__client_session["accessToken"]
 
 	@classmethod
-	def __isTransactionLocked(cls, client_session_id):
-		conn = APPCACHE.getConnection("appcache")
+	def __isTransactionLocked(cls, client_session_id, conn):
 		pipe = conn.pipeline(transaction=True)
 		pipe.watch(client_session_id)
 		pipe.multi()
@@ -228,19 +227,22 @@ class APP_API(object):
 		pipe.execute()
 
 	@classmethod
-	def __generateClientToken(cls):
+	def __generateClientToken(cls, conn=None):
+		if conn is None:
+			conn = APPCACHE.getConnection("appcache")
+
 		client_session_id = hashlib.md5(json.encode(CLIENT_APP_CREDENTIALS))
 		bln_wait = False
-		while APPCACHE.hget(client_session_id, "token_api_call")=="yes":
+		while conn.hget(client_session_id, "token_api_call")=="yes":
 			time.sleep(0.1)
 			bln_wait = True
 
 		if bln_wait:
-			cls.__client_session = APPCACHE.hgetall(client_session_id)
+			cls.__client_session = conn.hgetall(client_session_id)
 			return
 
 		try:
-			cls.__isTransactionLocked(client_session_id)
+			cls.__isTransactionLocked(client_session_id, conn)
 			is_lock_aquired = True
 		except:
 			is_lock_aquired = False
@@ -251,19 +253,20 @@ class APP_API(object):
 				raise appException.serverException_500({"app":"APP authorization failed"})
 			cls.__client_session = arrResponce["response"]
 			cls.__client_session["token_api_call"] = "no"
-			APPCACHE.hmset(client_session_id,cls.__client_session)
+			conn.hmset(client_session_id,cls.__client_session)
 		else
-			while APPCACHE.hget(client_session_id, "token_api_call")=="yes":
+			while conn.hget(client_session_id, "token_api_call")=="yes":
 				time.sleep(0.1)
-			cls.__client_session = APPCACHE.hgetall(client_session_id)
+			cls.__client_session = conn.hgetall(client_session_id)
 
 	@classmethod
 	def startClientSession(cls):
 		client_session_id = hashlib.md5(json.encode(CLIENT_APP_CREDENTIALS))
-		if APPCACHE.exists(client_session_id):
-			cls.__client_session = APPCACHE.hgetall(client_session_id)
+		conn = APPCACHE.getConnection("appcache")
+		if conn.exists(client_session_id):
+			cls.__client_session = conn.hgetall(client_session_id)
 		else:
-			cls.__generateClientToken()
+			cls.__generateClientToken(conn)
 
 
 # start client session
