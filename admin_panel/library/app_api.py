@@ -179,7 +179,6 @@ class APP_API(object):
 		else:
 			return data
 
-
 	def handleResponse(self, response, callback=None):
 		if response["httpcode"] == 401:
 			# unauthorised token found, regenerate token
@@ -198,7 +197,6 @@ class APP_API(object):
 			else:
 				return response
 
-
 	def __refreshUserToken(self):
 		refresh_token = self.__session.get("refreshToken")
 		arrResponce = Auth.grant_type_refresh_token()
@@ -206,22 +204,6 @@ class APP_API(object):
 			self.__session.destory()
 		else:
 			self.__session.refresh(arrResponce["response"])
-
-	@classmethod
-	def __generateClientToken(cls):
-		bln_wait = cls.__client_session["token_api_call"]
-		while cls.__client_session["token_api_call"]:
-			time.sleep(0.1)
-		cls.__client_session["token_api_call"] = True
-		if bln_wait:
-			return
-
-		arrResponce = Auth.grant_type_client_credentials()
-		if arrResponce["httpcode"] == 400:
-			raise appException.serverException_500({"app":"APP authorization failed"})
-		cls.__client_session = arrResponce["response"]
-
-		cls.__client_session["token_api_call"] = False
 
 	def __generateToken(self):
 		if self.__session is not None and self.__session.exists():
@@ -236,9 +218,14 @@ class APP_API(object):
 		else:
 			return self.__client_session["accessToken"]
 
-	def __isTransactionLocked(pipe):
+	@classmethod
+	def __isTransactionLocked(cls, client_session_id):
+		conn = APPCACHE.getConnection("appcache")
+		pipe = conn.pipeline(transaction=True)
+		pipe.watch(client_session_id)
+		pipe.multi()
 		pipe.hset(client_session_id, "token_api_call", "yes")
-
+		pipe.execute()
 
 	@classmethod
 	def __generateClientToken(cls):
@@ -249,37 +236,26 @@ class APP_API(object):
 			bln_wait = True
 
 		if bln_wait:
+			cls.__client_session = APPCACHE.hgetall(client_session_id)
 			return
 
+		try:
+			cls.__isTransactionLocked(client_session_id)
+			is_lock_aquired = True
+		except:
+			is_lock_aquired = False
 
-
-		# start transaction
-		conn = APPCACHE.getConnection("appcache")
-		pipe = conn.pipeline(transaction=True)
-		conn.watch(client_session_id)
-		pipe.hset(client_session_id, "token_api_call", "yes")
-		response = pipe.execute()
-		# end transaction
-
-
-
-		if response:
-			while conn.hget(client_session_id, "token_api_call")=="yes":
+		if is_lock_aquired:
+			arrResponce = Auth.grant_type_client_credentials()
+			if arrResponce["httpcode"] == 400:
+				raise appException.serverException_500({"app":"APP authorization failed"})
+			cls.__client_session = arrResponce["response"]
+			cls.__client_session["token_api_call"] = "no"
+			APPCACHE.hmset(client_session_id,cls.__client_session)
+		else
+			while APPCACHE.hget(client_session_id, "token_api_call")=="yes":
 				time.sleep(0.1)
-			conn.close()
-			return
-
-
-
-
-		arrResponce = Auth.grant_type_client_credentials()
-		if arrResponce["httpcode"] == 400:
-			raise appException.serverException_500({"app":"APP authorization failed"})
-		cls.__client_session = arrResponce["response"]
-		cls.__client_session["token_api_call"] = "no"
-		APPCACHE.hmset(client_session_id,cls.__client_session)
-
-
+			cls.__client_session = APPCACHE.hgetall(client_session_id)
 
 	@classmethod
 	def startClientSession(cls):

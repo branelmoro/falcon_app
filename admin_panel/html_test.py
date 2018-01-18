@@ -13,9 +13,67 @@
 # exit()
 
 
-import threading
+import threading, redis
 import pycurl, time, datetime, sys
 from io import BytesIO
+
+
+def getRedis():
+	# return redis.StrictRedis(host, port, db, password, socket_timeout, connection_pool, charset, errors, decode_responses, unix_socket_path)
+	return redis.StrictRedis(host="127.0.0.1", port=6379, db=0)
+
+
+def raceThread(delay):
+	client_session_id = "mykey"
+	conn = getRedis()
+	# conn.watch(client_session_id)
+	pipe = conn.pipeline(transaction=True)
+	pipe.watch(client_session_id)
+	pipe.multi()
+	time.sleep(delay)
+	pipe.hset(client_session_id, "token_api_call", "thread"+str(delay)+str(datetime.datetime.now()))
+	# pipe.set(client_session_id, "thread"+str(delay)+ "-----" + str(datetime.datetime.now()))
+	response = pipe.execute()
+	print(delay, response)
+	# conn.close()
+
+
+# def raceThread1(pipe):
+# 	client_session_id = "mykey"
+# 	pipe.watch(client_session_id)
+# 	pipe.hset(client_session_id, "token_api_call", thread_name + str(datetime.datetime.now()))
+# 	time.sleep(delay)
+# 	response = pipe.execute()
+# 	print(thread_name, delay, response)
+
+
+# def threadfunc(thread_name, delay):
+# 	client_session_id = "mykey"
+# 	conn = getRedis()
+# 	response = conn.transaction(client_side_incr, client_session_id)
+# 	print(thread_name, delay, response)
+
+
+
+t = threading.Thread(target=raceThread, args=[5])
+t.start()
+
+t = threading.Thread(target=raceThread, args=[2])
+t.start()
+
+t = threading.Thread(target=raceThread, args=[3])
+t.start()
+
+t = threading.Thread(target=raceThread, args=[4])
+t.start()
+
+# time.sleep(1)
+# conn = getRedis()
+# conn.set("mykey", "dsdsfsdfsdf")
+
+time.sleep(5)
+exit()
+
 
 
 start_time = datetime.datetime.now().timestamp()
@@ -194,7 +252,30 @@ exit()
 # 		self.getDataFromAPI(resources["next"])
 
 
+# [
 
+# {
+# 	resource1:{
+
+# 	},
+# 	callback1: {
+
+# 	}
+# },
+# [
+# {
+# 	resource1:{
+
+# 	},
+# 	callback1: {
+
+# 	}
+# },
+
+# ]
+
+
+# ]
 
 
 # {
