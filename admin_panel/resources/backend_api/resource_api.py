@@ -32,23 +32,24 @@ class CUSTOM_CURL(pycurl.Curl):
 	def add_next(self, next_api):
 		if not isinstance(next_api, list):
 			next_api = [next_api]
-		# else:
-		# 	pass
-		# self.__next_api.extend(next_api)
 		for i in next_api:
 			obj_id = id(next_api)
 			if obj_id not in self.__next_api:
 				self.__next_api[obj_id] = self.__next_api
 				i.addCount()
 
-	def __del_next(self):
+	def del_next(self):
 		for i in self.__next_api:
 			self.__next_api[i].delCount()
-		self.__next_api = {id(self.__next_api[i]):self.__next_api[i] for i in self.__next_api if self.__next_api[i].getCount() == 0}
+
+	def update_next(self):
+		self.__next_api = {id(self.__next_api[i]):self.__next_api[i] for i in self.__next_api if self.__next_api[i].getCount() > 0}
+
+	def get_next_executable(self):
+		return [self.__next_api[i].get() for i in self.__next_api if self.__next_api[i].getCount() == 0]	
 
 	def get_next(self):
-		# return [i.get() in self.__next_api if i.getCount() == 0]
-		return self.__next_api
+		return [self.__next_api[i] for i in self.__next_api]
 
 	def __getResponseCode(self):
 		httpcode = self.getinfo(self.HTTP_CODE);
@@ -69,7 +70,6 @@ class CUSTOM_CURL(pycurl.Curl):
 			"httpcode":self.__getResponseCode()
 		}
 		self.__doCleanUp()
-		self.__del_next()
 		return data
 
 	def __doCleanUp(self)
@@ -77,6 +77,7 @@ class CUSTOM_CURL(pycurl.Curl):
 		self.close()
 
 	def __del__(self):
+		super.__del__()
 		self.__doCleanUp()
 
 

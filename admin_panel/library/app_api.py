@@ -53,7 +53,7 @@ class APP_API(object):
 
 				if "api_detail" not in resource:
 					# throw api server error
-					pass
+					raise appException.serverException_500({"app":"api details not provided"})
 
 				if isinstance(resource["api_detail"], dict):
 					api_detail = resource["api_detail"]
@@ -62,7 +62,7 @@ class APP_API(object):
 
 				curl_obj = self.__getDataFromAPI(async=True, **api_detail)
 
-				curl_obj.set_details(api_detail)
+				curl_obj.set_details(resource["api_detail"])
 
 				if "api_callback" in resource:
 					curl_obj.set_callback(resource["api_callback"])
@@ -75,11 +75,7 @@ class APP_API(object):
 
 				multi_curl.add_handle(curl_obj)
 
-	def __executeAsyncCurl(self, resources):
-		# Build multi-request object.
-		multi_curl = pycurl.CurlMulti()
-
-		self.__addAsyncCurls(resources=resources, multi_curl=m)
+	def __executeAsyncCurl(self, multi_curl):
 
 		multi_curl.setopt(pycurl.M_PIPELINING, 1)
 
@@ -107,27 +103,26 @@ class APP_API(object):
 						print("failed curls")
 						print(failed_curls)
 						# throw api server error
-						pass
+						raise appException.serverException_500({"app":"api server not reachable"})
 					if successful_curls:
 						for curl_obj in successful_curls:
-
 
 							response = self.handleResponse(curl_obj.getResponse())
 
 							if response is False:
 								# unauthorised token found, regenerate token
 								unauthorised_curls.append(curl_obj)
-								# raise "hbjnj"
 							else:
+								curl_obj.del_next()
 								callback = curl_obj.get_callback()
 								if callback:
 									callback(response)
 
-
-								next_api = curl_obj.get_next()
+								next_api = curl_obj.get_next_executable()
 								if next_api:
 									self.async(next_api)
-									pass
+									curl_obj.update_next()
+
 
 				if ret != pycurl.E_CALL_MULTI_PERFORM: 
 					break
@@ -141,29 +136,30 @@ class APP_API(object):
 
 		if unauthorised_curls:
 			self.__generateToken()
-			for curl_obj in unauthorised_curls:
-				pass
+			m = pycurl.CurlMulti()
+			for old_curl_obj in unauthorised_curls:
 
+				api_detail = old_curl_obj.get_details()
+				api_callback = old_curl_obj.get_callback()
+				next_api = old_curl_obj.get_next()
 
+				curl_obj = self.__getDataFromAPI(async=True, **api_detail)
 
+				curl_obj.set_details(api_detail)
+				curl_obj.set_callback(api_callback)
+				curl_obj.add_next(next_api)
 
+				m.add_handle(curl_obj)
 
-
+			self.__executeAsyncCurl(m)
 
 		multi_curl.close()
 
-
-
-
-
-
 	def async(self, resources):
-		while True
-			try:
-				self.__executeAsyncCurl(resources)
-				break
-			except:
-				self.__generateToken()
+		# Build multi-request object.
+		multi_curl = pycurl.CurlMulti()
+		self.__addAsyncCurls(resources=resources)
+		self.__executeAsyncCurl(resources)
 
 	def get(self, path, header={}):
 		return self.__getDataFromAPI(method="GET", path=path, header=header)
