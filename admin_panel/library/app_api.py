@@ -42,9 +42,12 @@ class APP_API(object):
 		for resource in resources:
 
 			if "async" in resource:
-				next_api = None
+				next_api = async_next
 				if "next_api" in resource:
-					next_api = [NEXT_API(resource["next_api"])]
+					if next_api:
+						next_api.append(NEXT_API(resource["next_api"]))
+					else:
+						next_api = [NEXT_API(resource["next_api"])]
 				self.__addAsyncCurls(resources=resource, multi_curl=multi_curl, async_next=next_api)
 			else:
 
@@ -64,16 +67,19 @@ class APP_API(object):
 				if "api_callback" in resource:
 					curl_obj.set_callback(resource["api_callback"])
 
+				if async_next is not None:
+					curl_obj.add_next(async_next)
+
 				if "next_api" in resource:
 					curl_obj.add_next(NEXT_API(resource["next_api"]))
 
 				multi_curl.add_handle(curl_obj)
 
-		# if async_next is not None:
-		multi_curl.async_next = async_next
+	def __executeAsyncCurl(self, resources):
+		# Build multi-request object.
+		multi_curl = pycurl.CurlMulti()
 
-
-	def __executeAsyncCurl(self, multi_curl):
+		self.__addAsyncCurls(resources=resources, multi_curl=m)
 
 		multi_curl.setopt(pycurl.M_PIPELINING, 1)
 
@@ -87,7 +93,7 @@ class APP_API(object):
 		num_handles = 1
 		old_handles = num_handles
 		while num_handles:
-			ret = multi_curl.select(SELECT_TIMEOUT)
+			ret = m.select(SELECT_TIMEOUT)
 			if ret == -1:
 				continue
 			while 1:
@@ -111,7 +117,7 @@ class APP_API(object):
 							if response is False:
 								# unauthorised token found, regenerate token
 								unauthorised_curls.append(curl_obj)
-								raise "hbjnj"
+								# raise "hbjnj"
 							else:
 								callback = curl_obj.get_callback()
 								if callback:
@@ -131,10 +137,6 @@ class APP_API(object):
 		# for req in reqs:
 		# 	# print(req[1].getvalue())
 		# 	req[2].close()
-
-
-
-
 
 
 		if unauthorised_curls:
@@ -158,11 +160,7 @@ class APP_API(object):
 	def async(self, resources):
 		while True
 			try:
-				# Build multi-request object.
-				m = pycurl.CurlMulti()
-
-				self.__addAsyncCurls(resources=resources, multi_curl=m)
-				self.__executeAsyncCurl(m)
+				self.__executeAsyncCurl(resources)
 				break
 			except:
 				self.__generateToken()

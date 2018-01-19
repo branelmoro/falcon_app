@@ -11,7 +11,7 @@ class CUSTOM_CURL(pycurl.Curl):
 		self.__buffer = BytesIO()
 		self.setopt(self.WRITEDATA, self.__buffer)
 		self.__api_callback = None
-		self.__next_api = []
+		self.__next_api = {}
 		self.__details = {}
 
 	def set_details(self, details):
@@ -32,16 +32,21 @@ class CUSTOM_CURL(pycurl.Curl):
 	def add_next(self, next_api):
 		if not isinstance(next_api, list):
 			next_api = [next_api]
-		self.__next_api.extend(next_api)
+		# else:
+		# 	pass
+		# self.__next_api.extend(next_api)
 		for i in next_api:
-			i.addCount()
+			obj_id = id(next_api)
+			if obj_id not in self.__next_api:
+				self.__next_api[obj_id] = self.__next_api
+				i.addCount()
 
 	def __del_next(self):
 		for i in self.__next_api:
-			i.delCount()
-		self.__next_api = [i.get() in self.__next_api if i.getCount() == 0]
+			self.__next_api[i].delCount()
+		self.__next_api = {id(self.__next_api[i]):self.__next_api[i] for i in self.__next_api if self.__next_api[i].getCount() == 0}
 
-	def get_next(self):__
+	def get_next(self):
 		# return [i.get() in self.__next_api if i.getCount() == 0]
 		return self.__next_api
 
