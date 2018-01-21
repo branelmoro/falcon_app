@@ -69,10 +69,13 @@ class CUSTOM_CURL(pycurl.Curl):
 			# "error_no" => os_errno,
 			"httpcode":self.__getResponseCode()
 		}
-		self.__doCleanUp()
+		# self.__doCleanUp()
 		return data
 
 	def __doCleanUp(self)
+		self.__api_callback = None
+		self.__next_api = {}
+		self.__details = {}
 		self.__buffer.close()
 		self.close()
 
