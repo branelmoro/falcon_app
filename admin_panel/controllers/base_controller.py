@@ -17,6 +17,20 @@ TOKENDB = redis("access_tokenDb")
 
 # APPCACHE.loadCache()
 
+class dataCollector(object)
+
+	def __init__(self, req, resp):
+		self.__collectSessionData(req, resp)
+		self.data = {}
+
+	def __collectSessionData(self, req, resp):
+		self.__session = SESSION(req=req, resp=resp)
+
+	def getSession(self):
+		return self.__session
+
+
+
 class baseController(object):
 	"""This is base controller and all other controllers will be child"""
 
@@ -154,8 +168,8 @@ class baseController(object):
 
 	def __defaultRequestSetup(self, req, resp):
 		res.set_header("content-type", "text/html")
-		req.SESSION = SESSION(req=req, resp=resp)
-		req.BAKENDAPI = APP_API(self._SESSION)
+		# req.SESSION = SESSION(req=req, resp=resp)
+		req.DATACOLLECTOR = dataCollector(req=req, resp=resp)
 
 	def on_get(self, req, resp):
 		try:
@@ -222,34 +236,19 @@ class baseController(object):
 			message = message.format(**data)
 		return message
 
-
 	def _render(self, view, body={}, header={}):
 		return BASE_HTML.renderView(view=view, body=body, header=header, partial=False)
-
 
 	def _renderPartial(self, view, body={}, header={}):
 		return BASE_HTML.renderView(view=view, body=body, header=header, partial=True)
 
+	def getAPI(self, req):
+		return APP_API(req.DATACOLLECTOR)
+
+	def getAPIURL(self, path):
+		return "http://localhost" + path
 
 
-
-
-
-
-
-
-	def getDataFromAPI(self, resources):
-		if "async" in resources:
-			# this is async call
-
-
-		else:
-			# this is sync call
-			
-
-
-		if "next" in resources:
-			self.getDataFromAPI(resources["next"])
 
 # static page - no need of api
 	# 1) need session

@@ -89,23 +89,23 @@ class CUSTOM_CURL(pycurl.Curl):
 class BACKEND_API(object):
 
 	@classmethod
-	def get(cls, path, header={}, async=False):
-		return cls.__excecute(method="GET", path=path, header=header, async=async)
+	def get(cls, url, header={}, async=False):
+		return cls.execute(method="GET", url=url, header=header, async=async)
 
 	@classmethod
-	def post(cls, path, data = None, header={}, async=False):
-		return cls.__excecute(method="POST", path=path, data=data, header=header, async=async)
+	def post(cls, url, data = None, header={}, async=False):
+		return cls.execute(method="POST", url=url, data=data, header=header, async=async)
 
 	@classmethod
-	def put(cls, path, data = None, header={}, async=False):
-		return cls.__excecute(method="PUT", path=path, data=data, header=header, async=async)
+	def put(cls, url, data = None, header={}, async=False):
+		return cls.execute(method="PUT", url=url, data=data, header=header, async=async)
 
 	@classmethod
-	def delete(cls, path, data, header={}, async=False):
-		return cls.__excecute(method="DELETE", path=path, data=data, header=header, async=async)
+	def delete(cls, url, data, header={}, async=False):
+		return cls.execute(method="DELETE", url=url, data=data, header=header, async=async)
 
 	@classmethod
-	def __excecute(cls, method, path, data = None, header, async=False):
+	def execute(cls, method, url, data = None, header, async=False):
 		# if async:
 		# 	c = CUSTOM_CURL()
 		# else:

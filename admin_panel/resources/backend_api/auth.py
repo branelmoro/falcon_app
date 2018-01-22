@@ -11,7 +11,7 @@ class Auth(BACKEND_API):
 			# "Content-Type":"application/json",
 			"Authorization":"Basic" + base64.b64encode(CLIENT_APP_CREDENTIALS[0]+":"+CLIENT_APP_CREDENTIALS[1])
 		}
-		return cls.post(path="/token/", data=data, header=header)
+		return cls.post(url="/token/", data=data, header=header)
 
 	@classmethod
 	def grant_type_authorization_code(cls, data):
@@ -38,4 +38,4 @@ class Auth(BACKEND_API):
 
 	@classmethod
 	def destroyTokens(data):
-		return cls.delete(path="/token/", data=data)
+		return cls.delete(url="/token/", data=data)

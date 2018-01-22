@@ -28,12 +28,11 @@ class NEXT_API(object):
 
 class APP_API(object):
 
-	__session = None
-
 	__client_session = None
 
-	def __init__(self, session = None):
-		self.__session = session
+	def __init__(self, dataCollector):
+		self.__dataCollector = dataCollector
+		self.__session = dataCollector.getSession()
 
 	def __addAsyncCurls(self, resources, multi_curl, async_next=None):
 		if not isinstance(resources, list):
@@ -58,7 +57,7 @@ class APP_API(object):
 				if isinstance(resource["api_detail"], dict):
 					api_detail = resource["api_detail"]
 				else:
-					api_detail = resource["api_detail"]()
+					api_detail = resource["api_detail"](**{dataCollector=self.__dataCollector})
 
 				curl_obj = self.__getDataFromAPI(async=True, **api_detail)
 
@@ -116,11 +115,15 @@ class APP_API(object):
 								curl_obj.del_next()
 								callback = curl_obj.get_callback()
 								if callback:
-									callback(response)
+									callback(dataCollector=self.__dataCollector, **response)
 
 								next_api = curl_obj.get_next_executable()
 								if next_api:
 									self.async(next_api)
+									# if isinstance(next_api, list):
+									# 	self.async(next_api)
+									# else:
+									# 	self.__getDataFromAPI(**next_api)
 									curl_obj.update_next()
 
 
@@ -159,41 +162,41 @@ class APP_API(object):
 		# Build multi-request object.
 		multi_curl = pycurl.CurlMulti()
 		self.__addAsyncCurls(resources=resources)
-		self.__executeAsyncCurl(resources)
+		self.__executeAsyncCurl(multi_curl)
 
-	def get(self, path, header={}):
-		return self.__getDataFromAPI(method="GET", path=path, header=header)
+	def get(self, url, header={}):
+		return self.__getDataFromAPI(method="GET", url=url, header=header)
 
-	def post(self, path, data = None, header={}):
-		return self.__getDataFromAPI(method="POST", path=path, data=data, header=header)
+	def post(self, url, data = None, header={}):
+		return self.__getDataFromAPI(method="POST", url=url, data=data, header=header)
 
-	def put(self, path, data = None, header={}):
-		return self.__getDataFromAPI(method="PUT", path=path, data=data, header=header)
+	def put(self, url, data = None, header={}):
+		return self.__getDataFromAPI(method="PUT", url=url, data=data, header=header)
 
-	def delete(self, path, data, header={}):
-		return self.__getDataFromAPI(method="DELETE", path=path, data=data, header=header)
+	def delete(self, url, data, header={}):
+		return self.__getDataFromAPI(method="DELETE", url=url, data=data, header=header)
 
-	def __getDataFromAPI(self, method, path, data=None, header={}, async=False):
+	def __getDataFromAPI(self, method, url, data=None, header={}, async=False):
 		header["access-token"] = self.__getToken()
-		if method == "GET":
-			response = BACKEND_API.get(path=path, header=header, async=async)
-		elif method == "POST":
-			response = BACKEND_API.post(path=path, data=data, header=header, async=async)
-		elif method == "PUT":
-			response = BACKEND_API.put(path=path, data=data, header=header, async=async)
-		elif method == "DELETE":
-			response = BACKEND_API.delete(path=path, data=data, header=header, async=async)
+		# if method == "GET":
+		# 	response = BACKEND_API.get(url=url, header=header, async=async)
+		# elif method == "POST":
+		# 	response = BACKEND_API.post(url=url, data=data, header=header, async=async)
+		# elif method == "PUT":
+		# 	response = BACKEND_API.put(url=url, data=data, header=header, async=async)
+		# elif method == "DELETE":
+		# 	response = BACKEND_API.delete(url=url, data=data, header=header, async=async)
+
+		response = BACKEND_API.execute(method=method, url=url, data=data, header=header, async=async)
 
 		if async:
 			return response
-
-
 
 		data = self.handleResponse(response)
 		if data == False:
 			# unauthorised token found, regenerate token
 			self.__generateToken()
-			return self.__getDataFromAPI(method=method, path=path, data=data, header=header)
+			return self.__getDataFromAPI(method=method, url=url, data=data, header=header)
 		else:
 			return data
 
@@ -224,14 +227,14 @@ class APP_API(object):
 			self.__session.refresh(arrResponce["response"])
 
 	def __generateToken(self):
-		if self.__session is not None and self.__session.exists():
+		if self.__session.exists():
 			self.__refreshUserToken()
 		else:
 			# client doesn't have right throw exception
 			self.__generateClientToken()
 
 	def __getToken(self):
-		if self.__session is not None and self.__session.exists():
+		if self.__session.exists():
 			return self.__session.get("accessToken")
 		else:
 			return self.__client_session["accessToken"]

@@ -12,6 +12,27 @@
 # print(c.send("World"))
 # exit()
 
+class abc():
+	def __init__(self):
+		self.a = 10
+
+
+def abcd():
+	pass
+a = {}
+print(type(a))
+exit()
+a = abc()
+b = abc()
+
+
+lst = [b,b,a]
+
+print(a in lst)
+print(lst)
+print(id(a), a)
+print(id(b), b)
+exit()
 
 import threading, redis
 import pycurl, time, datetime, sys
