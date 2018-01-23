@@ -89,7 +89,7 @@ class APP_API(object):
 					if successful_curls:
 						for curl_obj in successful_curls:
 
-							response = self.handleResponse(curl_obj.getResponse())
+							response = self.__handleAPIResponse(curl_obj.getResponse())
 
 							if response is False:
 								# unauthorised token found, regenerate token
@@ -104,6 +104,8 @@ class APP_API(object):
 								if next_api:
 									self.executeAsync(next_api)
 									curl_obj.update_next()
+
+								curl_obj.doCleanUp()
 
 
 				if ret != pycurl.E_CALL_MULTI_PERFORM: 
@@ -160,9 +162,12 @@ class APP_API(object):
 
 		return curl_obj
 
-	def execute(self, resource):
+	def executeAsync(self, resource):
 		if isinstance(resource, list):
-			self.executeAsync(resource)
+			# Build multi-request object.
+			multi_curl = pycurl.CurlMulti()
+			self.__addAsyncCurls(resources=resources)
+			self.__executeAsyncCurl(multi_curl)
 		else:
 
 			if "api_detail" not in resource:
@@ -179,13 +184,7 @@ class APP_API(object):
 				resource["api_callback"](container=self.__container, **response)
 
 			if "next_api" in resource:
-				self.execute(resource["next_api"])
-
-	def executeAsync(self, resources):
-		# Build multi-request object.
-		multi_curl = pycurl.CurlMulti()
-		self.__addAsyncCurls(resources=resources)
-		self.__executeAsyncCurl(multi_curl)
+				self.executeAsync(resource["next_api"])
 
 	def get(self, url, header={}):
 		return self.__getDataFromAPI(method="GET", url=url, header=header)
@@ -201,21 +200,13 @@ class APP_API(object):
 
 	def __getDataFromAPI(self, method, url, data=None, header={}, async=False):
 		header["access-token"] = self.__getToken()
-		# if method == "GET":
-		# 	response = BACKEND_API.get(url=url, header=header, async=async)
-		# elif method == "POST":
-		# 	response = BACKEND_API.post(url=url, data=data, header=header, async=async)
-		# elif method == "PUT":
-		# 	response = BACKEND_API.put(url=url, data=data, header=header, async=async)
-		# elif method == "DELETE":
-		# 	response = BACKEND_API.delete(url=url, data=data, header=header, async=async)
 
 		response = BACKEND_API.execute(method=method, url=url, data=data, header=header, async=async)
 
 		if async:
 			return response
 
-		data = self.handleResponse(response)
+		data = self.__handleAPIResponse(response)
 		if data == False:
 			# unauthorised token found, regenerate token
 			self.__generateToken()
@@ -223,23 +214,19 @@ class APP_API(object):
 		else:
 			return data
 
-	def handleResponse(self, response, callback=None):
+	def __handleAPIResponse(self, response):
+		
 		if response["httpcode"] == 401:
 			# unauthorised token found, regenerate token
 			return False
 		elif response["httpcode"] == 404:
 			# throw error, api does not exists
-			pass
+			raise appException.serverException_500({"app":"api does not exist"})
+		elif int(response["httpcode"]/100) == 5:
+			# throw api server error
+			raise appException.serverException_500({"app":"api does not exist"})
 		else:
-			if int(response["httpcode"]/100) == 5:
-				# throw api server error
-				exit()
-				pass
-
-			if callback:
-				return callback(response)
-			else:
-				return response
+			return response
 
 	def __refreshUserToken(self):
 		refresh_token = self.__session.get("refreshToken")

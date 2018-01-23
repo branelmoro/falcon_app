@@ -51,28 +51,16 @@ class CUSTOM_CURL(pycurl.Curl):
 	def get_next(self):
 		return [self.__next_api[i] for i in self.__next_api]
 
-	def __getResponseCode(self):
-		httpcode = self.getinfo(self.HTTP_CODE);
-		if httpcode in [500,501,502,503,504,505]:
-			self.__doCleanUp()
-			# throw backend api server error
-			pass
-		return httpcode;
-
-	def __getResponseBody(self):
-		return self.__buffer.getvalue()
-
 	def getResponse(self):
 		# os_errno = self.getinfo(self.OS_ERRNO);
 		data = {
-			"response":self.__getResponseBody(),
+			"response":self.__buffer.getvalue(),
 			# "error_no" => os_errno,
-			"httpcode":self.__getResponseCode()
+			"httpcode":self.getinfo(self.HTTP_CODE)
 		}
-		# self.__doCleanUp()
 		return data
 
-	def __doCleanUp(self)
+	def doCleanUp(self)
 		self.__api_callback = None
 		self.__next_api = {}
 		self.__details = {}
@@ -81,7 +69,7 @@ class CUSTOM_CURL(pycurl.Curl):
 
 	def __del__(self):
 		super.__del__()
-		self.__doCleanUp()
+		self.doCleanUp()
 
 
 
