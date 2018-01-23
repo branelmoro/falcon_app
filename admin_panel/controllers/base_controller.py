@@ -17,14 +17,13 @@ TOKENDB = redis("access_tokenDb")
 
 # APPCACHE.loadCache()
 
-class dataCollector(object)
+class container(object)
 
 	def __init__(self, req, resp):
-		self.__collectSessionData(req, resp)
-		self.data = {}
-
-	def __collectSessionData(self, req, resp):
+		self.req = req
+		self.resp = resp
 		self.__session = SESSION(req=req, resp=resp)
+		self.data = {}
 
 	def getSession(self):
 		return self.__session
@@ -169,12 +168,14 @@ class baseController(object):
 	def __defaultRequestSetup(self, req, resp):
 		res.set_header("content-type", "text/html")
 		# req.SESSION = SESSION(req=req, resp=resp)
-		req.DATACOLLECTOR = dataCollector(req=req, resp=resp)
+		# req.DATACOLLECTOR = dataCollector(req=req, resp=resp)
+		return = container(req=req, resp=resp)
 
 	def on_get(self, req, resp):
 		try:
-			self.__defaultRequestSetup(req, resp)
-			self.get(req, resp)
+			container = self.__defaultRequestSetup(req, resp)
+			self.get(container)
+			# self.get(req, resp)
 		except appException.clientException as e:
 			self.__sendError(resp, e)
 		except:
@@ -242,8 +243,8 @@ class baseController(object):
 	def _renderPartial(self, view, body={}, header={}):
 		return BASE_HTML.renderView(view=view, body=body, header=header, partial=True)
 
-	def getAPI(self, req):
-		return APP_API(req.DATACOLLECTOR)
+	def getAPI(self, container):
+		return APP_API(container)
 
 	def getAPIURL(self, path):
 		return "http://localhost" + path

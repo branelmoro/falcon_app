@@ -15,9 +15,9 @@ class Session(object):
 	__req = None
 	__res = None
 
-	def __init__(self, req, res):
-		self.__req = req
-		self.__res = res
+	def __init__(self, container):
+		self.__req = container.req
+		self.__res = container.res
 		# load session
 		if self.__session_key in self.__req.cookies:
 			if SESSION_DB.exists(self.__req.cookies[self.__session_key]):

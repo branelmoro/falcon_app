@@ -30,9 +30,9 @@ class APP_API(object):
 
 	__client_session = None
 
-	def __init__(self, dataCollector):
-		self.__dataCollector = dataCollector
-		self.__session = dataCollector.getSession()
+	def __init__(self, container):
+		self.__container = container
+		self.__session = container.getSession()
 
 	def __addAsyncCurls(self, resources, multi_curl, async_next=None):
 		if not isinstance(resources, list):
@@ -50,27 +50,10 @@ class APP_API(object):
 				self.__addAsyncCurls(resources=resource, multi_curl=multi_curl, async_next=next_api)
 			else:
 
-				if "api_detail" not in resource:
-					# throw api server error
-					raise appException.serverException_500({"app":"api details not provided"})
-
-				if isinstance(resource["api_detail"], dict):
-					api_detail = resource["api_detail"]
-				else:
-					api_detail = resource["api_detail"](**{dataCollector=self.__dataCollector})
-
-				curl_obj = self.__getDataFromAPI(async=True, **api_detail)
-
-				curl_obj.set_details(resource["api_detail"])
-
-				if "api_callback" in resource:
-					curl_obj.set_callback(resource["api_callback"])
+				curl_obj = self.__getCurl(resource)
 
 				if async_next is not None:
 					curl_obj.add_next(async_next)
-
-				if "next_api" in resource:
-					curl_obj.add_next(NEXT_API(resource["next_api"]))
 
 				multi_curl.add_handle(curl_obj)
 
@@ -115,15 +98,11 @@ class APP_API(object):
 								curl_obj.del_next()
 								callback = curl_obj.get_callback()
 								if callback:
-									callback(dataCollector=self.__dataCollector, **response)
+									callback(container=self.__container, **response)
 
 								next_api = curl_obj.get_next_executable()
 								if next_api:
-									self.async(next_api)
-									# if isinstance(next_api, list):
-									# 	self.async(next_api)
-									# else:
-									# 	self.__getDataFromAPI(**next_api)
+									self.executeAsync(next_api)
 									curl_obj.update_next()
 
 
@@ -158,7 +137,51 @@ class APP_API(object):
 
 		multi_curl.close()
 
-	def async(self, resources):
+	def __getCurl(self, resource):
+
+		if "api_detail" not in resource:
+			# throw api server error
+			raise appException.serverException_500({"app":"api details not provided"})
+
+		if isinstance(resource["api_detail"], dict):
+			api_detail = resource["api_detail"]
+		else:
+			api_detail = resource["api_detail"](**{container=self.__container})
+
+		curl_obj = self.__getDataFromAPI(async=True, **api_detail)
+
+		curl_obj.set_details(resource["api_detail"])
+
+		if "api_callback" in resource:
+			curl_obj.set_callback(resource["api_callback"])
+
+		if "next_api" in resource:
+			curl_obj.add_next(NEXT_API(resource["next_api"]))
+
+		return curl_obj
+
+	def execute(self, resource):
+		if isinstance(resource, list):
+			self.executeAsync(resource)
+		else:
+
+			if "api_detail" not in resource:
+				# throw api server error
+				raise appException.serverException_500({"app":"api details not provided"})
+			if isinstance(resource["api_detail"], dict):
+				api_detail = resource["api_detail"]
+			else:
+				api_detail = resource["api_detail"](**{container=self.__container})
+
+			response = self.__getDataFromAPI(**api_detail)
+
+			if resource["api_callback"]:
+				resource["api_callback"](container=self.__container, **response)
+
+			if "next_api" in resource:
+				self.execute(resource["next_api"])
+
+	def executeAsync(self, resources):
 		# Build multi-request object.
 		multi_curl = pycurl.CurlMulti()
 		self.__addAsyncCurls(resources=resources)

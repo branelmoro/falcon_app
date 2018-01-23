@@ -25,7 +25,9 @@ class index(baseController):
 		return self.__path
 
 	"""This is sample controller"""
-	def get(self, req, resp):
+	def get(self, container):
+		req = container.req
+		resp = container.resp
 		"""Handles GET requests"""
 		resp.status = HTTP_200  # This is the default status
 
