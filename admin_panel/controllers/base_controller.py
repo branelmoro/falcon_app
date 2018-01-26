@@ -18,7 +18,7 @@ TOKENDB = redis("access_tokenDb")
 
 # APPCACHE.loadCache()
 
-class container(object)
+class container(object):
 
 	def __init__(self, req, resp):
 		self.req = req
@@ -170,7 +170,7 @@ class baseController(object):
 		res.set_header("content-type", "text/html")
 		# req.SESSION = SESSION(req=req, resp=resp)
 		# req.DATACOLLECTOR = dataCollector(req=req, resp=resp)
-		return = container(req=req, resp=resp)
+		return container(req=req, resp=resp)
 
 	def on_get(self, req, resp):
 		try:

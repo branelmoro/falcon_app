@@ -6,7 +6,7 @@ from . import json
 
 SESSION_DB = redisCrud("sessionDb")
 
-class Session(object):
+class SESSION(object):
 
 	__session_id = None
 	__session_key = "x-session"
@@ -22,7 +22,7 @@ class Session(object):
 		if self.__session_key in self.__req.cookies:
 			if SESSION_DB.exists(self.__req.cookies[self.__session_key]):
 				self.__sessionData = SESSION_DB.hgetall(self.__req.cookies[self.__session_key])
-				self.__session_id = self.__req.cookies[self.__session_key];
+				self.__session_id = self.__req.cookies[self.__session_key]
 			else:
 				# session is expired hence unset cookie
 				self.__res.unset_cookie(self.__req.cookies[self.__session_key])
@@ -60,8 +60,8 @@ class Session(object):
 	def destroy(self):
 		SESSION_DB.delete(self.__session_id)
 		self.__res.unset_cookie(self.__session_id)
-		self.__session_id = None;
-		self.__sessionData = {};
+		self.__session_id = None
+		self.__sessionData = {}
 
 	def refresh(self, data):
 		sessionData = self.__sessionData

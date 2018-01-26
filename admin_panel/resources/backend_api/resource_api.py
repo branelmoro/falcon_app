@@ -3,12 +3,12 @@ from io import BytesIO
 
 from ...library import json
 
-class CUSTOM_CURL(pycurl.Curl):
+class CUSTOM_CURL():
 
 	def __init__(self):
-		super.__init__()
+		self.__curl = pycurl.Curl()
 		self.__buffer = BytesIO()
-		self.setopt(self.WRITEDATA, self.__buffer)
+		self.__curl.setopt(self.WRITEDATA, self.__buffer)
 		self.__api_callback = None
 		self.__next_api = {}
 		self.__details = {}
@@ -55,16 +55,31 @@ class CUSTOM_CURL(pycurl.Curl):
 		data = {
 			"response":self.__buffer.getvalue(),
 			# "error_no" => os_errno,
-			"httpcode":self.getinfo(self.HTTP_CODE)
+			"httpcode":self.__curl.getinfo(self.__curl.HTTP_CODE)
 		}
 		return data
 
-	def doCleanUp(self)
+	def doCleanUp(self):
 		self.__api_callback = None
 		self.__next_api = {}
 		self.__details = {}
 		self.__buffer.close()
-		self.close()
+		self.__curl.close()
+
+	def setMethod(self, method):
+		self.__curl.setopt(self.__curl.CUSTOMREQUEST, method)
+
+	def setUrl(self, url):
+		self.__curl.setopt(self.__curl.URL, url)
+
+	def setData(self, data):
+		self.__curl.setopt(self.__curl.POSTFIELDS, data)
+
+	def setHeader(self, header):
+		self.__curl.setopt(self.__curl.HTTPHEADER, header)
+
+	def execute(self):
+		self.__curl.perform()
 
 	def __del__(self):
 		super.__del__()
@@ -92,35 +107,35 @@ class BACKEND_API(object):
 		return cls.execute(method="DELETE", url=url, data=data, header=header, async=async)
 
 	@classmethod
-	def execute(cls, method, url, data = None, header, async=False):
+	def execute(cls, method, url, header, data = None, async=False):
 		# if async:
 		# 	c = CUSTOM_CURL()
 		# else:
 		# 	c = CUSTOM_CURL(pycurl.Curl)
 		c = CUSTOM_CURL()
-		c.setopt(c.CUSTOMREQUEST, method);
+		c.setMethod(method);
 
 		default_headers = {
 			"Content-Type":"application/json"
 		}
 
 		if data and method != "GET":
-			data = json.encode(data);
+			if isinstance(data, dict):
+				data = json.encode(data)
 			default_headers["Content-Length"] = len(data)
-			c.setopt(c.POSTFIELDS, data);
+			c.setData(data)
 
 		header.update(default_headers)
 
-		c.setopt(c.HTTPHEADER, [i+": "+str(header[i]) for i in header])
+		c.setHeader([i+": "+str(header[i]) for i in header])
 
-		# c.setopt(c.HTTPHEADER, ["Content-Type: application/json"])
-		c.setopt(c.URL, url)
+		c.setUrl(url)
 
 		if async:
 			return c
 
 		try:
-			c.perform()
+			c.execute()
 		except:
 			# throw backend connection error
 			pass

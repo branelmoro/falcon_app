@@ -1,6 +1,6 @@
 import hashlib
-from . import APPCACHE
-from ..resources.backend_api import BACKEND_API, Auth
+from . import APPCACHE, json
+from ..resources.backend_api import BACKEND_API, AUTH
 
 from .. import exception as appException
 
@@ -148,7 +148,7 @@ class APP_API(object):
 		if isinstance(resource["api_detail"], dict):
 			api_detail = resource["api_detail"]
 		else:
-			api_detail = resource["api_detail"](**{container=self.__container})
+			api_detail = resource["api_detail"](**{container:self.__container})
 
 		curl_obj = self.__getDataFromAPI(async=True, **api_detail)
 
@@ -176,7 +176,7 @@ class APP_API(object):
 			if isinstance(resource["api_detail"], dict):
 				api_detail = resource["api_detail"]
 			else:
-				api_detail = resource["api_detail"](**{container=self.__container})
+				api_detail = resource["api_detail"](**{container:self.__container})
 
 			response = self.__getDataFromAPI(**api_detail)
 
@@ -230,7 +230,7 @@ class APP_API(object):
 
 	def __refreshUserToken(self):
 		refresh_token = self.__session.get("refreshToken")
-		arrResponce = Auth.grant_type_refresh_token()
+		arrResponce = AUTH.grant_type_refresh_token()
 		if arrResponce["httpcode"] == 400:
 			self.__session.destory()
 		else:
@@ -279,13 +279,13 @@ class APP_API(object):
 			is_lock_aquired = False
 
 		if is_lock_aquired:
-			arrResponce = Auth.grant_type_client_credentials()
+			arrResponce = AUTH.grant_type_client_credentials()
 			if arrResponce["httpcode"] == 400:
 				raise appException.serverException_500({"app":"APP authorization failed"})
 			cls.__client_session = arrResponce["response"]
 			cls.__client_session["token_api_call"] = "no"
 			conn.hmset(client_session_id,cls.__client_session)
-		else
+		else:
 			while conn.hget(client_session_id, "token_api_call")=="yes":
 				time.sleep(0.1)
 			cls.__client_session = conn.hgetall(client_session_id)

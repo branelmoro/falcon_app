@@ -3,7 +3,7 @@ from .resource_api import BACKEND_API
 
 from ...config import CLIENT_APP_CREDENTIALS
 
-class Auth(BACKEND_API):
+class AUTH(BACKEND_API):
 
 	@classmethod
 	def __authorize(cls, data):
@@ -20,20 +20,20 @@ class Auth(BACKEND_API):
 
 	@classmethod
 	def grant_type_password(cls, data={}):
-		data["grant_type"] = "password";
+		data["grant_type"] = "password"
 		return cls.__authorize(data)
 
 	@classmethod
 	def grant_type_client_credentials(cls, data={}):
-		data["grant_type"] = "client_credentials";
+		data["grant_type"] = "client_credentials"
 		return cls.__authorize(data)
 
 	@classmethod
 	def grant_type_refresh_token(cls, data={}):
-		$data = {
+		data = {
 			"refresh_token":"asdfsdfsdfsdfsdfsdfsdfsdfsdf",
 			"grant_type":"refresh_token"
-		};
+		}
 		return cls.__authorize(data)
 
 	@classmethod
