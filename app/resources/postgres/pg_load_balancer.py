@@ -1,9 +1,10 @@
 import psycopg2
 import time
 from .pg_exception import pgException
+from ...config import PGDB1
 
 class pgLoadBalancer(object):
-	__hosts = False
+	__hosts = PGDB1
 	__blnConnectedToAll = False
 	__masterConn = False
 	__slaveConns = []
@@ -20,45 +21,7 @@ class pgLoadBalancer(object):
 			return
 		cls.__hosts = None
 		# code to fetch database credentials
-		cls.__hosts = {
-			"master":{
-				"host":"127.0.0.1",
-				"username":"branelm",
-				"password":"root",
-				"database":"laborstack",
-				"port":5432
-			},
-			"slave":[
-				{
-					"host":"127.0.0.1",
-					"username":"branelm",
-					"password":"root",
-					"database":"laborstack",
-					"port":5432
-				},
-				{
-					"host":"127.0.0.1",
-					"username":"branelm",
-					"password":"root",
-					"database":"laborstack",
-					"port":5432
-				},
-				{
-					"host":"127.0.0.1",
-					"username":"branelm",
-					"password":"root",
-					"database":"laborstack",
-					"port":5432
-				},
-				{
-					"host":"127.0.0.1",
-					"username":"branelm",
-					"password":"root",
-					"database":"laborstack",
-					"port":5432
-				}
-			]
-		}
+		cls.__hosts = PGDB1
 
 	@classmethod
 	def getDBConnection(cls,bln):
