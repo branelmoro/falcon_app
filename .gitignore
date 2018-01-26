@@ -1,3 +1,4 @@
 __pycache__
 mimeparse.py
+app/config/*
 admin_panel/config/*
