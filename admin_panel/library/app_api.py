@@ -301,4 +301,4 @@ class APP_API(object):
 
 
 # start client session
-APP_API.startClientSession()
+# APP_API.startClientSession()

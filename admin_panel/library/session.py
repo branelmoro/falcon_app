@@ -13,11 +13,11 @@ class SESSION(object):
 	__sessionData = {}
 
 	__req = None
-	__res = None
+	__resp = None
 
 	def __init__(self, container):
 		self.__req = container.req
-		self.__res = container.res
+		self.__resp = container.resp
 		# load session
 		if self.__session_key in self.__req.cookies:
 			if SESSION_DB.exists(self.__req.cookies[self.__session_key]):
@@ -25,7 +25,7 @@ class SESSION(object):
 				self.__session_id = self.__req.cookies[self.__session_key]
 			else:
 				# session is expired hence unset cookie
-				self.__res.unset_cookie(self.__req.cookies[self.__session_key])
+				self.__resp.unset_cookie(self.__req.cookies[self.__session_key])
 
 	def __generateUniqueIdFromKey(self):
 		key = hashlib.md5(str(random.random()) + str(datetime.datetime.now()))
@@ -38,8 +38,8 @@ class SESSION(object):
 
 	def start(self, expiry = 900, data={}):
 		self.__session_id = self.__generateUniqueIdFromKey()
-		self.__res.set_cookie(name=self.__session_key, value=self.__session_id, max_age=expiry)
-		# self.__res.set_cookie(name=self.__session_key, value=self.__session_id, expires=None, max_age=900, domain=None, path=None, secure=None, http_only=True)
+		self.__resp.set_cookie(name=self.__session_key, value=self.__session_id, max_age=expiry)
+		# self.__resp.set_cookie(name=self.__session_key, value=self.__session_id, expires=None, max_age=900, domain=None, path=None, secure=None, http_only=True)
 		if data:
 			self.setData(data)
 
@@ -59,7 +59,7 @@ class SESSION(object):
 
 	def destroy(self):
 		SESSION_DB.delete(self.__session_id)
-		self.__res.unset_cookie(self.__session_id)
+		self.__resp.unset_cookie(self.__session_id)
 		self.__session_id = None
 		self.__sessionData = {}
 
