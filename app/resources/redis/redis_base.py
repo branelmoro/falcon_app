@@ -1,4 +1,5 @@
 import redis
+from ...config import REDIS_DB_CREDENTIALS
 
 # from app import exception as appException
 
@@ -52,6 +53,7 @@ Accordingly changes need to be done in code to handle connection to all shards a
 class redisBase(object):
 
 	__connections = {}
+	__dbconfig = REDIS_DB_CREDENTIALS
 
 	@classmethod
 	def setConfig(cls):
@@ -86,7 +88,7 @@ class redisBase(object):
 
 	@classmethod
 	def is_validDB(cls,dbName):
-		cls.setConfig()
+		# cls.setConfig()
 		if not dbName in cls.__dbconfig:
 			raise rdException({"redis":"Invalid redis database server provided"})
 
@@ -99,6 +101,10 @@ class redisBase(object):
 				raise rdException({"redis":"Invalid redis database server provided"})
 			cls.__connections[dbName] = cls.connectRedis(cls.__dbconfig[dbName]["host"],cls.__dbconfig[dbName]["port"],cls.__dbconfig[dbName]["db"])
 			return cls.__connections[dbName]
+
+	@classmethod
+	def getFreshConnection(cls, dbName):
+		return cls.connectRedis(cls.__dbconfig[dbName]["host"],cls.__dbconfig[dbName]["port"],cls.__dbconfig[dbName]["db"])
 
 	@classmethod
 	def connectRedis(cls, host, port=6379, db=0, password=None, socket_timeout=None, connection_pool=None, charset='utf-8', errors='strict', decode_responses=False, unix_socket_path=None):
@@ -128,6 +134,10 @@ class redisCrud(object):
 	def __getReConnection(self,is_master=True):
 		return redisBase.reconnectDB(self.__dbname)
 
+	@classmethod
+	def getConnection(self, dbName=None):
+		redisBase.is_validDB(dbName)
+		return redisBase.getFreshConnection(dbName)
 
 	#override all StrictRedis methods
 	# key/value commands	

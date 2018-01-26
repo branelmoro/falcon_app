@@ -10,6 +10,7 @@ from ..library import APP_API
 import sys
 import traceback
 
+from ..config import BACKEND_API_URL
 
 from ..resources.redis import redis
 
@@ -247,7 +248,7 @@ class baseController(object):
 		return APP_API(container)
 
 	def getAPIURL(self, path):
-		return "http://localhost" + path
+		return BACKEND_API_URL + path
 
 
 
