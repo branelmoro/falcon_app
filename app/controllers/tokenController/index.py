@@ -11,8 +11,7 @@ from ...resources.redis import redis as appCache
 from datetime import datetime
 
 from ...library import json
-
-import hashlib
+from hashlib import blake2b
 
 import base64
 
