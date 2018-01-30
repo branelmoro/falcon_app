@@ -26,6 +26,11 @@ REDIS_DB_CREDENTIALS = {
 		"port":6379,
 		"db":3
 	},
+	"appCache" : {
+		"host":"127.0.0.1",
+		"port":6379,
+		"db":4
+	},
 	"skillDb" : {
 		"host":"127.0.0.1",
 		"port":6379,

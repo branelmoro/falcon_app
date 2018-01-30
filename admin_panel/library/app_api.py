@@ -260,9 +260,9 @@ class APP_API(object):
 	@classmethod
 	def __generateClientToken(cls, conn=None):
 		if conn is None:
-			conn = APPCACHE.getConnection("appcache")
+			conn = APPCACHE.getConnection("appCache")
 
-		client_session_id = hashlib.md5(json.encode(CLIENT_APP_CREDENTIALS))
+		client_session_id = hashlib.md5(json.encode(CLIENT_APP_CREDENTIALS).encode('utf-8')).hexdigest()
 		bln_wait = False
 		while conn.hget(client_session_id, "token_api_call")=="yes":
 			time.sleep(0.1)
@@ -292,8 +292,9 @@ class APP_API(object):
 
 	@classmethod
 	def startClientSession(cls):
-		client_session_id = hashlib.md5(json.encode(CLIENT_APP_CREDENTIALS))
-		conn = APPCACHE.getConnection("appcache")
+		print(json.encode(CLIENT_APP_CREDENTIALS))
+		client_session_id = hashlib.md5(json.encode(CLIENT_APP_CREDENTIALS).encode('utf-8')).hexdigest()
+		conn = APPCACHE.getConnection("appCache")
 		if conn.exists(client_session_id):
 			cls.__client_session = conn.hgetall(client_session_id)
 		else:
@@ -301,4 +302,4 @@ class APP_API(object):
 
 
 # start client session
-# APP_API.startClientSession()
+APP_API.startClientSession()

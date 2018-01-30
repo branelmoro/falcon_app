@@ -209,7 +209,7 @@ class index(baseController):
 		return params
 
 	def __generateTokenFromKey(self, key, dbName):
-		token = hashlib.blake2b(key.encode('utf-8')).hexdigest();
+		token = hashlib.blake2b(key.encode('utf-8')).hexdigest()
 		# generate new if key exists in dbName
 		while dbName.exists(key):
 			token = self.__generateTokenFromKey(key, dbName)
