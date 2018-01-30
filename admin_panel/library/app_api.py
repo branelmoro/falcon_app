@@ -1,5 +1,7 @@
 import hashlib
-from . import APPCACHE, json
+from . import json
+
+from ..resources.redis import redis as APPCACHE
 from ..resources.backend_api import BACKEND_API, AUTH
 
 from .. import exception as appException
