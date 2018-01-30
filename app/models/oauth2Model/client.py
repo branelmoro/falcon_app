@@ -6,13 +6,13 @@ from ..base_model import baseModel
 class client(baseModel):
 	"""entire code goes here"""
 
-	def get_user_type_scope(self, app_id, client_secret):
+	def get_user_type_scope(self, app_id, app_secret):
 		qry = """
 			SELECT user_type, scope
 			FROM oauth2.client
-			WHERE app_id = %s AND client_secret = %s;
+			WHERE app_id = %s AND app_secret = %s;
 		"""
-		resultCursor = self.pgSlave().query(qry,[app_id, client_secret])
+		resultCursor = self.pgSlave().query(qry,[app_id, app_secret])
 		result = resultCursor.getOneRecord()
 		if(result):
 			return result

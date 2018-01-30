@@ -9,7 +9,7 @@ class AUTH(BACKEND_API):
 	def __authorize(cls, data):
 		header = {
 			# "Content-Type":"application/json",
-			"Authorization":"Basic" + base64.b64encode((CLIENT_APP_CREDENTIALS[0]+":"+CLIENT_APP_CREDENTIALS[1]).encode('utf-8')).decode('utf-8')
+			"Authorization":"Basic " + base64.b64encode((CLIENT_APP_CREDENTIALS[0]+":"+CLIENT_APP_CREDENTIALS[1]).encode('utf-8')).decode('utf-8')
 		}
 		return cls.post(url=BACKEND_API_URL+"/token/", data=data, header=header)
 
