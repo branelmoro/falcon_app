@@ -1,17 +1,17 @@
 import pycurl,base64
 from .resource_api import BACKEND_API
 
-from ...config import CLIENT_APP_CREDENTIALS
+from ...config import CLIENT_APP_CREDENTIALS, BACKEND_API_URL
 
 class AUTH(BACKEND_API):
 
 	@classmethod
 	def __authorize(cls, data):
-		headers = {
+		header = {
 			# "Content-Type":"application/json",
 			"Authorization":"Basic" + base64.b64encode((CLIENT_APP_CREDENTIALS[0]+":"+CLIENT_APP_CREDENTIALS[1]).encode('utf-8')).decode('utf-8')
 		}
-		return cls.post(url=BACKEND_API+"/token/", data=data, header=header)
+		return cls.post(url=BACKEND_API_URL+"/token/", data=data, header=header)
 
 	@classmethod
 	def grant_type_authorization_code(cls, data):
@@ -38,4 +38,4 @@ class AUTH(BACKEND_API):
 
 	@classmethod
 	def destroyTokens(data):
-		return cls.delete(url=BACKEND_API+"/token/", data=data)
+		return cls.delete(url=BACKEND_API_URL+"/token/", data=data)

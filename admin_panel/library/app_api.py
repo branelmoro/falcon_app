@@ -282,9 +282,12 @@ class APP_API(object):
 
 		if is_lock_aquired:
 			arrResponce = AUTH.grant_type_client_credentials()
+			print(arrResponce)
+			if arrResponce["httpcode"] == 500:
+				raise appException.serverException_500({"app":"APP authorization server error"})
 			if arrResponce["httpcode"] == 400:
 				raise appException.serverException_500({"app":"APP authorization failed"})
-			cls.__client_session = arrResponce["response"]
+			cls.__client_session = json.decode(arrResponce["response"])
 			cls.__client_session["token_api_call"] = "no"
 			conn.hmset(client_session_id,cls.__client_session)
 		else:

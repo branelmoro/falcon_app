@@ -8,7 +8,7 @@ class CUSTOM_CURL():
 	def __init__(self):
 		self.__curl = pycurl.Curl()
 		self.__buffer = BytesIO()
-		self.__curl.setopt(self.WRITEDATA, self.__buffer)
+		self.__curl.setopt(self.__curl.WRITEDATA, self.__buffer)
 		self.__api_callback = None
 		self.__next_api = {}
 		self.__details = {}
@@ -53,7 +53,7 @@ class CUSTOM_CURL():
 	def getResponse(self):
 		# os_errno = self.getinfo(self.OS_ERRNO);
 		data = {
-			"response":self.__buffer.getvalue(),
+			"response":self.__buffer.getvalue().decode("utf-8"),
 			# "error_no" => os_errno,
 			"httpcode":self.__curl.getinfo(self.__curl.HTTP_CODE)
 		}
@@ -82,8 +82,8 @@ class CUSTOM_CURL():
 		self.__curl.perform()
 
 	def __del__(self):
-		super.__del__()
 		self.doCleanUp()
+		print("done cleanup")
 
 
 
