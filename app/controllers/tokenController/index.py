@@ -11,7 +11,11 @@ from ...resources.redis import redis as appCache
 from datetime import datetime
 
 from ...library import json
-from hashlib import blake2b
+
+try:
+	from hashlib import blake2b
+except ImportError:
+	from pyblake2 import blake2b
 
 import base64
 
@@ -208,7 +212,7 @@ class index(baseController):
 		return params
 
 	def __generateTokenFromKey(self, key, dbName):
-		token = hashlib.blake2b(key.encode('utf-8')).hexdigest()
+		token = blake2b(key.encode('utf-8')).hexdigest()
 		# generate new if key exists in dbName
 		while dbName.exists(key):
 			token = self.__generateTokenFromKey(key, dbName)

@@ -1,8 +1,13 @@
 import random
-import hashlib
 import datetime
 from ..resources.redis import redis as redisCrud
 from . import json
+
+try:
+	from hashlib import blake2s
+except ImportError:
+	from pyblake2 import blake2s
+
 
 SESSION_DB = redisCrud("sessionDb")
 
@@ -27,21 +32,37 @@ class SESSION(object):
 				# session is expired hence unset cookie
 				self.__resp.unset_cookie(self.__req.cookies[self.__session_key])
 
-	def __generateUniqueIdFromKey(self):
-		key = hashlib.md5(str(random.random()) + str(datetime.datetime.now()))
+	def __isSessionIdLocked(self, session_id, data):
+		conn = APPCACHE.getConnection("appCache")
+		pipe = conn.pipeline(transaction=True)
+		pipe.watch(session_id)
+		pipe.multi()
+		pipe.hmset(session_id, data)
+		pipe.execute()
+
+	def __getHashKey(self, key):
+		return blake2s(key.encode('utf-8')).hexdigest()
+
+	def __generateUniqueIdFromKey(self, data):
+		key = self.__getHashKey(str(random.random()) + str(datetime.datetime.now()))
 		while SESSION_DB.exists(key):
-			key = hashlib.md5(key)
+			key = self.__getHashKey(key)
+		while True:
+			try:
+				self.__isSessionIdLocked(session_id=key,data=data)
+				self.__sessionData.update(data)
+				break
+			except:
+				key = self.__getHashKey(key)
 		return key
 
 	def exists(self):
 		return (self.__session_id is not None)
 
 	def start(self, expiry = 900, data={}):
-		self.__session_id = self.__generateUniqueIdFromKey()
+		self.__session_id = self.__generateUniqueIdFromKey(data=data)
 		self.__resp.set_cookie(name=self.__session_key, value=self.__session_id, max_age=expiry)
 		# self.__resp.set_cookie(name=self.__session_key, value=self.__session_id, expires=None, max_age=900, domain=None, path=None, secure=None, http_only=True)
-		if data:
-			self.setData(data)
 
 	def setData(self, data):
 		self.__sessionData.update(data)

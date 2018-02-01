@@ -54,7 +54,7 @@ class scope(baseModel):
 
 		self.__addScopeToCache(result)
 
-		return [result[i][0] for i in result]
+		return [i[0] for i in result]
 
 
 	def __addScopeToCache(self, result):

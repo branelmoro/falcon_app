@@ -1,4 +1,7 @@
-import hashlib
+try:
+	from hashlib import blake2s
+except ImportError:
+	from pyblake2 import blake2s
 from . import json
 
 from ..resources.redis import redis as APPCACHE
@@ -260,11 +263,15 @@ class APP_API(object):
 		pipe.execute()
 
 	@classmethod
+	def __getClientSessionId(cls):
+		return blake2s(json.encode(CLIENT_APP_CREDENTIALS).encode('utf-8')).hexdigest()
+
+	@classmethod
 	def __generateClientToken(cls, conn=None):
 		if conn is None:
 			conn = APPCACHE.getConnection("appCache")
 
-		client_session_id = hashlib.md5(json.encode(CLIENT_APP_CREDENTIALS).encode('utf-8')).hexdigest()
+		client_session_id = cls.__getClientSessionId()
 		bln_wait = False
 		while conn.hget(client_session_id, "token_api_call")=="yes":
 			time.sleep(0.1)
@@ -297,8 +304,7 @@ class APP_API(object):
 
 	@classmethod
 	def startClientSession(cls):
-		print(json.encode(CLIENT_APP_CREDENTIALS))
-		client_session_id = hashlib.md5(json.encode(CLIENT_APP_CREDENTIALS).encode('utf-8')).hexdigest()
+		client_session_id = cls.__getClientSessionId()
 		conn = APPCACHE.getConnection("appCache")
 		if conn.exists(client_session_id):
 			cls.__client_session = conn.hgetall(client_session_id)
