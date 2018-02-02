@@ -33,7 +33,7 @@ class SESSION(object):
 				self.__resp.unset_cookie(self.__req.cookies[self.__session_key])
 
 	def __isSessionIdLocked(self, session_id, data):
-		conn = APPCACHE.getConnection("appCache")
+		conn = SESSION_DB.getConnection("sessionDb")
 		pipe = conn.pipeline(transaction=True)
 		pipe.watch(session_id)
 		pipe.multi()

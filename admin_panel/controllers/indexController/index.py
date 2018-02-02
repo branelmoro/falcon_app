@@ -41,4 +41,32 @@ class index(baseController):
 
 		params["running_from"] = str(current_time - server_start_time)
 
+		app_api = self.getAPI(container)
+
+		assync_call = [{
+				"api_detail":{
+					"method":"GET",
+					"url":self.getAPIURL("/"),
+				},
+				"api_callback":self.callback1
+			},{
+				"api_detail":{
+					"method":"GET",
+					"url":self.getAPIURL("/"),
+				},
+				"api_callback":self.callback2
+			}
+		]
+
+		app_api.executeAsync(assync_call)
+
 		resp.body = self._render(view="test.sample_view")
+
+
+	def callback1(self, httpcode, responce, container):
+		print("callback1")
+		print(responce)
+
+	def callback2(self, httpcode, responce, container):
+		print("callback2")
+		print(responce)

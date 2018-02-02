@@ -11,6 +11,8 @@ from .. import exception as appException
 
 from ..config import CLIENT_APP_CREDENTIALS
 
+import pycurl
+
 
 class NEXT_API(object):
 
