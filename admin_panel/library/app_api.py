@@ -173,7 +173,7 @@ class APP_API(object):
 		if isinstance(resource, list):
 			# Build multi-request object.
 			multi_curl = pycurl.CurlMulti()
-			self.__addAsyncCurls(resources=resources)
+			self.__addAsyncCurls(resources=resource, multi_curl=multi_curl)
 			self.__executeAsyncCurl(multi_curl)
 		else:
 
@@ -269,6 +269,11 @@ class APP_API(object):
 		return blake2s(json.encode(CLIENT_APP_CREDENTIALS).encode('utf-8')).hexdigest()
 
 	@classmethod
+	def __setClientSession(cls,client_session_id, conn):
+		data = conn.hgetall(client_session_id)
+		cls.__client_session = {k.decode():data[k].decode() for k in data}
+
+	@classmethod
 	def __generateClientToken(cls, conn=None):
 		if conn is None:
 			conn = APPCACHE.getConnection("appCache")
@@ -280,7 +285,7 @@ class APP_API(object):
 			bln_wait = True
 
 		if bln_wait:
-			cls.__client_session = conn.hgetall(client_session_id)
+			cls.__setClientSession(client_session_id, conn)
 			return
 
 		try:
@@ -302,14 +307,15 @@ class APP_API(object):
 		else:
 			while conn.hget(client_session_id, "token_api_call")=="yes":
 				time.sleep(0.1)
-			cls.__client_session = conn.hgetall(client_session_id)
+			cls.__setClientSession(client_session_id, conn)
 
 	@classmethod
 	def startClientSession(cls):
 		client_session_id = cls.__getClientSessionId()
 		conn = APPCACHE.getConnection("appCache")
 		if conn.exists(client_session_id):
-			cls.__client_session = conn.hgetall(client_session_id)
+			cls.__setClientSession(client_session_id, conn)
+			print(cls.__client_session)
 		else:
 			cls.__generateClientToken(conn)
 
