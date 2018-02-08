@@ -63,10 +63,10 @@ class index(baseController):
 		resp.body = self._render(view="test.sample_view")
 
 
-	def callback1(self, httpcode, responce, container):
+	def callback1(self, httpcode, response, container):
 		print("callback1")
-		print(responce)
+		print(response)
 
-	def callback2(self, httpcode, responce, container):
+	def callback2(self, httpcode, response, container):
 		print("callback2")
-		print(responce)
+		print(response)

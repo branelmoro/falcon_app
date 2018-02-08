@@ -3,6 +3,50 @@ from io import BytesIO
 
 from ...library import json
 
+class ASYNC_CURL():
+
+	def __init__(self):
+		self.__multi_curl = pycurl.CurlMulti()
+		self.__multi_curl.setopt(pycurl.M_PIPELINING, 1)
+		self.__custom_curls = {}
+
+	def getHandleLength(self):
+		return len(self.__custom_curls)
+
+	def add_handle(self, custom_curl):
+		curl = custom_curl.getCurl()
+		self.__multi_curl.add_handle(curl)
+		self.__custom_curls[id(curl)] = custom_curl
+
+	def select(self, select):
+		return self.__multi_curl.select(select)
+
+	def perform(self):
+		return self.__multi_curl.perform()
+
+	def info_read(self):
+		# multi_curl.info_read()
+		queued_messages, successful_curls, failed_curls = self.__multi_curl.info_read()
+
+		successful = []
+		for i in successful_curls:
+			uid = id(i)
+			successful.append(self.__custom_curls[uid])
+			del self.__custom_curls[uid]
+
+		failed = []
+		for i in failed_curls:
+			uid = id(i)
+			failed.append(self.__custom_curls[uid])
+			del self.__custom_curls[uid]
+
+		return (queued_messages, successful, failed)
+
+	def __del__(self):
+		self.__multi_curl.close()
+		print("multicurl closed")
+
+
 class CUSTOM_CURL():
 
 	def __init__(self):
@@ -12,6 +56,9 @@ class CUSTOM_CURL():
 		self.__api_callback = None
 		self.__next_api = {}
 		self.__details = {}
+
+	def getCurl(self):
+		return self.__curl
 
 	def set_details(self, details):
 		self.__details = details

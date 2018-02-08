@@ -5,7 +5,7 @@ except ImportError:
 from . import json
 
 from ..resources.redis import redis as APPCACHE
-from ..resources.backend_api import BACKEND_API, AUTH
+from ..resources.backend_api import BACKEND_API, AUTH, ASYNC_CURL
 
 from .. import exception as appException
 
@@ -41,7 +41,7 @@ class APP_API(object):
 		self.__container = container
 		self.__session = container.getSession()
 
-	def __addAsyncCurls(self, resources, multi_curl, async_next=None):
+	def __addAsyncCurls(self, resources, async_curl, async_next=None):
 		if not isinstance(resources, list):
 			resources = [resources]
 
@@ -54,7 +54,7 @@ class APP_API(object):
 						next_api.append(NEXT_API(resource["next_api"]))
 					else:
 						next_api = [NEXT_API(resource["next_api"])]
-				self.__addAsyncCurls(resources=resource, multi_curl=multi_curl, async_next=next_api)
+				self.__addAsyncCurls(resources=resource, async_curl=async_curl, async_next=next_api)
 			else:
 
 				curl_obj = self.__getCurl(resource)
@@ -62,11 +62,11 @@ class APP_API(object):
 				if async_next is not None:
 					curl_obj.add_next(async_next)
 
-				multi_curl.add_handle(curl_obj)
+				async_curl.add_handle(curl_obj)
 
-	def __executeAsyncCurl(self, multi_curl):
+	def __executeAsyncCurl(self, async_curl):
 
-		multi_curl.setopt(pycurl.M_PIPELINING, 1)
+		# async_curl.setopt(pycurl.M_PIPELINING, 1)
 
 		unauthorised_curls = []
 
@@ -74,20 +74,20 @@ class APP_API(object):
 		# This code copied from pycurl docs, modified to explicitly
 		# set num_handles before the outer while loop.
 		SELECT_TIMEOUT = 1.0
-		num_handles = len(reqs)
+		# num_handles = len(reqs)
 		num_handles = 1
 		old_handles = num_handles
 		while num_handles:
-			ret = m.select(SELECT_TIMEOUT)
+			ret = async_curl.select(SELECT_TIMEOUT)
 			if ret == -1:
 				continue
 			while 1:
-				ret, num_handles = multi_curl.perform()
+				ret, num_handles = async_curl.perform()
 				print(ret,num_handles)
 				if old_handles != num_handles:
 					# check completed request
 					old_handles=num_handles
-					queued_messages, successful_curls, failed_curls = multi_curl.info_read()
+					queued_messages, successful_curls, failed_curls = async_curl.info_read()
 					if failed_curls:
 						print("failed curls")
 						print(failed_curls)
@@ -118,7 +118,7 @@ class APP_API(object):
 				if ret != pycurl.E_CALL_MULTI_PERFORM: 
 					break
 
-		# print(multi_curl.info_read())
+		# print(async_curl.info_read())
 
 		# for req in reqs:
 		# 	# print(req[1].getvalue())
@@ -144,7 +144,7 @@ class APP_API(object):
 
 			self.__executeAsyncCurl(m)
 
-		multi_curl.close()
+		# async_curl.close()
 
 	def __getCurl(self, resource):
 
@@ -171,10 +171,10 @@ class APP_API(object):
 
 	def executeAsync(self, resource):
 		if isinstance(resource, list):
-			# Build multi-request object.
-			multi_curl = pycurl.CurlMulti()
-			self.__addAsyncCurls(resources=resource, multi_curl=multi_curl)
-			self.__executeAsyncCurl(multi_curl)
+			# Build async-curl object.
+			async_curl = ASYNC_CURL()
+			self.__addAsyncCurls(resources=resource, async_curl=async_curl)
+			self.__executeAsyncCurl(async_curl)
 		else:
 
 			if "api_detail" not in resource:
