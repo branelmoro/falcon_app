@@ -174,6 +174,8 @@ class APP_API(object):
 		if "data" in resource:
 			api_detail["data"] = resource["data"]
 
+		if not api_detail:
+			raise appException.serverException_500({"app":"api details - method,url not provided"})
 
 
 
