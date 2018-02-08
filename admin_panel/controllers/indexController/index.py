@@ -48,13 +48,25 @@ class index(baseController):
 					"method":"GET",
 					"url":self.getAPIURL("/"),
 				},
-				"api_callback":self.callback1
+				"callback":self.callback1
 			},{
 				"api_detail":{
 					"method":"GET",
 					"url":self.getAPIURL("/"),
 				},
-				"api_callback":self.callback2
+				"callback":self.callback2
+			},{
+				"api_detail":{
+					"method":"GET",
+					"url":self.getAPIURL("/"),
+				},
+				"callback":self.callback2
+			},{
+				"api_detail":{
+					"method":"GET",
+					"url":self.getAPIURL("/"),
+				},
+				"callback":self.callback2
 			}
 		]
 

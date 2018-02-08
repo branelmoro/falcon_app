@@ -49,11 +49,11 @@ class APP_API(object):
 
 			if "async" in resource:
 				next_api = async_next
-				if "next_api" in resource:
+				if "next" in resource:
 					if next_api:
-						next_api.append(NEXT_API(resource["next_api"]))
+						next_api.append(NEXT_API(resource["next"]))
 					else:
-						next_api = [NEXT_API(resource["next_api"])]
+						next_api = [NEXT_API(resource["next"])]
 				self.__addAsyncCurls(resources=resource, async_curl=async_curl, async_next=next_api)
 			else:
 
@@ -131,13 +131,13 @@ class APP_API(object):
 			for old_curl_obj in unauthorised_curls:
 
 				api_detail = old_curl_obj.get_details()
-				api_callback = old_curl_obj.get_callback()
+				callback = old_curl_obj.get_callback()
 				next_api = old_curl_obj.get_next()
 
 				curl_obj = self.__getDataFromAPI(async=True, **api_detail)
 
 				curl_obj.set_details(api_detail)
-				curl_obj.set_callback(api_callback)
+				curl_obj.set_callback(callback)
 				curl_obj.add_next(next_api)
 
 				m.add_handle(curl_obj)
@@ -157,15 +157,35 @@ class APP_API(object):
 		else:
 			api_detail = resource["api_detail"](**{container:self.__container})
 
+
+
+
+		api_detail = {}
+
+		if "api_detail" in resource:
+			api_detail.update(resource["api_detail"](**{container:self.__container}))
+
+		if "url" in resource:
+			api_detail["url"] = resource["url"]
+		if "method" in resource:
+			api_detail["method"] = resource["method"]
+		if "header" in resource:
+			api_detail["header"] = resource["header"]
+		if "data" in resource:
+			api_detail["data"] = resource["data"]
+
+
+
+
 		curl_obj = self.__getDataFromAPI(async=True, **api_detail)
 
 		curl_obj.set_details(resource["api_detail"])
 
-		if "api_callback" in resource:
-			curl_obj.set_callback(resource["api_callback"])
+		if "callback" in resource:
+			curl_obj.set_callback(resource["callback"])
 
-		if "next_api" in resource:
-			curl_obj.add_next(NEXT_API(resource["next_api"]))
+		if "next" in resource:
+			curl_obj.add_next(NEXT_API(resource["next"]))
 
 		return curl_obj
 
@@ -187,11 +207,11 @@ class APP_API(object):
 
 			response = self.__getDataFromAPI(**api_detail)
 
-			if resource["api_callback"]:
-				resource["api_callback"](container=self.__container, **response)
+			if resource["callback"]:
+				resource["callback"](container=self.__container, **response)
 
-			if "next_api" in resource:
-				self.executeAsync(resource["next_api"])
+			if "next" in resource:
+				self.executeAsync(resource["next"])
 
 	def get(self, url, header={}):
 		return self.__getDataFromAPI(method="GET", url=url, header=header)
