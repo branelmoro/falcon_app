@@ -136,6 +136,9 @@ class APP_API(object):
 
 				curl_obj = self.__getDataFromAPI(async=True, **api_detail)
 
+				if not isinstance(api_detail, dict):
+					api_detail = api_detail(**{container:self.__container})
+
 				curl_obj.set_details(api_detail)
 				curl_obj.set_callback(callback)
 				curl_obj.add_next(next_api)
@@ -148,14 +151,14 @@ class APP_API(object):
 
 	def __getCurl(self, resource):
 
-		if "api_detail" not in resource:
-			# throw api server error
-			raise appException.serverException_500({"app":"api details not provided"})
+		# if "api_detail" not in resource:
+		# 	# throw api server error
+		# 	raise appException.serverException_500({"app":"api details not provided"})
 
-		if isinstance(resource["api_detail"], dict):
-			api_detail = resource["api_detail"]
-		else:
-			api_detail = resource["api_detail"](**{container:self.__container})
+		# if isinstance(resource["api_detail"], dict):
+		# 	api_detail = resource["api_detail"]
+		# else:
+		# 	api_detail = resource["api_detail"](**{container:self.__container})
 
 
 
@@ -163,25 +166,27 @@ class APP_API(object):
 		api_detail = {}
 
 		if "api_detail" in resource:
-			api_detail.update(resource["api_detail"](**{container:self.__container}))
-
-		if "url" in resource:
-			api_detail["url"] = resource["url"]
-		if "method" in resource:
-			api_detail["method"] = resource["method"]
-		if "header" in resource:
-			api_detail["header"] = resource["header"]
-		if "data" in resource:
-			api_detail["data"] = resource["data"]
+			api_detail = resource["api_detail"]
+			# api_detail.update(resource["api_detail"](**{container:self.__container}))
+		else:
+			if "url" in resource:
+				api_detail["url"] = resource["url"]
+			if "method" in resource:
+				api_detail["method"] = resource["method"]
+			if "header" in resource:
+				api_detail["header"] = resource["header"]
+			if "data" in resource:
+				api_detail["data"] = resource["data"]
 
 		if not api_detail:
 			raise appException.serverException_500({"app":"api details - method,url not provided"})
 
+		if not isinstance(resource["api_detail"], dict):
+			api_data = api_detail(**{container:self.__container})
 
+		curl_obj = self.__getDataFromAPI(async=True, **api_data)
 
-		curl_obj = self.__getDataFromAPI(async=True, **api_detail)
-
-		curl_obj.set_details(resource["api_detail"])
+		curl_obj.set_details(api_detail)
 
 		if "callback" in resource:
 			curl_obj.set_callback(resource["callback"])
@@ -199,13 +204,38 @@ class APP_API(object):
 			self.__executeAsyncCurl(async_curl)
 		else:
 
-			if "api_detail" not in resource:
-				# throw api server error
-				raise appException.serverException_500({"app":"api details not provided"})
-			if isinstance(resource["api_detail"], dict):
+			# if "api_detail" not in resource:
+			# 	# throw api server error
+			# 	raise appException.serverException_500({"app":"api details not provided"})
+			# if isinstance(resource["api_detail"], dict):
+			# 	api_detail = resource["api_detail"]
+			# else:
+			# 	api_detail = resource["api_detail"](**{container:self.__container})
+
+
+
+
+			api_detail = {}
+
+			if "api_detail" in resource:
 				api_detail = resource["api_detail"]
+				# api_detail.update(resource["api_detail"](**{container:self.__container}))
 			else:
-				api_detail = resource["api_detail"](**{container:self.__container})
+				if "url" in resource:
+					api_detail["url"] = resource["url"]
+				if "method" in resource:
+					api_detail["method"] = resource["method"]
+				if "header" in resource:
+					api_detail["header"] = resource["header"]
+				if "data" in resource:
+					api_detail["data"] = resource["data"]
+
+			if not api_detail:
+				raise appException.serverException_500({"app":"api details - method,url not provided"})
+
+
+
+
 
 			response = self.__getDataFromAPI(**api_detail)
 
