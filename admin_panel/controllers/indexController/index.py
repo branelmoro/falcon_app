@@ -80,7 +80,12 @@ class index(baseController):
 							"url":self.getAPIURL("/"),
 							"callback":self.callback2
 						}
-					]
+					],
+					"next":{
+						"method":"GET",
+						"url":self.getAPIURL("/"),
+						"callback":self.callback1
+					}
 				}
 			},{
 				"method":"GET",
