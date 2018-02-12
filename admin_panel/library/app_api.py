@@ -54,7 +54,7 @@ class APP_API(object):
 						next_api.append(NEXT_API(resource["next"]))
 					else:
 						next_api = [NEXT_API(resource["next"])]
-				self.__addAsyncCurls(resources=resource, async_curl=async_curl, async_next=next_api)
+				self.__addAsyncCurls(resources=resource["async"], async_curl=async_curl, async_next=next_api)
 			else:
 
 				curl_obj = self.__getCurl(resource)

@@ -69,7 +69,19 @@ class index(baseController):
 			},{
 				"method":"GET",
 				"url":self.getAPIURL("/"),
-				"callback":self.callback1
+				"callback":self.callback1,
+				"next":{
+					"async":[{
+							"method":"GET",
+							"url":self.getAPIURL("/"),
+							"callback":self.callback1
+						},{
+							"method":"GET",
+							"url":self.getAPIURL("/"),
+							"callback":self.callback2
+						}
+					]
+				}
 			},{
 				"method":"GET",
 				"url":self.getAPIURL("/"),
