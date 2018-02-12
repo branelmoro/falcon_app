@@ -79,9 +79,9 @@ class CUSTOM_CURL():
 		if not isinstance(next_api, list):
 			next_api = [next_api]
 		for i in next_api:
-			obj_id = id(next_api)
+			obj_id = id(i)
 			if obj_id not in self.__next_api:
-				self.__next_api[obj_id] = self.__next_api
+				self.__next_api[obj_id] = i
 				i.addCount()
 
 	def del_next(self):
@@ -89,10 +89,19 @@ class CUSTOM_CURL():
 			self.__next_api[i].delCount()
 
 	def update_next(self):
-		self.__next_api = {id(self.__next_api[i]):self.__next_api[i] for i in self.__next_api if self.__next_api[i].getCount() > 0}
+		self.__next_api = {i:self.__next_api[i] for i in self.__next_api if self.__next_api[i].getCount() > 0}
 
 	def get_next_executable(self):
-		return [self.__next_api[i].get() for i in self.__next_api if self.__next_api[i].getCount() == 0]	
+		executable = []
+		for i in self.__next_api:
+			if self.__next_api[i].getCount() == 0:
+				resource = self.__next_api[i].get()
+				if isinstance(resource, list):
+					executable.extend(resource)
+				else:
+					executable.append(resource)
+		return executable
+		# return [self.__next_api[i].get() for i in self.__next_api if self.__next_api[i].getCount() == 0]
 
 	def get_next(self):
 		return [self.__next_api[i] for i in self.__next_api]

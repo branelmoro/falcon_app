@@ -44,28 +44,35 @@ class index(baseController):
 		app_api = self.getAPI(container)
 
 		assync_call = [{
-				"api_detail":{
+				"method":"GET",
+				"url":self.getAPIURL("/"),
+				"callback":self.callback1,
+				"next":[{
+						"method":"GET",
+						"url":self.getAPIURL("/"),
+						"callback":self.callback1
+					},{
+						"method":"GET",
+						"url":self.getAPIURL("/"),
+						"callback":self.callback2
+					}
+				]
+			},{
+				"method":"GET",
+				"url":self.getAPIURL("/"),
+				"callback":self.callback2,
+				"next":{
 					"method":"GET",
 					"url":self.getAPIURL("/"),
-				},
+					"callback":self.callback1
+				}
+			},{
+				"method":"GET",
+				"url":self.getAPIURL("/"),
 				"callback":self.callback1
 			},{
-				"api_detail":{
-					"method":"GET",
-					"url":self.getAPIURL("/"),
-				},
-				"callback":self.callback2
-			},{
-				"api_detail":{
-					"method":"GET",
-					"url":self.getAPIURL("/"),
-				},
-				"callback":self.callback2
-			},{
-				"api_detail":{
-					"method":"GET",
-					"url":self.getAPIURL("/"),
-				},
+				"method":"GET",
+				"url":self.getAPIURL("/"),
 				"callback":self.callback2
 			}
 		]

@@ -109,6 +109,7 @@ class APP_API(object):
 
 								next_api = curl_obj.get_next_executable()
 								if next_api:
+									print(next_api)
 									self.executeAsync(next_api)
 									curl_obj.update_next()
 
@@ -151,18 +152,6 @@ class APP_API(object):
 
 	def __getCurl(self, resource):
 
-		# if "api_detail" not in resource:
-		# 	# throw api server error
-		# 	raise appException.serverException_500({"app":"api details not provided"})
-
-		# if isinstance(resource["api_detail"], dict):
-		# 	api_detail = resource["api_detail"]
-		# else:
-		# 	api_detail = resource["api_detail"](**{container:self.__container})
-
-
-
-
 		api_detail = {}
 
 		if "api_detail" in resource:
@@ -179,10 +168,13 @@ class APP_API(object):
 				api_detail["data"] = resource["data"]
 
 		if not api_detail:
+			print(resource)
 			raise appException.serverException_500({"app":"api details - method,url not provided"})
 
-		if not isinstance(resource["api_detail"], dict):
+		if not isinstance(api_detail, dict):
 			api_data = api_detail(**{container:self.__container})
+		else:
+			api_data = api_detail
 
 		curl_obj = self.__getDataFromAPI(async=True, **api_data)
 
@@ -204,17 +196,6 @@ class APP_API(object):
 			self.__executeAsyncCurl(async_curl)
 		else:
 
-			# if "api_detail" not in resource:
-			# 	# throw api server error
-			# 	raise appException.serverException_500({"app":"api details not provided"})
-			# if isinstance(resource["api_detail"], dict):
-			# 	api_detail = resource["api_detail"]
-			# else:
-			# 	api_detail = resource["api_detail"](**{container:self.__container})
-
-
-
-
 			api_detail = {}
 
 			if "api_detail" in resource:
@@ -233,11 +214,12 @@ class APP_API(object):
 			if not api_detail:
 				raise appException.serverException_500({"app":"api details - method,url not provided"})
 
+			if not isinstance(api_detail, dict):
+				api_data = api_detail(**{container:self.__container})
+			else:
+				api_data = api_detail
 
-
-
-
-			response = self.__getDataFromAPI(**api_detail)
+			response = self.__getDataFromAPI(**api_data)
 
 			if resource["callback"]:
 				resource["callback"](container=self.__container, **response)
