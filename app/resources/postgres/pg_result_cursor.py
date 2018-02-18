@@ -14,6 +14,7 @@ class pgResultCursor(object):
 
 	def __leaveConnection(self):
 		if self.__cursor.connection.autocommit and self.__connection_pool is not None:
+			print("Done query.... leaving Connection")
 			self.__connection_pool.putconn(conn=self.__cursor.connection, close=False)
 			self.__connection_pool = None
 		self.closeCursor()
