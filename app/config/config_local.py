@@ -37,39 +37,49 @@ REDIS_DB_CREDENTIALS = {
 PGDB1 = {
 	"master":{
 		"host":"127.0.0.1",
-		"username":"branelm",
+		"user":"branelm",
 		"password":"root",
 		"database":"laborstack",
-		"port":5432
+		"port":5432,
+		"minconn":0,
+		"maxconn":2
 	},
 	"slave":[
 		{
 			"host":"127.0.0.1",
-			"username":"branelm",
+			"user":"branelm",
 			"password":"root",
 			"database":"laborstack",
-			"port":5432
+			"port":5432,
+			"minconn":0,
+			"maxconn":2
 		},
 		{
 			"host":"127.0.0.1",
-			"username":"branelm",
+			"user":"branelm",
 			"password":"root",
 			"database":"laborstack",
-			"port":5432
+			"port":5432,
+			"minconn":0,
+			"maxconn":2
 		},
 		{
 			"host":"127.0.0.1",
-			"username":"branelm",
+			"user":"branelm",
 			"password":"root",
 			"database":"laborstack",
-			"port":5432
+			"port":5432,
+			"minconn":0,
+			"maxconn":2
 		},
 		{
 			"host":"127.0.0.1",
-			"username":"branelm",
+			"user":"branelm",
 			"password":"root",
 			"database":"laborstack",
-			"port":5432
+			"port":5432,
+			"minconn":0,
+			"maxconn":2
 		}
 	]
 }

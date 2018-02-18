@@ -10,9 +10,9 @@ class pgBase(object):
 		return self.__getConnector(False)
 
 	def __getConnector(self, is_master):
-		conn, num, conntype = pgLoadBalancer.getDBConnection(is_master)
-		return pgQueryCursor(conn, num, conntype)
+		connection_pool = pgLoadBalancer.getConnectionPull(is_master)
+		return pgQueryCursor(connection_pool=connection_pool, is_master=is_master, autocommit=True)
 
 	def transaction(self):
-		conn = pgLoadBalancer.init_transaction()
-		return pgQueryCursor(conn, 0, "master")
+		connection_pool = pgLoadBalancer.getConnectionPull()
+		return pgQueryCursor(connection_pool=connection_pool, is_master=True, autocommit=False)

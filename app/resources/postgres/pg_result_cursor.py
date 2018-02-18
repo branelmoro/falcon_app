@@ -2,18 +2,31 @@ from psycopg2 import InterfaceError as interfaceError
 
 class pgResultCursor(object):
 
-	def __init__(self, cursor):
+	def __init__(self, cursor, connection_pool):
+		self.__connection_pool = connection_pool
 		self.__cursor = cursor
 		self.__columns = None
 		if cursor.description is not None:
 			self.__columns = {value.name:cursor.description.index(value) for value in cursor.description}
+		else:
+			if self.__cursor.connection.autocommit:
+				self.__leaveConnection()
+
+	def __leaveConnection(self):
+		if self.__cursor.connection.autocommit and self.__connection_pool is not None:
+			self.__connection_pool.putconn(conn=self.__cursor.connection, close=False)
+			self.__connection_pool = None
+		self.closeCursor()
 
 	def getColumns(self):
 		return self.__columns
 
 	def getOneRecord(self):
 		try:
-			return self.__cursor.fetchone()
+			record = self.__cursor.fetchone()
+			if record is None:
+				self.__leaveConnection()
+			return record
 		except interfaceError:
 			print("cursor closed, hence failed to fetchone")
 		except:
@@ -21,7 +34,10 @@ class pgResultCursor(object):
 
 	def getManyRecord(self, size):
 		try:
-			return self.__cursor.fetchmany(size)
+			records = self.__cursor.fetchmany(size)
+			if not records:
+				self.__leaveConnection()
+			return records
 		except interfaceError:
 			print("cursor closed, hence failed to fetchmany")
 		except:
@@ -29,7 +45,9 @@ class pgResultCursor(object):
 
 	def getAllRecords(self):
 		try:
-			return self.__cursor.fetchall()
+			records =  self.__cursor.fetchall()
+			self.__leaveConnection()
+			return records
 		except interfaceError:
 			print("cursor closed, hence failed to fetchall")
 		except:
@@ -69,10 +87,11 @@ class pgResultCursor(object):
 		return self.__cursor.query
 
 	def closeCursor(self):
-		self.__cursor.close()
+		if not self.__cursor.closed:
+			self.__cursor.close()
 
 	def __del__(self):
 		print("closing result cursor")
-		self.closeCursor()
+		self.__leaveConnection()
 		self.__cursor = None
 		self.__columns = None
