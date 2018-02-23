@@ -1,12 +1,11 @@
 path = "/"
 method = "GET"
-def callback(httpcode, response):
-	return {
+def callback(response):
+	# return {
 
-	} # next test
+	# } # next test
 	return True #test passed
-	return False #test failed
-	pass
+	# return False #test failed
 
 
 test_case = {

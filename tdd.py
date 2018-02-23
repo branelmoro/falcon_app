@@ -4,10 +4,17 @@ if len(sys.argv) <= 1:
 	exit("invalid app provided")
 
 app_name = sys.argv[1]
+from app.test import test_cases
+print(test_cases)
+exit()
 
 if app_name == "app":
 	from falcon_test import app
+	from app.test import test_cases
+	print(test_cases)
+	exit()
 elif app_name == "admin_panel":
+	from admin_panel.test import test_cases
 	from admin import app
 else:
 	exit("invalid app name - "+app_name+" provided")
