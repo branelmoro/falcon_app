@@ -23,11 +23,16 @@ a = testing.TestClient(app)
 # print(result)
 # exit()
 
+def common_callback(response):
+	# print("in common_callback")
+	return True
+
 
 def dotest(testcase):
 
 	if "callback" not in testcase:
-		exit("invalid testcase")
+		callback = common_callback
+		# exit("invalid testcase")
 	else:
 		callback = testcase["callback"]
 		del testcase["callback"]
@@ -49,7 +54,6 @@ def dotest(testcase):
 		test_result = dotest(test_result)
 
 	return test_result
-
 
 
 for test_criteria in test_cases:
