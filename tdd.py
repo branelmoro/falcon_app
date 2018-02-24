@@ -21,12 +21,9 @@ from falcon import testing
 a = testing.TestClient(app)
 
 
-result = a.simulate_get('/')
-print(result)
-
-# print(sys.argv)
-
-exit()
+# result = a.simulate_get('/')
+# print(result)
+# exit()
 
 
 def dotest(testcase):
@@ -35,15 +32,22 @@ def dotest(testcase):
 		exit("invalid testcase")
 	else:
 		callback = testcase["callback"]
+		del testcase["callback"]
 
-	result = a.simulate_get('/')
+	# result = a.simulate_get('/')
+
+	test_name = testcase["name"]
+
+	del testcase["name"]
+
+	result = a.simulate_request(**testcase)
 
 	test_result = callback(result)
 
 	if test_result is True:
-		print("testcase passed")
+		print("testcase passed, file - "+test_name+", test_case - "+testcase["method"]+" "+testcase["path"])
 	elif test_result is False:
-		print("testcase failed")
+		print("testcase failed, file - "+test_name+", test_case - "+testcase["method"]+" "+testcase["path"])
 	elif isinstance(test_result, dict):
 		test_result = dotest(test_result)
 
@@ -51,45 +55,5 @@ def dotest(testcase):
 
 
 
-
-
-
 for test_criteria in test_cases:
 	dotest(test_criteria)
-
-
-
-
-
-
-# import falcon
-
-# class resource:
-
-# 	on_get(req, resp):
-# 		resp.body = "here it is"
-
-
-# def create():
-#     api = falcon.API()
-#     api.add_route('/', resource()) 
-#     return api
-
-# api = create()
-
-
-
-# # for TDD
-
-# from falcon import testing
-# import pytest
-# from app import create
-
-
-# @pytest.fixture(scope='module')
-# def client():
-#     return testing.TestClient(create())
-
-# def test_get_message(client):
-#     result = client.simulate_get('/')
-#     assert result.status_code == 200
