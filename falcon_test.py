@@ -2,7 +2,9 @@ import types
 import app
 import falcon
 
-controllers = app.controllers
+from app import controllers
+
+# controllers = app.controllers
 
 api = falcon.API()
 
