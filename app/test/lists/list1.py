@@ -1,9 +1,7 @@
 from .listGenerator import listGenerator
 lg = listGenerator()
 
-
-
-from .. import tests
-lg.addTestCase(tests.test1.test_case)
+from ..tests import test1
+lg.addTestCase(test1.test_case)
 
 test_cases = lg.getTestCaseList()

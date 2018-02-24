@@ -1,8 +1,8 @@
 # always extend your controller from base_controller
 # always give controller class name same as filename
 from falcon import HTTP_200
-from ..controllers.base_controller import baseController
-from ..controllers.base_controller import appException
+from ..base_controller import baseController
+from ..base_controller import appException
 
 from ...library import json
 
