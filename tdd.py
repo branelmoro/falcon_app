@@ -7,8 +7,6 @@ app_name = sys.argv[1]
 
 if app_name == "app":
 	from app.test import test_cases
-	print(test_cases)
-	# exit()
 	from falcon_test import api as app
 elif app_name == "admin_panel":
 	from admin import app
@@ -34,20 +32,19 @@ def dotest(testcase):
 		callback = testcase["callback"]
 		del testcase["callback"]
 
-	# result = a.simulate_get('/')
-
-	test_name = testcase["name"]
-
-	del testcase["name"]
+	test_name = "(callback to previous)"
+	if "name" in testcase:
+		test_name = ", file - "+testcase["name"]
+		del testcase["name"]
 
 	result = a.simulate_request(**testcase)
 
 	test_result = callback(result)
 
 	if test_result is True:
-		print("testcase passed, file - "+test_name+", test_case - "+testcase["method"]+" "+testcase["path"])
+		print("testcase passed - "+testcase["method"]+" "+testcase["path"]+test_name)
 	elif test_result is False:
-		print("testcase failed, file - "+test_name+", test_case - "+testcase["method"]+" "+testcase["path"])
+		print("testcase failed - "+testcase["method"]+" "+testcase["path"]+test_name)
 	elif isinstance(test_result, dict):
 		test_result = dotest(test_result)
 
