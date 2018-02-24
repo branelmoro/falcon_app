@@ -4,8 +4,6 @@ from falcon import HTTP_200
 from ..base_controller import baseController
 from ..base_controller import appException
 
-# from app import appCache
-
 from ...resources.redis import redis as appCache
 
 from datetime import datetime

@@ -1,9 +1,10 @@
 import types
-import app as app_wrapper
+import app
+import falcon
 
-controllers = app_wrapper.controllers
+controllers = app.controllers
 
-app = app_wrapper.falcon.API()
+api = falcon.API()
 
 
 arrControllers = []
@@ -36,12 +37,12 @@ print(arrControllers)
 
 for cntClass in arrControllers:
 	obj = cntClass()
-	app.add_route(obj.getPath(), obj)
+	api.add_route(obj.getPath(), obj)
 
 
 
 def handle_404(req, resp):
-    resp.status = app_wrapper.falcon.HTTP_404
+    resp.status = falcon.HTTP_404
     resp.body = '{"message" : "Url does not exists"}'
 
-app.add_sink(handle_404, '')
+api.add_sink(handle_404, '')
