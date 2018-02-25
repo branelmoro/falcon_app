@@ -1,33 +1,16 @@
 import redis
-from . import cleanup
+from . import setup
 
-REDIS_DB_CREDENTIALS = {
-	"access_tokenDb" : {
-		"host":"127.0.0.1",
-		"port":6379,
-		"db":15
-	},
-	"refresh_tokenDb" : {
-		"host":"127.0.0.1",
-		"port":6379,
-		"db":14
-	},
-	"access_scopeDb" : {
-		"host":"127.0.0.1",
-		"port":6379,
-		"db":13
-	},
-	"sessionDb" : {
-		"host":"127.0.0.1",
-		"port":6379,
-		"db":12
-	},
-	"skillDb" : {
-		"host":"127.0.0.1",
-		"port":6379,
-		"db":11
-	}
-}
+if setup.enviornment == "local":
+	from ..config_local import REDIS_DB_CREDENTIALS
+elif setup.enviornment == "production":
+	from ..config_production import REDIS_DB_CREDENTIALS
+
+db = 15
+for dbname in REDIS_DB_CREDENTIALS:
+	REDIS_DB_CREDENTIALS[dbname]["db"] = db
+	db = db - 1
+
 
 class setupDB():
 
@@ -38,4 +21,4 @@ class setupDB():
 REDIS_SETUP = setupDB()
 REDIS_SETUP.doCleanUp()
 
-cleanup.CLEANUPQUEUE.append(REDIS_SETUP)
+setup.CLEANUPQUEUE.append(REDIS_SETUP)

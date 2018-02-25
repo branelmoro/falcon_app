@@ -2,15 +2,18 @@ import time
 from psycopg2 import connect
 from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT
 
-from . import cleanup
+from . import setup
 
-PG_CONNECTION_DETAIL = {
-	"host":"127.0.0.1",
-	"user":"branelm",
-	"password":"root",
-	"database":"postgres",
-	"port":5432
-}
+
+if setup.enviornment == "local":
+	from ..config_local import PGDB1
+elif setup.enviornment == "production":
+	from ..config_production import PGDB1
+
+PG_CONNECTION_DETAIL = PGDB1["master"].copy()
+del PG_CONNECTION_DETAIL["minconn"]
+del PG_CONNECTION_DETAIL["maxconn"]
+
 
 class setupDB():
 
@@ -52,7 +55,7 @@ PGDB1_SETUP = setupDB()
 PGDB1_SETUP.createDATABASE()
 dbname = PGDB1_SETUP.getDBName()
 
-cleanup.CLEANUPQUEUE.append(PGDB1_SETUP)
+setup.CLEANUPQUEUE.append(PGDB1_SETUP)
 
 DB_DETAILS = PG_CONNECTION_DETAIL.copy()
 DB_DETAILS["database"] = dbname
