@@ -1,3 +1,47 @@
+# from psycopg2 import connect
+# from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT
+
+
+
+# dbcredentials = {
+# 	"host":"127.0.0.1",
+# 	"user":"branelm",
+# 	"password":"root",
+# 	"database":"postgres",
+# 	"port":5432
+# }
+
+# con = connect(**dbcredentials)
+
+# con.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
+# cur = con.cursor()
+
+# sql = """
+# CREATE DATABASE testdb1 WITH TEMPLATE laborstack OWNER branelm CONNECTION LIMIT = -1;
+# """
+
+# cur.execute(sql)
+# cur.close()
+# con.close()
+
+
+
+# exit()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 import sys
 
 if len(sys.argv) <= 1:
@@ -5,18 +49,23 @@ if len(sys.argv) <= 1:
 
 app_name = sys.argv[1]
 
+from app.config import DOCLEANUP
+
+from app.config import PGDB1
+print(PGDB1)
+
 if app_name == "app":
 	from app.test import test_cases
-	from falcon_test import api as app
+	from falcon_test import api
 elif app_name == "admin_panel":
-	from admin import app
+	from admin import app as api
 else:
 	exit("invalid app name - "+app_name+" provided")
 
 
 from falcon import testing
 
-a = testing.TestClient(app)
+a = testing.TestClient(api)
 
 
 # result = a.simulate_get('/')
@@ -58,3 +107,6 @@ def dotest(testcase):
 
 for test_criteria in test_cases:
 	dotest(test_criteria)
+
+
+DOCLEANUP()
