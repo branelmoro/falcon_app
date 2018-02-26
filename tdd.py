@@ -3,7 +3,12 @@ import sys, traceback
 if len(sys.argv) <= 1:
 	exit("invalid app provided")
 
-app_name = sys.argv[1]
+from sysparams import PARAMS
+
+if "app" not in PARAMS:
+	exit("app not provided")
+else:
+	app_name = PARAMS["app"]
 
 from app.config import DOCLEANUP
 
@@ -54,7 +59,7 @@ try:
 	elif app_name == "admin_panel":
 		from admin import app as api
 	else:
-		exit("invalid app name - "+app_name+" provided")
+		raise Exception("invalid app name - "+app_name+" provided")
 
 	from falcon import testing
 
@@ -64,7 +69,6 @@ try:
 		dotest(test_criteria)
 
 except:
-
 
 	exc_type, exc_value, exc_traceback = sys.exc_info()
 	tb = traceback.format_list(traceback.extract_tb(exc_traceback))
