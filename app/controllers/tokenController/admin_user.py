@@ -20,7 +20,9 @@ class adminUser(baseController):
 	def getPath(self):
 		return self._path
 
-	def post(self, req, resp):
+	def post(self, container):
+		req = container.req
+		resp = container.resp
 		"""Handles POST requests"""
 		self.__validateHttpPost(req)
 
@@ -136,8 +138,9 @@ class adminUser(baseController):
 		if appResponce:
 			raise appException.clientException_400(appResponce)
 
-
-	def put(self, req, resp):
+	def put(self, container):
+		req = container.req
+		resp = container.resp
 		"""Handles POST requests"""
 		self.__validateHttpPut(req)
 
@@ -162,8 +165,9 @@ class adminUser(baseController):
 
 		self.__commonPostDBValidation(req)
 
-
-	def delete(self, req, resp):
+	def delete(self, container):
+		req = container.req
+		resp = container.resp
 		"""Handles POST requests"""
 		self.__validateHttpDelete(req)
 

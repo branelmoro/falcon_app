@@ -39,7 +39,9 @@ class index(baseController):
 	def getPath(self):
 		return self.__path
 
-	def post(self, req, resp):
+	def post(self, container):
+		req = container.req
+		resp = container.resp
 
 		self.__validateHttpPost(req)
 
@@ -216,9 +218,9 @@ class index(baseController):
 			token = self.__generateTokenFromKey(key, dbName)
 		return token
 
-
-
-	def delete(self, req, resp):
+	def delete(self, container):
+		req = container.req
+		resp = container.resp
 
 		self.__validateHttpDelete(req)
 

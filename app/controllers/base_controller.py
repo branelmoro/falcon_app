@@ -14,6 +14,14 @@ from ..models.oauth2Model import oauth2ResourceModel
 
 APPCACHE.loadCache()
 
+class container(object):
+
+	def __init__(self, req, resp):
+		self.req = req
+		self.resp = resp
+		self.data = {}
+
+
 class baseController(object):
 	"""This is base controller and all other controllers will be child"""
 
@@ -151,9 +159,14 @@ class baseController(object):
 		params = exc_value.getErrorMessages();
 		resp.body = json.encode(params)
 
+	def __defaultRequestSetup(self, req, resp):
+		resp.set_header("content-type", "application/json")
+		return container(req=req, resp=resp)
+
 	def on_get(self, req, resp):
 		try:
-			self.get(req, resp)
+			container = self.__defaultRequestSetup(req, resp)
+			self.get(container)
 		except appException.clientException as e:
 			self.__sendError(req, resp, e)
 		except:

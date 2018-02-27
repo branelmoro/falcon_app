@@ -183,8 +183,8 @@ class baseController(object):
 
 	def on_post(self, req, resp):
 		try:
-			self.__defaultRequestSetup(req, resp)
-			self.post(req, resp)
+			container = self.__defaultRequestSetup(req, resp)
+			self.post(container)
 		except appException.clientException as e:
 			self.__sendError(resp, e)
 		except:
@@ -193,8 +193,8 @@ class baseController(object):
 
 	def on_put(self, req, resp):
 		try:
-			self.__defaultRequestSetup(req, resp)
-			self.put(req, resp)
+			container = self.__defaultRequestSetup(req, resp)
+			self.put(container)
 		except appException.clientException as e:
 			self.__sendError(resp, e)
 		except:
@@ -203,8 +203,8 @@ class baseController(object):
 
 	def on_delete(self, req, resp):
 		try:
-			self.__defaultRequestSetup(req, resp)
-			self.delete(req, resp)
+			container = self.__defaultRequestSetup(req, resp)
+			self.delete(container)
 		except appException.clientException as e:
 			self.__sendError(resp, e)
 		except:

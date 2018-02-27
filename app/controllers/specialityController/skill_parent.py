@@ -19,7 +19,9 @@ class skillParent(baseController):
 	def getPath(self):
 		return self.__path
 
-	def post(self, req, resp):
+	def post(self, container):
+		req = container.req
+		resp = container.resp
 		"""Handles POST requests"""
 		self.__validateHttpPost(req)
 
@@ -74,8 +76,9 @@ class skillParent(baseController):
 			if appResponce:
 				raise appException.clientException_400(appResponce)
 
-
-	def delete(self, req, resp):
+	def delete(self, container):
+		req = container.req
+		resp = container.resp
 		"""Handles POST requests"""
 		self.__validateHttpDelete(req)
 

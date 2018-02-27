@@ -19,7 +19,9 @@ class saveSearchSkill(baseController):
 	def getPath(self):
 		return self.__path
 
-	def post(self, req, resp):
+	def post(self, container):
+		req = container.req
+		resp = container.resp
 		"""Handles POST requests"""
 		self.__validateHttpPost(req)
 
