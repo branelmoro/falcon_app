@@ -69,9 +69,9 @@ class redisBase1(object):
 	def getDBConnection(cls, dbName):
 		return redis.StrictRedis(connection_pool=cls.__connection_pool[dbName])
 
-	@classmethod
-	def getFreshConnection(cls, dbName):
-		return cls.connectRedis(cls.__dbconfig[dbName]["host"],cls.__dbconfig[dbName]["port"],cls.__dbconfig[dbName]["db"])
+	# @classmethod
+	# def getFreshConnection(cls, dbName):
+	# 	return cls.connectRedis(cls.__dbconfig[dbName]["host"],cls.__dbconfig[dbName]["port"],cls.__dbconfig[dbName]["db"])
 
 	# @classmethod
 	# def connectRedis(cls, host, port=6379, db=0, password=None, socket_timeout=None, connection_pool=None, charset='utf-8', errors='strict', decode_responses=False, unix_socket_path=None):
