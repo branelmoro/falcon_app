@@ -50,45 +50,52 @@ structure of shards and replica(may be required in future)
 Accordingly changes need to be done in code to handle connection to all shards and replicas
 """
 
+class redisBase1(object):
+
+	__connection_pool = {}
+	__dbconfig = REDIS_DB_CREDENTIALS
+
+	@classmethod
+	def createConnectionPool(cls):
+		if dbName in cls.__dbconfig:
+			cls.__connection_pool[dbName] = redis.ConnectionPool(**cls.__dbconfig[dbName])
+
+	@classmethod
+	def is_validDB(cls,dbName):
+		if not dbName in cls.__connection_pool:
+			raise rdException({"redis":"Invalid redis database server provided"})
+
+	@classmethod
+	def getDBConnection(cls, dbName):
+		return redis.StrictRedis(connection_pool=cls.__connection_pool[dbName])
+
+	@classmethod
+	def getFreshConnection(cls, dbName):
+		return cls.connectRedis(cls.__dbconfig[dbName]["host"],cls.__dbconfig[dbName]["port"],cls.__dbconfig[dbName]["db"])
+
+	# @classmethod
+	# def connectRedis(cls, host, port=6379, db=0, password=None, socket_timeout=None, connection_pool=None, charset='utf-8', errors='strict', decode_responses=False, unix_socket_path=None):
+	# 	# return redis.StrictRedis(host, port, db, password, socket_timeout, connection_pool, charset, errors, decode_responses, unix_socket_path)
+	# 	return redis.StrictRedis(host, port, db, password, socket_timeout, connection_pool, charset)
+
+	# @classmethod
+	# def reconnectDB(cls, dbName):
+	# 	if dbName not in cls.__dbconfig:
+	# 		raise rdException({"redis":"Invalid redis database server provided"})
+	# 	cls.__connections[dbName] = cls.connectRedis(cls.__dbconfig[dbName]["host"],cls.__dbconfig[dbName]["port"],cls.__dbconfig[dbName]["db"])
+	# 	return cls.__connections[dbName]
+
+redisBase.createConnectionPool()
+
+
+
 class redisBase(object):
 
 	__connections = {}
 	__dbconfig = REDIS_DB_CREDENTIALS
 
 	@classmethod
-	def setConfig(cls):
-		cls.__dbconfig = {
-			"access_tokenDb" : {
-				"host":"127.0.0.1",
-				"port":6379,
-				"db":0
-			},
-			"refresh_tokenDb" : {
-				"host":"127.0.0.1",
-				"port":6379,
-				"db":1
-			},
-			"access_scopeDb" : {
-				"host":"127.0.0.1",
-				"port":6379,
-				"db":2
-			},
-			"sessionDb" : {
-				"host":"127.0.0.1",
-				"port":6379,
-				"db":3
-			},
-			"skillDb" : {
-				"host":"127.0.0.1",
-				"port":6379,
-				"db":5
-			}
-		}
-		pass
-
-	@classmethod
 	def is_validDB(cls,dbName):
-		# cls.setConfig()
 		if not dbName in cls.__dbconfig:
 			raise rdException({"redis":"Invalid redis database server provided"})
 
