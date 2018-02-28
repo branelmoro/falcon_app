@@ -2,6 +2,7 @@ import psycopg2.pool
 import time
 from .pg_exception import pgException
 from ...config import PGDB1
+import atexit
 
 class pgLoadBalancer(object):
 	__hosts = PGDB1
@@ -47,3 +48,5 @@ class pgLoadBalancer(object):
 
 
 pgLoadBalancer.initConnectionPull()
+
+atexit.register(pgLoadBalancer.deleteConnectionPull)
