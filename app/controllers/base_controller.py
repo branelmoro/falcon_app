@@ -120,7 +120,8 @@ class baseController(object):
 
 		return True
 
-	def __internalServerError(self, req, resp):
+	def __internalServerError(self, container):
+		resp = container.resp
 		resp.status = HTTP_500
 		params = {
 			"nodename" : "node1",
@@ -139,7 +140,8 @@ class baseController(object):
 
 		resp.body = json.encode(params)
 
-	def __sendError(self, req, resp, exc_value):
+	def __sendError(self, container, exc_value):
+		resp = container.resp
 		http_status = exc_value.getHttpStatus()
 		if http_status == 401:
 			resp.status = HTTP_401
@@ -168,37 +170,40 @@ class baseController(object):
 			container = self.__defaultRequestSetup(req, resp)
 			self.get(container)
 		except appException.clientException as e:
-			self.__sendError(req, resp, e)
+			self.__sendError(container, e)
 		except:
 			#catch error
-			self.__internalServerError(req, resp)
+			self.__internalServerError(container)
 
 	def on_post(self, req, resp):
 		try:
-			self.post(req, resp)
+			container = self.__defaultRequestSetup(req, resp)
+			self.post(container)
 		except appException.clientException as e:
-			self.__sendError(req, resp, e)
+			self.__sendError(container, e)
 		except:
 			#catch error
-			self.__internalServerError(req, resp)
+			self.__internalServerError(container)
 
 	def on_put(self, req, resp):
 		try:
-			self.put(req, resp)
+			container = self.__defaultRequestSetup(req, resp)
+			self.put(container)
 		except appException.clientException as e:
-			self.__sendError(req, resp, e)
+			self.__sendError(container, e)
 		except:
 			#catch error
-			self.__internalServerError(req, resp)
+			self.__internalServerError(container)
 
 	def on_delete(self, req, resp):
 		try:
-			self.delete(req, resp)
+			container = self.__defaultRequestSetup(req, resp)
+			self.delete(container)
 		except appException.clientException as e:
-			self.__sendError(req, resp, e)
+			self.__sendError(container, e)
 		except:
 			#catch error
-			self.__internalServerError(req, resp)
+			self.__internalServerError(container)
 
 	def get(self, req, resp):
 		raise appException.clientException_405({"message" : "get method not allowed"})
