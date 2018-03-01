@@ -9,27 +9,32 @@ REDIS_DB_CREDENTIALS = {
 	"access_tokenDb" : {
 		"host":"127.0.0.1",
 		"port":6379,
-		"db":0
+		"db":0,
+		"max_connections":5
 	},
 	"refresh_tokenDb" : {
 		"host":"127.0.0.1",
 		"port":6379,
-		"db":1
+		"db":1,
+		"max_connections":5
 	},
 	"access_scopeDb" : {
 		"host":"127.0.0.1",
 		"port":6379,
-		"db":2
+		"db":2,
+		"max_connections":5
 	},
 	"sessionDb" : {
 		"host":"127.0.0.1",
 		"port":6379,
-		"db":3
+		"db":3,
+		"max_connections":5
 	},
 	"skillDb" : {
 		"host":"127.0.0.1",
 		"port":6379,
-		"db":5
+		"db":5,
+		"max_connections":5
 	}
 }
 

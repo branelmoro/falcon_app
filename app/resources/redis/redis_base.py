@@ -1,5 +1,6 @@
 import redis
 from ...config import REDIS_DB_CREDENTIALS
+import atexit
 
 # from app import exception as appException
 
@@ -50,15 +51,20 @@ structure of shards and replica(may be required in future)
 Accordingly changes need to be done in code to handle connection to all shards and replicas
 """
 
-class redisBase1(object):
+class redisBase(object):
 
 	__connection_pool = {}
 	__dbconfig = REDIS_DB_CREDENTIALS
 
 	@classmethod
 	def createConnectionPool(cls):
-		if dbName in cls.__dbconfig:
-			cls.__connection_pool[dbName] = redis.ConnectionPool(**cls.__dbconfig[dbName])
+		for dbName in cls.__dbconfig:
+			cls.__connection_pool[dbName] = redis.BlockingConnectionPool(**cls.__dbconfig[dbName])
+
+	@classmethod
+	def deleteConnectionPool(cls):
+		for dbName in cls.__dbconfig:
+			cls.__connection_pool[dbName].disconnect()
 
 	@classmethod
 	def is_validDB(cls,dbName):
@@ -69,62 +75,9 @@ class redisBase1(object):
 	def getDBConnection(cls, dbName):
 		return redis.StrictRedis(connection_pool=cls.__connection_pool[dbName])
 
-	# @classmethod
-	# def getFreshConnection(cls, dbName):
-	# 	return cls.connectRedis(cls.__dbconfig[dbName]["host"],cls.__dbconfig[dbName]["port"],cls.__dbconfig[dbName]["db"])
-
-	# @classmethod
-	# def connectRedis(cls, host, port=6379, db=0, password=None, socket_timeout=None, connection_pool=None, charset='utf-8', errors='strict', decode_responses=False, unix_socket_path=None):
-	# 	# return redis.StrictRedis(host, port, db, password, socket_timeout, connection_pool, charset, errors, decode_responses, unix_socket_path)
-	# 	return redis.StrictRedis(host, port, db, password, socket_timeout, connection_pool, charset)
-
-	# @classmethod
-	# def reconnectDB(cls, dbName):
-	# 	if dbName not in cls.__dbconfig:
-	# 		raise rdException({"redis":"Invalid redis database server provided"})
-	# 	cls.__connections[dbName] = cls.connectRedis(cls.__dbconfig[dbName]["host"],cls.__dbconfig[dbName]["port"],cls.__dbconfig[dbName]["db"])
-	# 	return cls.__connections[dbName]
-
 redisBase.createConnectionPool()
 
-
-
-class redisBase(object):
-
-	__connections = {}
-	__dbconfig = REDIS_DB_CREDENTIALS
-
-	@classmethod
-	def is_validDB(cls,dbName):
-		if not dbName in cls.__dbconfig:
-			raise rdException({"redis":"Invalid redis database server provided"})
-
-	@classmethod
-	def getDBConnection(cls, dbName):
-		if dbName in cls.__connections:
-			return cls.__connections[dbName];
-		else:
-			if dbName not in cls.__dbconfig:
-				raise rdException({"redis":"Invalid redis database server provided"})
-			cls.__connections[dbName] = cls.connectRedis(cls.__dbconfig[dbName]["host"],cls.__dbconfig[dbName]["port"],cls.__dbconfig[dbName]["db"])
-			return cls.__connections[dbName]
-
-	@classmethod
-	def getFreshConnection(cls, dbName):
-		return cls.connectRedis(cls.__dbconfig[dbName]["host"],cls.__dbconfig[dbName]["port"],cls.__dbconfig[dbName]["db"])
-
-	@classmethod
-	def connectRedis(cls, host, port=6379, db=0, password=None, socket_timeout=None, connection_pool=None, charset='utf-8', errors='strict', decode_responses=False, unix_socket_path=None):
-		# return redis.StrictRedis(host, port, db, password, socket_timeout, connection_pool, charset, errors, decode_responses, unix_socket_path)
-		return redis.StrictRedis(host, port, db, password, socket_timeout, connection_pool, charset)
-
-	@classmethod
-	def reconnectDB(cls, dbName):
-		if dbName not in cls.__dbconfig:
-			raise rdException({"redis":"Invalid redis database server provided"})
-		cls.__connections[dbName] = cls.connectRedis(cls.__dbconfig[dbName]["host"],cls.__dbconfig[dbName]["port"],cls.__dbconfig[dbName]["db"])
-		return cls.__connections[dbName]
-
+atexit.register(redisBase.deleteConnectionPool)
 
 
 class redisCrud(object):
@@ -135,24 +88,13 @@ class redisCrud(object):
 		redisBase.is_validDB(dbName)
 		self.__dbname = dbName
 
-	def __getDBConnection(self,is_master=True):
+	def getConnection(self,is_master=True):
 		return redisBase.getDBConnection(self.__dbname)
-
-	def __getReConnection(self,is_master=True):
-		return redisBase.reconnectDB(self.__dbname)
-
-	@classmethod
-	def getConnection(self, dbName=None):
-		redisBase.is_validDB(dbName)
-		return redisBase.getFreshConnection(dbName)
 
 	#override all StrictRedis methods
 	# key/value commands	
 	def get(self, key):
-		try:
-			data = self.__getDBConnection().get(key)
-		except:
-			data = self.__getReConnection().get(key)
+		data = self.getConnection().get(key)
 		if data:
 			return data.decode()
 		else:
@@ -161,108 +103,60 @@ class redisCrud(object):
 	def set(self, key, value, expiry = None):
 		# print(value);
 		if expiry is None:
-			try:
-				return self.__getDBConnection().set(key, value)
-			except:
-				return self.__getReConnection().set(key, value)
+			return self.getConnection().set(key, value)
 		else:
-			try:
-				return self.__getDBConnection().set(key, value, expiry)
-			except:
-				return self.__getReConnection().set(key, value, expiry)
+			return self.getConnection().set(key, value, expiry)
 
 	def delete(self, key):
-		try:
-			return self.__getDBConnection().delete(key)
-		except:
-			return self.__getReConnection().delete(key)
+		return self.getConnection().delete(key)
 
 	def exists(self, key):
-		try:
-			return self.__getDBConnection().exists(key)
-		except:
-			return self.__getReConnection().exists(key)
+		return self.getConnection().exists(key)
 
 	def expire(self, key, expiry):
-		try:
-			return self.__getDBConnection().expire(key, expiry)
-		except:
-			return self.__getReConnection().expire(key, expiry)
+		return self.getConnection().expire(key, expiry)
 
 	def ttl(self, key):
-		try:
-			return self.__getDBConnection().ttl(key)
-		except:
-			return self.__getReConnection().ttl(key)
+		return self.getConnection().ttl(key)
 
 
 	# set commands
 	def sadd(self, key, value):
-		try:
-			return self.__getDBConnection().sadd(key, value)
-		except:
-			return self.__getReConnection().sadd(key, value)
+		return self.getConnection().sadd(key, value)
 
 	def srem(self, key, value):
-		try:
-			return self.__getDBConnection().srem(key, value)
-		except:
-			return self.__getReConnection().srem(key, value)
+		return self.getConnection().srem(key, value)
 
 	def sismember(self, key, value):
-		try:
-			return self.__getDBConnection().sismember(key, value)
-		except:
-			return self.__getReConnection().sismember(key, value)
+		return self.getConnection().sismember(key, value)
 
 	def smembers(self, key):
-		try:
-			return self.__getDBConnection().smembers(key)
-		except:
-			return self.__getReConnection().smembers(key)
+		return self.getConnection().smembers(key)
 
 
 	# hash/object commands
 	def hset(self, hashkey, key, value):
-		try:
-			return self.__getDBConnection().hset(hashkey, key, value)
-		except:
-			return self.__getReConnection().hset(hashkey, key, value)
+		return self.getConnection().hset(hashkey, key, value)
 	
 	def hget(self, hashkey, key):
-		try:
-			data = self.__getDBConnection().hget(hashkey, key)
-		except:
-			data = self.__getReConnection().hget(hashkey, key)
+		data = self.getConnection().hget(hashkey, key)
 		if data:
 			return data.decode()
 		else:
 			return data
 	
 	def hmset(self, hashkey, key_value):
-		try:
-			return self.__getDBConnection().hmset(hashkey, key_value)
-		except:
-			return self.__getReConnection().hmset(hashkey, key_value)
+		return self.getConnection().hmset(hashkey, key_value)
 	
 	def hgetall(self, key):
-		try:
-			data = self.__getDBConnection().hgetall(key)
-		except:
-			data = self.__getReConnection().hgetall(key)
+		data = self.getConnection().hgetall(key)
 		if data:
 			return {k.decode():data[k].decode() for k in data}
 		else:
 			return data
 	
 	def hdel(self, hashkey, key):
-		try:
-			return self.__getDBConnection().hdel(hashkey, key)
-		except:
-			return self.__getReConnection().hdel(hashkey, key)
+		return self.getConnection().hdel(hashkey, key)
 
 	def hexists(self, hashkey, key):
-		try:
-			return self.__getDBConnection().hexists(hashkey, key)
-		except:
-			return self.__getReConnection().hexists(hashkey, key)
+		return self.getConnection().hexists(hashkey, key)
