@@ -58,13 +58,17 @@ class redisBase(object):
 
 	@classmethod
 	def createConnectionPool(cls):
+		print("CREATING REDIS CONNECTION POOL")
 		for dbName in cls.__dbconfig:
 			cls.__connection_pool[dbName] = redis.BlockingConnectionPool(**cls.__dbconfig[dbName])
+		print("DONE")
 
 	@classmethod
 	def deleteConnectionPool(cls):
+		print("CLOSING REDIS CONNECTION POOL")
 		for dbName in cls.__dbconfig:
 			cls.__connection_pool[dbName].disconnect()
+		print("DONE")
 
 	@classmethod
 	def is_validDB(cls,dbName):

@@ -10,6 +10,7 @@ class pgLoadBalancer(object):
 
 	@classmethod
 	def initConnectionPull(cls):
+		print("CREATING POSTGRES CONNECTION POOL")
 		dbPull = {}
 		dbPull["master"] = psycopg2.pool.ThreadedConnectionPool(**cls.__hosts["master"])
 
@@ -21,9 +22,11 @@ class pgLoadBalancer(object):
 		dbPull["slave"] = cls.__slave_selector(slave_pull_list)
 
 		cls.__connectionPull["PGDB1"] = dbPull
+		print("DONE")
 
 	@classmethod
 	def deleteConnectionPull(cls):
+		print("CLOSING POSTGRES CONNECTION POOL")
 		for db_name in cls.__connectionPull:
 			cls.__connectionPull[db_name]["master"].closeall()
 			while cls.__connectionPull[db_name]["slave_count"] > 0:
@@ -31,6 +34,7 @@ class pgLoadBalancer(object):
 				slave_pull.closeall()
 				cls.__connectionPull[db_name]["slave_count"] = cls.__connectionPull[db_name]["slave_count"]-1
 		cls.__connectionPull = {}
+		print("DONE")
 
 	@classmethod
 	def getConnectionPull(cls, is_master=False, db_name="PGDB1"):
