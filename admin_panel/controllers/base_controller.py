@@ -2,11 +2,7 @@
 
 from falcon import HTTP_400, HTTP_401, HTTP_403, HTTP_404, HTTP_405, HTTP_406, HTTP_500
 from .. import exception as appException
-from ..library import json
-from ..library import APPCACHE
-from ..library import BASE_HTML
-from ..library import SESSION
-from ..library import APP_API
+from ..library import json, BASE_HTML, SESSION, APP_API, APPCACHE
 import sys
 import traceback
 
@@ -127,7 +123,9 @@ class baseController(object):
 
 		return True
 
-	def __internalServerError(self, req, resp):
+	def __internalServerError(self, container):
+		req = container.req
+		resp = container.resp
 		resp.status = HTTP_500
 		params = {
 			"nodename" : "node1",
@@ -146,7 +144,8 @@ class baseController(object):
 
 		resp.body = json.encode(params)
 
-	def __sendError(self, resp, exc_value):
+	def __sendError(self, container, exc_value):
+		resp = container.resp
 		http_status = exc_value.getHttpStatus()
 		if http_status == 401:
 			resp.status = HTTP_401
@@ -176,40 +175,40 @@ class baseController(object):
 			self.get(container)
 			# self.get(req, resp)
 		except appException.clientException as e:
-			self.__sendError(resp, e)
+			self.__sendError(container, e)
 		except:
 			#catch error
-			self.__internalServerError(req, resp)
+			self.__internalServerError(container)
 
 	def on_post(self, req, resp):
 		try:
 			container = self.__defaultRequestSetup(req, resp)
 			self.post(container)
 		except appException.clientException as e:
-			self.__sendError(resp, e)
+			self.__sendError(container, e)
 		except:
 			#catch error
-			self.__internalServerError(req, resp)
+			self.__internalServerError(container)
 
 	def on_put(self, req, resp):
 		try:
 			container = self.__defaultRequestSetup(req, resp)
 			self.put(container)
 		except appException.clientException as e:
-			self.__sendError(resp, e)
+			self.__sendError(container, e)
 		except:
 			#catch error
-			self.__internalServerError(req, resp)
+			self.__internalServerError(container)
 
 	def on_delete(self, req, resp):
 		try:
 			container = self.__defaultRequestSetup(req, resp)
 			self.delete(container)
 		except appException.clientException as e:
-			self.__sendError(resp, e)
+			self.__sendError(container, e)
 		except:
 			#catch error
-			self.__internalServerError(req, resp)
+			self.__internalServerError(container)
 
 	def get(self, req, resp):
 		raise appException.clientException_405({"message" : "get method not allowed"})
