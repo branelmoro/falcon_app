@@ -1,9 +1,14 @@
 import redis
-from . import setup
+import atexit
 
-if setup.enviornment == "local":
+try:
+	from ..env import env as enviornment
+except ImportError:
+	enviornment = "production"
+
+if enviornment == "local":
 	from ..config_local import REDIS_DB_CREDENTIALS
-elif setup.enviornment == "production":
+elif enviornment == "production":
 	from ..config_production import REDIS_DB_CREDENTIALS
 
 db = 15
@@ -14,11 +19,16 @@ for dbname in REDIS_DB_CREDENTIALS:
 
 class setupDB():
 
-	def doCleanUp(self):
+	def setDB(self):
 		for dbname in REDIS_DB_CREDENTIALS:
 			redis.StrictRedis(**REDIS_DB_CREDENTIALS[dbname]).flushdb()
 
-REDIS_SETUP = setupDB()
-REDIS_SETUP.doCleanUp()
+	def doCleanUp(self):
+		print("DOING TDD REDIS CLEANUP")
+		self.setDB()
+		print("DONE")
 
-setup.CLEANUPQUEUE.append(REDIS_SETUP)
+REDIS_SETUP = setupDB()
+REDIS_SETUP.setDB()
+
+atexit.register(REDIS_SETUP.doCleanUp)

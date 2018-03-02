@@ -1,7 +1,6 @@
-print("Setting up TDD enviornmen")
+print("Setting up TDD enviornment")
 from .pgdb import PGDB1
 from .redisdb import REDIS_DB_CREDENTIALS
-from .setup import DOCLEANUP
 
 BACKEND_API_URL = "http://127.0.0.1:3032"
 

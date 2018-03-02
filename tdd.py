@@ -10,8 +10,6 @@ if "app" not in PARAMS:
 else:
 	app_name = PARAMS["app"]
 
-from app.config import DOCLEANUP
-
 TEST_API = None
 
 
@@ -74,4 +72,3 @@ except:
 	tb = traceback.format_list(traceback.extract_tb(exc_traceback))
 	exception_message = traceback.format_exception_only(exc_type, exc_value)
 	print(exception_message)
-	DOCLEANUP()

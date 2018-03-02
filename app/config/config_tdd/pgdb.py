@@ -1,13 +1,16 @@
 import time
 from psycopg2 import connect
 from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT
+import atexit
 
-from . import setup
+try:
+	from ..env import env as enviornment
+except ImportError:
+	enviornment = "production"
 
-
-if setup.enviornment == "local":
+if enviornment == "local":
 	from ..config_local import PGDB1
-elif setup.enviornment == "production":
+elif enviornment == "production":
 	from ..config_production import PGDB1
 
 PG_CONNECTION_DETAIL = PGDB1["master"].copy()
@@ -42,6 +45,7 @@ class setupDB():
 		self.__closeConnection(con)
 
 	def doCleanUp(self):
+		print("DOING TDD POSTGRES CLEANUP")
 		con = self.__getConnection()
 		cur = con.cursor()
 		sql = """
@@ -50,12 +54,13 @@ class setupDB():
 		cur.execute(sql)
 		cur.close()
 		self.__closeConnection(con)
+		print("DONE")
 
 PGDB1_SETUP = setupDB()
 PGDB1_SETUP.createDATABASE()
 dbname = PGDB1_SETUP.getDBName()
 
-setup.CLEANUPQUEUE.append(PGDB1_SETUP)
+atexit.register(PGDB1_SETUP.doCleanUp)
 
 DB_DETAILS = PG_CONNECTION_DETAIL.copy()
 DB_DETAILS["database"] = dbname
