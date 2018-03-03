@@ -310,7 +310,7 @@ class APP_API(object):
 	@classmethod
 	def __generateClientToken(cls, conn=None):
 		if conn is None:
-			conn = APPCACHE.getConnection("appCache")
+			conn = APPCACHE("appCache").getConnection()
 
 		client_session_id = cls.__getClientSessionId()
 		bln_wait = False
@@ -346,7 +346,7 @@ class APP_API(object):
 	@classmethod
 	def startClientSession(cls):
 		client_session_id = cls.__getClientSessionId()
-		conn = APPCACHE.getConnection("appCache")
+		conn = APPCACHE("appCache").getConnection()
 		if conn.exists(client_session_id):
 			cls.__setClientSession(client_session_id, conn)
 			print(cls.__client_session)

@@ -28,11 +28,9 @@ class index(baseController):
 		req = container.req
 		resp = container.resp
 		if container.getSession().isUserLoggedIn():
-			resp.body = self._render(view="login")
-		else:
-
 			# collect data for home page
-
+			resp.body = self._render(view="home")
+		else:
 			resp.body = self._render(view="home")
 
 	def post(self, container):
