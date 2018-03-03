@@ -235,11 +235,11 @@ class baseController(object):
 			message = message.format(**data)
 		return message
 
-	def _render(self, view, body={}, header={}):
-		return BASE_HTML.renderView(view=view, body=body, header=header, partial=False)
+	def _render(self, view, body={}, head={}):
+		return BASE_HTML.renderView(view=view, body=body, head=head, partial=False)
 
-	def _renderPartial(self, view, body={}, header={}):
-		return BASE_HTML.renderView(view=view, body=body, header=header, partial=True)
+	def _renderPartial(self, view, body={}, head={}):
+		return BASE_HTML.renderView(view=view, body=body, head=head, partial=True)
 
 	def getAPI(self, container):
 		return APP_API(container)
@@ -247,6 +247,12 @@ class baseController(object):
 	def getAPIURL(self, path):
 		return BACKEND_API_URL + path
 
+	def _checkSession(self, container):
+		if container.getSession().isUserLoggedIn():
+			return
+		else:
+			# redirect to login
+			pass
 
 
 # static page - no need of api

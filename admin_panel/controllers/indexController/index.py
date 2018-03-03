@@ -24,8 +24,24 @@ class index(baseController):
 	def getPath(self):
 		return self.__path
 
-	"""This is sample controller"""
 	def get(self, container):
+		req = container.req
+		resp = container.resp
+		if container.getSession().isUserLoggedIn():
+			resp.body = self._render(view="login")
+		else:
+
+			# collect data for home page
+
+			resp.body = self._render(view="home")
+
+	def post(self, container):
+		req = container.req
+		resp = container.resp
+		pass
+
+	"""This is sample controller"""
+	def get_sample(self, container):
 		req = container.req
 		resp = container.resp
 		"""Handles GET requests"""

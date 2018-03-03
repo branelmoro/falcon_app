@@ -44,16 +44,16 @@ class BASE_HTML():
 
 	__base_html = """<!DOCTYPE html><html>
   <head>
-	{header}
+	{head}
   </head>
   <body>{body}</body>
 </html>"""
 
 	__all_views = {}
 
-	def __init__(self, body={}, header={}, parent=None):
+	def __init__(self, body={}, head={}, parent=None):
 		self._body = body
-		self.__header = header
+		self.__head = head
 		self.__parent = parent
 
 		if parent is None:
@@ -66,9 +66,9 @@ class BASE_HTML():
 
 
 	@classmethod
-	def renderView(cls, view, body={}, header={}, parent=None, partial=False):
+	def renderView(cls, view, body={}, head={}, parent=None, partial=False):
 		viewClass = cls.__getViewClass(view)
-		obj = viewClass(body=body, header=header, parent=parent)
+		obj = viewClass(body=body, head=head, parent=parent)
 		body = obj._render()
 
 		if parent:
@@ -79,8 +79,8 @@ class BASE_HTML():
 				js = obj.__getjs()
 				return css + body + js
 			else:
-				header = obj.__getHeaderStr()
-				return cls.__base_html.format(body=body, header=header)
+				head = obj.__getHeaderStr()
+				return cls.__base_html.format(body=body, head=head)
 
 	@classmethod
 	def __getViewClass(cls, view):
@@ -115,10 +115,10 @@ class BASE_HTML():
 		return template
 
 	def __getHeaderStr(self):
-		# format header here
+		# format head here
 		title = ""
-		if "title" in self.__header:
-			title = "<title>"+escape(self.__header["title"])+"</title>"
+		if "title" in self.__head:
+			title = "<title>"+escape(self.__head["title"])+"</title>"
 		return "".join([title, self.__getMetaData(), self.__getCss(), self.__getJs()])
 
 
@@ -144,8 +144,8 @@ class BASE_HTML():
 
 		custom_meta = []
 
-		if "meta" in self.__header:
-			for i in self.__header["meta"]:
+		if "meta" in self.__head:
+			for i in self.__head["meta"]:
 				if "name" in i:
 					meta_name[i["name"]] = i
 				elif "http-equiv" in i:
