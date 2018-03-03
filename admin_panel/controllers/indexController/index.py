@@ -4,6 +4,7 @@ from falcon import HTTP_200
 from ..base_controller import baseController
 
 import datetime
+from ...resources.backend_api import AUTH
 
 
 server_start_time = datetime.datetime.now()
@@ -31,12 +32,23 @@ class index(baseController):
 			# collect data for home page
 			resp.body = self._render(view="home")
 		else:
-			resp.body = self._render(view="home")
+			resp.body = self._render(view="login")
 
 	def post(self, container):
 		req = container.req
 		resp = container.resp
-		pass
+		raw_json = req.bounded_stream.read()
+
+		print(raw_json)
+
+		response = AUTH.grant_type_password(data={
+			"username":"branelm",
+			"password":"123456"
+		})
+		print(response)
+
+		# container.getSession().start(expiry = data["refreshTokenExpiry"], data=sessionData)
+		resp.body = self._render(view="login")
 
 	"""This is sample controller"""
 	def get_sample(self, container):

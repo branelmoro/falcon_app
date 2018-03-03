@@ -31,7 +31,7 @@ class index(baseController):
 		self.rTokenDb = appCache("refresh_tokenDb")
 
 		self.__accessTokenExpiry = 900
-		self.__refreshTokenExpiry = 3600*7*24
+		self.__refreshTokenExpiry = 3600
 
 		self.client_app_data = []
 		self.userscope = []
