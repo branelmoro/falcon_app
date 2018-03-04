@@ -49,7 +49,7 @@ class baseController(object):
 		is_valid = False
 		
 		if("X-ACCESS-TOKEN" in req.headers):
-			aTokenDb = SESSION("access_tokenDb");
+			aTokenDb = SESSION("token_scopeDb");
 			if(aTokenDb.exists(req.headers["X-ACCESS-TOKEN"])):
 				is_valid = True
 
@@ -62,7 +62,7 @@ class baseController(object):
 		# path = self.getPath()
 		is_valid = False
 
-		aTokenDb = SESSION("access_tokenDb");
+		aTokenDb = SESSION("token_scopeDb");
 		scopes = aTokenDb.smembers(req.headers["X-ACCESS-TOKEN"])
 
 		for scope in scopes:

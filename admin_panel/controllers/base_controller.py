@@ -10,7 +10,7 @@ from ..config import BACKEND_API_URL
 
 from ..resources.redis import redis
 
-TOKENDB = redis("access_tokenDb")
+TOKENDB = redis("token_scopeDb")
 
 # APPCACHE.loadCache()
 

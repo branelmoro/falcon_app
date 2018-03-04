@@ -27,14 +27,13 @@ class index(baseController):
 
 	def __init__(self):
 		self.__path = "/token"
-		self.aTokenDb = appCache("access_tokenDb")
-		self.rTokenDb = appCache("refresh_tokenDb")
+		self.aTokenDb = "token_scopeDb"
+		self.rTokenDb = "refresh_tokenDb"
+		self.sessionDb = "token_sessionDb"
+		self.uTokenDb = "user_tokenDb"
 
 		self.__accessTokenExpiry = 900
 		self.__refreshTokenExpiry = 3600
-
-		self.client_app_data = []
-		self.userscope = []
 
 	def getPath(self):
 		return self.__path
@@ -43,7 +42,10 @@ class index(baseController):
 		req = container.req
 		resp = container.resp
 
-		self.__validateHttpPost(req)
+		containder.data["client_app_data"] = []
+		containder.data["userscope"] = []
+
+		self.__validateHttpPost(container)
 
 		resp.status = HTTP_200  # This is the default status
 
@@ -51,11 +53,11 @@ class index(baseController):
 		# if valid then generate token and store in redis cache
 		token_data = {}
 		if(req.body["grant_type"] == "password"):
-			token_data = self.__generateTokenFromUserCredentials(req);
+			token_data = self.__generateTokenFromUserCredentials(container)
 		elif(req.body["grant_type"] == "client_credentials"):
-			token_data = self.__generateTokenFromClientCredentials(req);
+			token_data = self.__generateTokenFromClientCredentials(container)
 		elif(req.body["grant_type"] == "refresh_token"):
-			token_data = self.__generateTokenFromRefreshToken(req);
+			token_data = self.__generateTokenFromRefreshToken(container)
 		elif(req.body["grant_type"] == "authorization_code"):
 			appResponce = {}
 			appResponce["grant_type"] = self._getError(43)
@@ -65,6 +67,7 @@ class index(baseController):
 
 	# function to handle all validation
 	def __validateHttpPost(self, req):
+		req = container.req
 		# token validation
 		self.validateHTTPRequest(req, False)
 
@@ -103,35 +106,39 @@ class index(baseController):
 			raise appException.clientException_400(appResponce)
 		else:
 
-			self.__validateClient(req.body["client_id"], req.body["client_secret"])
+			self.__validateClient(container)
 
 			if(req.body["grant_type"] == "password"):
-				self.__validateUser(req.body["username"], req.body["password"])
+				self.__validateUser(container)
 
 			if(req.body["grant_type"] == "refresh_token"):
 				self.__validateRefreshToken(req.body["refresh_token"])
 
-	def __validateClient(self, client_id, client_secret, extraData = None):
+	def __validateClient(self, container, extraData = None):
+		client_id = container.req.body["client_id"]
+		client_secret = container.req.body["client_secret"]
 		appResponce = {}
 
 		oauth2_client = oauth2ClientModel()
-		self.client_app_data = oauth2_client.get_user_type_scope(client_id, client_secret)
-		if(not self.client_app_data):
+		containder.data["client_app_data"] = oauth2_client.get_user_type_scope(client_id, client_secret)
+		if(not containder.data["client_app_data"]):
 			appResponce["authorization"] = self._getError(45)
 
 		if appResponce:
 			raise appException.clientException_400(appResponce)
 
-	def __validateUser(self, username, password, extraData = None):
+	def __validateUser(self, container, extraData = None):
+		username = container.req.body["username"]
+		password = container.req.body["password"]
 		appResponce = {}
-		if(self.client_app_data[0] == "admin"):
+		if(containder.data["client_app_data"][0] == "admin"):
 			oauth2_admin_user = oauth2AdminUserModel()
-			self.userscope = oauth2_admin_user.get_user_scope(username, password)
-			if(self.userscope is False):
+			containder.data["userscope"] = oauth2_admin_user.get_user_scope(username, password)
+			if(containder.data["userscope"] is False):
 				appResponce["username"] = self._getError(52)
-		elif(self.client_app_data[0] == "guest"):
+		elif(containder.data["client_app_data"][0] == "guest"):
 			pass
-		elif(self.client_app_data[0] == "registered_user"):
+		elif(containder.data["client_app_data"][0] == "registered_user"):
 			pass
 
 		if appResponce:
@@ -143,22 +150,25 @@ class index(baseController):
 		if appResponce:
 			raise appException.clientException_400(appResponce)
 
-	def __generateTokenFromClientCredentials(self, req):
+	def __generateTokenFromClientCredentials(self, container):
+		req = container.req
 		client_id = req.body["client_id"]
 		client_secret = req.body["client_secret"]
+
+		aTokenDb = appCache(self.aTokenDb)
 
 		timestamp = str(datetime.now())
 
 		accessKey  = client_id + "____" + client_secret + "____" + timestamp
 
-		accessToken = self.__generateTokenFromKey(accessKey, self.aTokenDb)
+		accessToken = self.__generateTokenFromKey(accessKey, aTokenDb)
 
-		scope = self.client_app_data[1]
+		scope = containder.data["client_app_data"][1]
 
 		# save new token and refresh token in cache
-		# self.aTokenDb.set(accessToken, json.encode(scope), self.__accessTokenExpiry)
-		self.aTokenDb.sadd(accessToken, scope)
-		self.aTokenDb.expire(accessToken, self.__accessTokenExpiry)
+		# aTokenDb.set(accessToken, json.encode(scope), self.__accessTokenExpiry)
+		aTokenDb.sadd(accessToken, scope)
+		aTokenDb.expire(accessToken, self.__accessTokenExpiry)
 
 		params = {
 			"accessToken" : accessToken,
@@ -168,17 +178,42 @@ class index(baseController):
 
 		return params
 
-	def __generateTokenFromUserCredentials(self, req):
-		return self.__generate_new_token(req.body["client_id"], req.body["username"])
+	def __generateTokenFromUserCredentials(self, container):
+		req = container.req
+		token_data = self.__generate_new_token(container)
+		if "user_data" in containder.data:
+			self.__setSessionData(accessToken=token_data["accessToken"], data=containder.data["user_data"])
+		return token_data
 
-	def __generateTokenFromRefreshToken(self, req):
-		# data = json.decode(self.rTokenDb.get(req.body["refresh_token"]))
-		data = self.rTokenDb.hgetall(req.body["refresh_token"])
-		token_data = self.__generate_new_token(data["client_id"], data["username"])
-		self.rTokenDb.delete(req.body["refresh_token"])
-		return token_data;
+	def __generateTokenFromRefreshToken(self, container):
+		req = container.req
+		rTokenDb = appCache(self.rTokenDb)
+		# data = json.decode(rTokenDb.get(req.body["refresh_token"]))
+		data = rTokenDb.hgetall(req.body["refresh_token"])
+		token_data = self.__generate_new_token(container)
+		rTokenDb.delete(req.body["refresh_token"])
+		self.__refreshSessionData(old_accessToken=data["accessToken"], accessToken=token_data["accessToken"])
+		return token_data
 
-	def __generate_new_token(self, client_id, username):
+	def __refreshSessionData(self, old_accessToken, accessToken):
+		sessionDb = appCache(self.sessionDb)
+		if sessionDb.exists(old_accessToken):
+			sessionDb.hmset(accessToken, sessionDb.hgetall(old_accessToken))
+			sessionDb.expire(accessToken, self.__refreshTokenExpiry)
+			sessionDb.delete(old_accessToken)
+
+	def __setSessionData(self, accessToken, data):
+		sessionDb = appCache(self.sessionDb)
+		sessionDb.hmset(accessToken, data)
+		sessionDb.expire(accessToken, self.__refreshTokenExpiry)
+
+	def __generate_new_token(self, container):
+		client_id = container.req.body["client_id"]
+		username = container.req.body["username"]
+
+		aTokenDb = appCache(self.aTokenDb)
+
+		rTokenDb = appCache(self.rTokenDb)
 
 		timestamp = str(datetime.now())
 
@@ -186,20 +221,20 @@ class index(baseController):
 
 		refreshKey = username + "____" + timestamp + "____" + client_id
 
-		accessToken = self.__generateTokenFromKey(accessKey, self.aTokenDb)
+		accessToken = self.__generateTokenFromKey(accessKey, aTokenDb)
 
-		refreshToken = self.__generateTokenFromKey(refreshKey, self.rTokenDb)
+		refreshToken = self.__generateTokenFromKey(refreshKey, rTokenDb)
 
-		scope = list(set(self.client_app_data[1] + self.userscope))
+		scope = list(set(containder.data["client_app_data"][1] + containder.data["userscope"]))
 
 		# save new token and refresh token in cache
-		# self.aTokenDb.set(accessToken, json.encode(scope), self.__accessTokenExpiry)
-		self.aTokenDb.sadd(accessToken, scope)
-		self.aTokenDb.expire(accessToken, self.__accessTokenExpiry)
+		# aTokenDb.set(accessToken, json.encode(scope), self.__accessTokenExpiry)
+		aTokenDb.sadd(accessToken, scope)
+		aTokenDb.expire(accessToken, self.__accessTokenExpiry)
 
-		# self.rTokenDb.set(refreshToken, json.encode({"client_id":client_id,"username":username}), self.__refreshTokenExpiry)
-		self.rTokenDb.hmset(refreshToken, {"client_id":client_id,"username":username})
-		self.rTokenDb.expire(refreshToken, self.__refreshTokenExpiry)
+		# rTokenDb.set(refreshToken, json.encode({"client_id":client_id,"username":username}), self.__refreshTokenExpiry)
+		rTokenDb.hmset(refreshToken, {"client_id":client_id,"username":username,"accessToken":accessToken})
+		rTokenDb.expire(refreshToken, self.__refreshTokenExpiry)
 
 		params = {
 			"accessToken" : accessToken,
@@ -229,11 +264,11 @@ class index(baseController):
 		token_data = {}
 
 		if("accessToken" in req.body):
-			self.aTokenDb.delete(req.body["accessToken"])
+			appCache(self.aTokenDb).delete(req.body["accessToken"])
 			token_data["accessToken"] = True
 
 		if("refreshToken" not in req.body):
-			self.rTokenDb.delete(req.body["refreshToken"])
+			appCache(self.rTokenDb).delete(req.body["refreshToken"])
 			token_data["refreshToken"] = True
 
 		resp.body = json.encode(token_data)

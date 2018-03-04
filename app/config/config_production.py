@@ -6,7 +6,7 @@ CLIENT_APP_CREDENTIALS = [
 ]
 
 REDIS_DB_CREDENTIALS = {
-	"access_tokenDb" : {
+	"token_scopeDb" : {
 		"host":"127.0.0.1",
 		"port":6379,
 		"db":0,
@@ -24,16 +24,34 @@ REDIS_DB_CREDENTIALS = {
 		"db":2,
 		"max_connections":5
 	},
-	"sessionDb" : {
+	"client_sessionDb" : {
 		"host":"127.0.0.1",
 		"port":6379,
 		"db":3,
+		"max_connections":5
+	},
+	"appCache" : {
+		"host":"127.0.0.1",
+		"port":6379,
+		"db":4,
 		"max_connections":5
 	},
 	"skillDb" : {
 		"host":"127.0.0.1",
 		"port":6379,
 		"db":5,
+		"max_connections":5
+	},
+	"token_sessionDb" : {
+		"host":"127.0.0.1",
+		"port":6379,
+		"db":6,
+		"max_connections":5
+	},
+	"user_tokenDb" : {
+		"host":"127.0.0.1",
+		"port":6379,
+		"db":7,
 		"max_connections":5
 	}
 }

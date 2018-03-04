@@ -9,7 +9,7 @@ except ImportError:
 	from pyblake2 import blake2s
 
 
-SESSION_DB = redisCrud("sessionDb")
+SESSION_DB = redisCrud("client_sessionDb")
 
 class SESSION(object):
 
@@ -33,7 +33,7 @@ class SESSION(object):
 				self.__resp.unset_cookie(self.__req.cookies[self.__session_key])
 
 	def __isSessionIdLocked(self, session_id, data):
-		conn = SESSION_DB.getConnection("sessionDb")
+		conn = SESSION_DB.getConnection("client_sessionDb")
 		pipe = conn.pipeline(transaction=True)
 		pipe.watch(session_id)
 		pipe.multi()
