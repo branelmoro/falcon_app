@@ -133,9 +133,15 @@ class index(baseController):
 		appResponce = {}
 		if(containder.data["client_app_data"][0] == "admin"):
 			oauth2_admin_user = oauth2AdminUserModel()
-			containder.data["userscope"] = oauth2_admin_user.get_user_scope(username, password)
-			if(containder.data["userscope"] is False):
+			user_data = oauth2_admin_user.get_user_scope(username, password)
+			if(user_data is False):
 				appResponce["username"] = self._getError(52)
+			else:
+				containder.data["userscope"] = user_data[0]
+				containder.data["user_data"] = {
+					"id":user_data[1]
+				}
+
 		elif(containder.data["client_app_data"][0] == "guest"):
 			pass
 		elif(containder.data["client_app_data"][0] == "registered_user"):

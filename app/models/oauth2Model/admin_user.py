@@ -8,14 +8,14 @@ class adminUser(baseModel):
 
 	def get_user_scope(self, username, password):
 		qry = """
-			SELECT scope
+			SELECT scope, id
 			FROM oauth2.admin_user
 			WHERE username = %s AND password = %s;
 		"""
 		resultCursor = self.pgSlave().query(qry,[username, password])
 		result = resultCursor.getOneRecord()
 		if(result):
-			return result[0]
+			return result
 		else:
 			return False
 
