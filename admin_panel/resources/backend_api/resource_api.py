@@ -139,7 +139,7 @@ class CUSTOM_CURL():
 
 	def __del__(self):
 		self.doCleanUp()
-		print("done cleanup")
+		print("done curl object cleanup")
 
 
 

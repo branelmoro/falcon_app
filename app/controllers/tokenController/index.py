@@ -42,8 +42,8 @@ class index(baseController):
 		req = container.req
 		resp = container.resp
 
-		containder.data["client_app_data"] = []
-		containder.data["userscope"] = []
+		container.data["client_app_data"] = []
+		container.data["userscope"] = []
 
 		self.__validateHttpPost(container)
 
@@ -66,7 +66,7 @@ class index(baseController):
 		resp.body = json.encode(token_data)
 
 	# function to handle all validation
-	def __validateHttpPost(self, req):
+	def __validateHttpPost(self, container):
 		req = container.req
 		# token validation
 		self.validateHTTPRequest(req, False)
@@ -120,8 +120,8 @@ class index(baseController):
 		appResponce = {}
 
 		oauth2_client = oauth2ClientModel()
-		containder.data["client_app_data"] = oauth2_client.get_user_type_scope(client_id, client_secret)
-		if(not containder.data["client_app_data"]):
+		container.data["client_app_data"] = oauth2_client.get_user_type_scope(client_id, client_secret)
+		if(not container.data["client_app_data"]):
 			appResponce["authorization"] = self._getError(45)
 
 		if appResponce:
@@ -131,20 +131,20 @@ class index(baseController):
 		username = container.req.body["username"]
 		password = container.req.body["password"]
 		appResponce = {}
-		if(containder.data["client_app_data"][0] == "admin"):
+		if(container.data["client_app_data"][0] == "admin"):
 			oauth2_admin_user = oauth2AdminUserModel()
 			user_data = oauth2_admin_user.get_user_scope(username, password)
 			if(user_data is False):
 				appResponce["username"] = self._getError(52)
 			else:
-				containder.data["userscope"] = user_data[0]
-				containder.data["user_data"] = {
+				container.data["userscope"] = user_data[0]
+				container.data["user_data"] = {
 					"id":user_data[1]
 				}
 
-		elif(containder.data["client_app_data"][0] == "guest"):
+		elif(container.data["client_app_data"][0] == "guest"):
 			pass
-		elif(containder.data["client_app_data"][0] == "registered_user"):
+		elif(container.data["client_app_data"][0] == "registered_user"):
 			pass
 
 		if appResponce:
@@ -169,7 +169,7 @@ class index(baseController):
 
 		accessToken = self.__generateTokenFromKey(accessKey, aTokenDb)
 
-		scope = containder.data["client_app_data"][1]
+		scope = container.data["client_app_data"][1]
 
 		# save new token and refresh token in cache
 		# aTokenDb.set(accessToken, json.encode(scope), self.__accessTokenExpiry)
@@ -187,8 +187,8 @@ class index(baseController):
 	def __generateTokenFromUserCredentials(self, container):
 		req = container.req
 		token_data = self.__generate_new_token(container)
-		if "user_data" in containder.data:
-			self.__setSessionData(accessToken=token_data["accessToken"], data=containder.data["user_data"])
+		if "user_data" in container.data:
+			self.__setSessionData(accessToken=token_data["accessToken"], data=container.data["user_data"])
 		return token_data
 
 	def __generateTokenFromRefreshToken(self, container):
@@ -231,7 +231,7 @@ class index(baseController):
 
 		refreshToken = self.__generateTokenFromKey(refreshKey, rTokenDb)
 
-		scope = list(set(containder.data["client_app_data"][1] + containder.data["userscope"]))
+		scope = list(set(container.data["client_app_data"][1] + container.data["userscope"]))
 
 		# save new token and refresh token in cache
 		# aTokenDb.set(accessToken, json.encode(scope), self.__accessTokenExpiry)
