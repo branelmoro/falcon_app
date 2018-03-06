@@ -177,7 +177,7 @@ class baseController(object):
 			self.__sendError(container, e)
 		except (HTTPMovedPermanently, HTTPFound, HTTPSeeOther, HTTPTemporaryRedirect, HTTPPermanentRedirect) as e:
 			exc_type, exc_value, exc_traceback = sys.exc_info()
-			raise exc_type(exc_value)
+			raise exc_type(str(exc_value))
 		except:
 			#catch error
 			self.__internalServerError(container)
@@ -190,7 +190,7 @@ class baseController(object):
 			self.__sendError(container, e)
 		except (HTTPMovedPermanently, HTTPFound, HTTPSeeOther, HTTPTemporaryRedirect, HTTPPermanentRedirect) as e:
 			exc_type, exc_value, exc_traceback = sys.exc_info()
-			raise exc_type(exc_value)
+			raise exc_type(str(exc_value))
 		except:
 			#catch error
 			self.__internalServerError(container)
@@ -203,7 +203,7 @@ class baseController(object):
 			self.__sendError(container, e)
 		except (HTTPMovedPermanently, HTTPFound, HTTPSeeOther, HTTPTemporaryRedirect, HTTPPermanentRedirect) as e:
 			exc_type, exc_value, exc_traceback = sys.exc_info()
-			raise exc_type(exc_value)
+			raise exc_type(str(exc_value))
 		except:
 			#catch error
 			self.__internalServerError(container)
@@ -216,7 +216,7 @@ class baseController(object):
 			self.__sendError(container, e)
 		except (HTTPMovedPermanently, HTTPFound, HTTPSeeOther, HTTPTemporaryRedirect, HTTPPermanentRedirect) as e:
 			exc_type, exc_value, exc_traceback = sys.exc_info()
-			raise exc_type(exc_value)
+			raise exc_type(str(exc_value))
 		except:
 			#catch error
 			self.__internalServerError(container)

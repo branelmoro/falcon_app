@@ -64,7 +64,7 @@ class SESSION(object):
 
 	def start(self, expiry = 900, data={}):
 		self.__session_id = self.__generateUniqueIdFromKey(data=data)
-		self.__resp.set_cookie(name=self.__session_key, value=self.__session_id, max_age=expiry)
+		self.__resp.set_cookie(name=self.__session_key, value=self.__session_id, max_age=expiry, secure=(self.__req.protocol=="https"))
 		# self.__resp.set_cookie(name=self.__session_key, value=self.__session_id, expires=None, max_age=900, domain=None, path=None, secure=None, http_only=True)
 
 	def setData(self, data):

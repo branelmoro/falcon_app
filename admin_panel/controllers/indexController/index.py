@@ -30,8 +30,6 @@ class index(baseController):
 		req = container.req
 		resp = container.resp
 
-		resp.set_cookie(name="testcookie", value="jbdsjkfjsndjkfn", max_age=900)
-
 		if container.getSession().isUserLoggedIn():
 			# collect data for home page
 			resp.body = self._render(view="home")
