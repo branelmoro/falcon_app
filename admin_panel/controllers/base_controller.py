@@ -1,6 +1,6 @@
 # never change this file unless required
 
-from falcon import HTTP_400, HTTP_401, HTTP_403, HTTP_404, HTTP_405, HTTP_406, HTTP_500
+from falcon import HTTP_400, HTTP_401, HTTP_403, HTTP_404, HTTP_405, HTTP_406, HTTP_500, HTTPMovedPermanently, HTTPFound, HTTPSeeOther, HTTPTemporaryRedirect, HTTPPermanentRedirect
 from .. import exception as appException
 from ..library import json, BASE_HTML, SESSION, APP_API, APPCACHE
 import sys
@@ -173,9 +173,11 @@ class baseController(object):
 		try:
 			container = self.__defaultRequestSetup(req, resp)
 			self.get(container)
-			# self.get(req, resp)
 		except appException.clientException as e:
 			self.__sendError(container, e)
+		except (HTTPMovedPermanently, HTTPFound, HTTPSeeOther, HTTPTemporaryRedirect, HTTPPermanentRedirect) as e:
+			exc_type, exc_value, exc_traceback = sys.exc_info()
+			raise exc_type(exc_value)
 		except:
 			#catch error
 			self.__internalServerError(container)
@@ -186,6 +188,9 @@ class baseController(object):
 			self.post(container)
 		except appException.clientException as e:
 			self.__sendError(container, e)
+		except (HTTPMovedPermanently, HTTPFound, HTTPSeeOther, HTTPTemporaryRedirect, HTTPPermanentRedirect) as e:
+			exc_type, exc_value, exc_traceback = sys.exc_info()
+			raise exc_type(exc_value)
 		except:
 			#catch error
 			self.__internalServerError(container)
@@ -196,6 +201,9 @@ class baseController(object):
 			self.put(container)
 		except appException.clientException as e:
 			self.__sendError(container, e)
+		except (HTTPMovedPermanently, HTTPFound, HTTPSeeOther, HTTPTemporaryRedirect, HTTPPermanentRedirect) as e:
+			exc_type, exc_value, exc_traceback = sys.exc_info()
+			raise exc_type(exc_value)
 		except:
 			#catch error
 			self.__internalServerError(container)
@@ -206,6 +214,9 @@ class baseController(object):
 			self.delete(container)
 		except appException.clientException as e:
 			self.__sendError(container, e)
+		except (HTTPMovedPermanently, HTTPFound, HTTPSeeOther, HTTPTemporaryRedirect, HTTPPermanentRedirect) as e:
+			exc_type, exc_value, exc_traceback = sys.exc_info()
+			raise exc_type(exc_value)
 		except:
 			#catch error
 			self.__internalServerError(container)

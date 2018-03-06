@@ -1,10 +1,11 @@
 # always extend your controller from base_controller
 # always give controller class name same as filename
-from falcon import HTTP_200
+from falcon import HTTP_200, HTTP_302, HTTPFound
 from ..base_controller import baseController
 
 import datetime
 from ...resources.backend_api import AUTH
+from ...library import json
 
 
 server_start_time = datetime.datetime.now()
@@ -28,6 +29,9 @@ class index(baseController):
 	def get(self, container):
 		req = container.req
 		resp = container.resp
+
+		resp.set_cookie(name="testcookie", value="jbdsjkfjsndjkfn", max_age=900)
+
 		if container.getSession().isUserLoggedIn():
 			# collect data for home page
 			resp.body = self._render(view="home")
@@ -41,14 +45,21 @@ class index(baseController):
 
 		print(raw_json)
 
-		response = AUTH.grant_type_password(data={
+		auth_data = AUTH.grant_type_password(data={
 			"username":"branelm",
 			"password":"123456"
 		})
-		print(response)
+		print(auth_data)
 
-		# container.getSession().start(expiry = data["refreshTokenExpiry"], data=sessionData)
-		resp.body = self._render(view="login")
+
+		if "httpcode" in auth_data and auth_data["httpcode"] == 200:
+			response = json.decode(auth_data["response"])
+			container.getSession().start(expiry = response["refreshTokenExpiry"], data=response)
+			# resp.body = self._render(view="login")
+			# resp.status = HTTP_302
+			raise HTTPFound("/")
+		else:
+			resp.body = self._render(view="login")
 
 	"""This is sample controller"""
 	def get_sample(self, container):

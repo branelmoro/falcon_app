@@ -60,7 +60,7 @@ class SESSION(object):
 		return (self.__session_id is not None)
 
 	def isUserLoggedIn(self):
-		return self.exists() and "admin_id" in self.__sessionData
+		return self.exists() and "accessToken" in self.__sessionData
 
 	def start(self, expiry = 900, data={}):
 		self.__session_id = self.__generateUniqueIdFromKey(data=data)

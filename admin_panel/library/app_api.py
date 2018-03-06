@@ -278,14 +278,14 @@ class APP_API(object):
 			self.__session.refresh(arrResponce["response"])
 
 	def __generateToken(self):
-		if self.__session.exists():
+		if self.__session.isUserLoggedIn():
 			self.__refreshUserToken()
 		else:
 			# client doesn't have right throw exception
 			self.__generateClientToken()
 
 	def __getToken(self):
-		if self.__session.exists():
+		if self.__session.isUserLoggedIn():
 			return self.__session.get("accessToken")
 		else:
 			return self.__client_session["accessToken"]
