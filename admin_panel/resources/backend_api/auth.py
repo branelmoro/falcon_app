@@ -30,12 +30,13 @@ class AUTH(BACKEND_API):
 
 	@classmethod
 	def grant_type_refresh_token(cls, data={}):
-		data = {
-			"refresh_token":"asdfsdfsdfsdfsdfsdfsdfsdfsdf",
-			"grant_type":"refresh_token"
-		}
+		# data = {
+		# 	"refresh_token":"asdfsdfsdfsdfsdfsdfsdfsdfsdf",
+		# 	"grant_type":"refresh_token"
+		# }
+		data["grant_type"] = "refresh_token"
 		return cls.__authorize(data)
 
 	@classmethod
-	def destroyTokens(data):
+	def destroyTokens(cls, data={}):
 		return cls.delete(url=BACKEND_API_URL+"/token/", data=data)

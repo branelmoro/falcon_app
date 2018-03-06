@@ -18,7 +18,7 @@ api_info = {
 # import all required models here
 # from app.models.sampleModel import sampleModel
 
-class index(baseController):
+class logout(baseController):
 
 	def __init__(self):
 		self.__path = "/logout"
@@ -33,28 +33,14 @@ class index(baseController):
 		if container.getSession().isUserLoggedIn():
 			# collect data for home page
 			resp.body = self._render(view="home")
-		else:
-			resp.body = self._render(view="login")
 
-	def post(self, container):
-		req = container.req
-		resp = container.resp
-		raw_json = req.bounded_stream.read()
+			auth_data = AUTH.destroyTokens(data={
+				"accessToken":container.getSession().get("accessToken"),
+				"refreshToken":container.getSession().get("refreshToken")
+			})
 
-		print(raw_json)
+			print(auth_data)
 
-		auth_data = AUTH.grant_type_password(data={
-			"username":"branelm",
-			"password":"123456"
-		})
-		print(auth_data)
+			container.getSession().destroy()
 
-
-		if "httpcode" in auth_data and auth_data["httpcode"] == 200:
-			response = json.decode(auth_data["response"])
-			container.getSession().start(expiry = response["refreshTokenExpiry"], data=response)
-			# resp.body = self._render(view="login")
-			# resp.status = HTTP_302
-			raise HTTPFound("/")
-		else:
-			resp.body = self._render(view="login")
+		raise HTTPFound("/")

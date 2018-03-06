@@ -83,7 +83,7 @@ class SESSION(object):
 
 	def destroy(self):
 		SESSION_DB.delete(self.__session_id)
-		self.__resp.unset_cookie(self.__session_id)
+		self.__resp.unset_cookie(self.__session_key)
 		self.__session_id = None
 		self.__sessionData = {}
 

@@ -280,10 +280,11 @@ class index(baseController):
 			appCache(self.aTokenDb).delete(req.body["accessToken"])
 			token_data["accessToken"] = True
 
-		if("refreshToken" not in req.body):
+		if("refreshToken" in req.body):
+			rTokenDb = appCache(self.rTokenDb)
 			data = rTokenDb.hgetall(req.body["refresh_token"])
 			accessToken = data["accessToken"]
-			appCache(self.rTokenDb).delete(req.body["refreshToken"])
+			rTokenDb.delete(req.body["refreshToken"])
 			token_data["refreshToken"] = True
 
 		if accessToken:
