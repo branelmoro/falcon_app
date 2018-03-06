@@ -213,6 +213,10 @@ class index(baseController):
 		sessionDb.hmset(accessToken, data)
 		sessionDb.expire(accessToken, self.__refreshTokenExpiry)
 
+	def __deleteSessionData(self, accessToken):
+		sessionDb = appCache(self.sessionDb)
+		sessionDb.delete(accessToken)
+
 	def __generate_new_token(self, container):
 		client_id = container.req.body["client_id"]
 		username = container.req.body["username"]
@@ -269,13 +273,21 @@ class index(baseController):
 
 		token_data = {}
 
+		accessToken = None
+
 		if("accessToken" in req.body):
+			accessToken = req.body["accessToken"]
 			appCache(self.aTokenDb).delete(req.body["accessToken"])
 			token_data["accessToken"] = True
 
 		if("refreshToken" not in req.body):
+			data = rTokenDb.hgetall(req.body["refresh_token"])
+			accessToken = data["accessToken"]
 			appCache(self.rTokenDb).delete(req.body["refreshToken"])
 			token_data["refreshToken"] = True
+
+		if accessToken:
+			self.__deleteSessionData(accessToken)
 
 		resp.body = json.encode(token_data)
 
