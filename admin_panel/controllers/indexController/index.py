@@ -6,6 +6,7 @@ from ..base_controller import baseController
 import datetime
 from ...resources.backend_api import AUTH
 from ...library import json
+from html import unescape
 
 
 server_start_time = datetime.datetime.now()
@@ -29,6 +30,8 @@ class index(baseController):
 	def get(self, container):
 		req = container.req
 		resp = container.resp
+		print(req.params)
+		# print(unescape(req.params["sampletext"]))
 
 		if container.getSession().isUserLoggedIn():
 			# collect data for home page
@@ -39,6 +42,10 @@ class index(baseController):
 	def post(self, container):
 		req = container.req
 		resp = container.resp
+		print(req.params)
+		body_param = self._getBodyParams(container)
+		print(body_param)
+		print(body_param["sampletext"])
 		raw_json = req.bounded_stream.read()
 
 		print(raw_json)

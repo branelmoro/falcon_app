@@ -10,6 +10,10 @@ from ..config import BACKEND_API_URL
 
 from ..resources.redis import redis
 
+from falcon.util import uri
+from html import unescape
+from urllib.parse import parse_qs
+
 TOKENDB = redis("token_scopeDb")
 
 # APPCACHE.loadCache()
@@ -264,6 +268,25 @@ class baseController(object):
 		else:
 			# redirect to login
 			pass
+
+
+	def _getBodyParams(self, container):
+
+		if "BODY_PARAMS" not in container.data:
+			body = container.req.bounded_stream.read()
+			print("in get body params")
+			print(body)
+			print(body.decode("utf-8"))
+
+			container.data["BODY_PARAMS"] = parse_qs(qs=body.decode("utf-8"))
+
+
+			# container.data["BODY_PARAMS"] = uri.parse_query_string(
+			# 	uri.decode(body.decode("utf-8"))
+			# 	# keep_blank_qs_values=container.req.options.keep_blank_qs_values,
+			# )
+
+		return container.data["BODY_PARAMS"]
 
 
 # static page - no need of api
