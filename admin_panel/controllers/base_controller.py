@@ -14,6 +14,8 @@ from falcon.util import uri
 from html import unescape
 from urllib.parse import parse_qs
 
+import cgi
+
 TOKENDB = redis("token_scopeDb")
 
 # APPCACHE.loadCache()
@@ -270,7 +272,69 @@ class baseController(object):
 			pass
 
 
+	def __collectBodyData(self, container, field_storage):
+
+		for fieldname in field_storage.keys():
+
+			filedata = form[fieldname]
+
+			if isinstance(filedata, list):
+				pass
+			else:
+				pass
+
+
+
+	def _getBodyParams1(self, container):
+
+		print(container.req.env)
+
+		form = cgi.FieldStorage(fp=container.req.stream, environ=container.req.env)
+
+		# fields = form.keys()
+
+		for fieldname in form.keys():
+
+			fileitem = form[fieldname]
+
+			# if 
+
+			if fieldname == "pancard":
+				# print(fieldname, fileitem)
+				raw_bytes = True
+				while raw_bytes:
+					raw_bytes = fileitem.file.read(1024)
+					if not raw_bytes:
+						break
+					print(raw_bytes)
+					print(sys.getsizeof(raw_bytes))
+
+
+				print("file", fileitem.file)
+				print("headers", fileitem.headers)
+				print("type", fileitem.type)
+				print("type_options", fileitem.type_options)
+				print("disposition", fileitem.disposition)
+				print("disposition_options", fileitem.disposition_options)
+			else:
+				print(fieldname, fileitem)
+			continue
+
+			if fileitem.file:
+				print(fileitem.file)
+				# It's an uploaded file; count lines
+				# linecount = 0
+				# while 1:
+				# 	line = fileitem.file.readline()
+				# 	if not line: break
+				# 	linecount = linecount + 1
+			else:
+				print(fieldname, fileitem)
+
+
 	def _getBodyParams(self, container):
+
+		self._getBodyParams1(container)
 
 		if "BODY_PARAMS" not in container.data:
 			body = container.req.bounded_stream.read()
