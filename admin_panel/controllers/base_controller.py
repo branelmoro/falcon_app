@@ -14,7 +14,7 @@ from falcon.util import uri
 from html import unescape
 from urllib.parse import parse_qs
 
-import cgi
+import cgi, io
 
 TOKENDB = redis("token_scopeDb")
 
@@ -272,16 +272,59 @@ class baseController(object):
 			pass
 
 
-	def __collectBodyData(self, container, field_storage):
+	def __getFieldValue(self, field):
+		if field.file:
+			data = field.disposition_options.copy()
+			# data["field_storage"] = field
+			data["buffer"] = field.file
+			data["type"] = field.type
+			# data["isit"] = isinstance(field.file, io.BufferedIOBase)
+
+			if "filename" not in data:
+				data = unescape(field.value)
+		else:
+			data = unescape(field.value)
+		return data
+
+	def __collectBodyData(self, container):
+
+		field_storage = cgi.FieldStorage(fp=container.req.stream, environ=container.req.env)
+
+		if "FILES" not in container.data:
+			container.data["FILES"] = {}
+
+		if "BODY_PARAMS" not in container.data:
+			container.data["BODY_PARAMS"] = {}
 
 		for fieldname in field_storage.keys():
 
-			filedata = form[fieldname]
+			filedata = field_storage[fieldname]
 
 			if isinstance(filedata, list):
-				pass
+
+				list_data = []
+				list_files = []
+
+				for item in filedata:
+
+					value = self.__getFieldValue(item)
+					if isinstance(value, str):
+						list_data.append(value)
+					else:
+						list_files.append(value)
+
+				if list_data:
+					container.data["BODY_PARAMS"][fieldname] = list_data
+
+				if list_files:
+					container.data["FILES"][fieldname] = list_files
+
 			else:
-				pass
+				value = self.__getFieldValue(filedata)
+				if isinstance(value, str):
+					container.data["BODY_PARAMS"][fieldname] = value
+				else:
+					container.data["FILES"][fieldname] = value
 
 
 
@@ -292,6 +335,12 @@ class baseController(object):
 		form = cgi.FieldStorage(fp=container.req.stream, environ=container.req.env)
 
 		# fields = form.keys()
+
+
+		self.__collectBodyData(container, form)
+
+		print(container.data)
+
 
 		for fieldname in form.keys():
 
@@ -334,21 +383,10 @@ class baseController(object):
 
 	def _getBodyParams(self, container):
 
-		self._getBodyParams1(container)
-
 		if "BODY_PARAMS" not in container.data:
-			body = container.req.bounded_stream.read()
-			print("in get body params")
-			print(body)
-			print(body.decode("utf-8"))
+			self.__collectBodyData(container)
 
-			container.data["BODY_PARAMS"] = parse_qs(qs=body.decode("utf-8"))
-
-
-			# container.data["BODY_PARAMS"] = uri.parse_query_string(
-			# 	uri.decode(body.decode("utf-8"))
-			# 	# keep_blank_qs_values=container.req.options.keep_blank_qs_values,
-			# )
+		print(container.data)
 
 		return container.data["BODY_PARAMS"]
 

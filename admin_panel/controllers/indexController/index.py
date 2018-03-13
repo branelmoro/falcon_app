@@ -45,7 +45,7 @@ class index(baseController):
 		print(req.params)
 		body_param = self._getBodyParams(container)
 		print(body_param)
-		print(body_param["sampletext"])
+		print(body_param["sampletext456465"])
 		raw_json = req.bounded_stream.read()
 
 		print(raw_json)
