@@ -43,9 +43,15 @@ class index(baseController):
 		req = container.req
 		resp = container.resp
 		print(req.params)
-		body_param = self._getBodyParams(container)
-		print(body_param)
-		print(body_param["sampletext456465"])
+		print(req.form_data)
+		print(req.files)
+		# body_param = self._getBodyParams(container)
+		# print(body_param)
+
+		# upload example
+		req.files["pancard"].uploadto("/tmp/" + req.files["pancard"].name)
+
+		print(req.form_data["sampletext456465"])
 		raw_json = req.bounded_stream.read()
 
 		print(raw_json)
