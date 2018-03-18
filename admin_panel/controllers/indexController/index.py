@@ -30,7 +30,7 @@ class index(baseController):
 	def get(self, container):
 		req = container.req
 		resp = container.resp
-		print(req.params)
+		# print(req.params)
 		# print(unescape(req.params["sampletext"]))
 
 		if container.getSession().isUserLoggedIn():
@@ -42,35 +42,36 @@ class index(baseController):
 	def post(self, container):
 		req = container.req
 		resp = container.resp
-		print(req.params)
+		# print(req.params)
 		print(req.form_data)
-		print(req.files)
-		# body_param = self._getBodyParams(container)
-		# print(body_param)
+		# print(req.files)
 
-		# upload example
-		req.files["pancard"].uploadto("/tmp/" + req.files["pancard"].name)
+		viewBody = {}
 
-		print(req.form_data["sampletext456465"])
-		raw_json = req.bounded_stream.read()
+		is_valid_input = True
 
-		print(raw_json)
-
-		auth_data = AUTH.grant_type_password(data={
-			"username":"branelm",
-			"password":"123456"
-		})
-		print(auth_data)
-
-
-		if "httpcode" in auth_data and auth_data["httpcode"] == 200:
-			response = json.decode(auth_data["response"])
-			container.getSession().start(expiry = response["refreshTokenExpiry"], data=response)
-			# resp.body = self._render(view="login")
-			# resp.status = HTTP_302
-			raise HTTPFound("/")
+		if "username" not in req.form_data or not req.form_data["username"]:
+			viewBody["username_error"] = "Please Enter username!"
+			is_valid_input = False
 		else:
-			resp.body = self._render(view="login")
+			viewBody["username"] = req.form_data["username"]
+
+		if "password" not in req.form_data or not req.form_data["password"]:
+			viewBody["password_error"] = "Please Enter password!"
+			is_valid_input = False
+
+		if is_valid_input:
+			auth_data = AUTH.grant_type_password(data={
+				"username":req.form_data["username"],
+				"password":req.form_data["password"]
+			})
+			print(auth_data)
+			if "httpcode" in auth_data and auth_data["httpcode"] == 200:
+				response = json.decode(auth_data["response"])
+				container.getSession().start(expiry = response["refreshTokenExpiry"], data=response)
+				raise HTTPFound("/")
+
+		resp.body = self._render(view="login", body=viewBody)
 
 	"""This is sample controller"""
 	def get_sample(self, container):

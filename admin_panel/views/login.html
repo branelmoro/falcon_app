@@ -1,7 +1,7 @@
-<form action="/" method="POST" enctype="multipart/form-data">
-	Username: <input type="text" name="username" /><br/>
-	Password: <input type="password" name="password" /><br/>
-	Textarea: <textarea name="sampletext"></textarea><br/>
+<form action="/" method="POST">
+	Username: <input type="text" name="username" value="{username}"/>{username_error}<br/>
+	Password: <input type="password" name="password" value=""/>{password_error}<br/>
+	<!-- Textarea: <textarea name="sampletext"></textarea><br/>
 	IP: <input type="text" name="ip1[]" /><br/>
 	IP: <input type="text" name="ip2" /><br/>
 	IP: <input type="text" name="ip2" /><br/>
@@ -9,6 +9,6 @@
 	File: <input type="file" name="pancard" /><br/>
 	File: <input type="file" name="abc" /><br/>
 	File: <input type="file" name="abc" /><br/>
-	Passort: <input type="file" name="passport" multiple/><br/>
+	Passort: <input type="file" name="passport" multiple/><br/> -->
 	<input type="submit" name="submit" value="LOGIN"/>
 </form>
