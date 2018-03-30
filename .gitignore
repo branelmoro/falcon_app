@@ -4,3 +4,4 @@ mimeparse.py
 admin_panel/config/*
 .pytest_cache
 falcon
+.coverage

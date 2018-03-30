@@ -3,6 +3,8 @@ import sys, traceback
 if len(sys.argv) <= 1:
 	exit("invalid app provided")
 
+# assert sys.argv == None
+
 app_name = sys.argv[1]
 
 try:
