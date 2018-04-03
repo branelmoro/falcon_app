@@ -1,0 +1,28 @@
+.floatleft{
+	float: left;
+}
+.floatright{
+	float: right;
+}
+.clearfloat {
+	clear: both;
+	line-height: 0;
+}
+body {
+	font-family: arial;
+}
+
+span.logo {
+	background: #999;
+	width: 10%;
+}
+span.logo:after, span.logo::after{
+	clear:both;
+}
+.navigation{
+	width: 10%;
+}
+
+.page_content{
+	width: 90%;
+}
