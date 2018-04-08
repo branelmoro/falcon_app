@@ -1,28 +1,123 @@
-.floatleft{
-	float: left;
-}
-.floatright{
-	float: right;
-}
-.clearfloat {
-	clear: both;
-	line-height: 0;
-}
 body {
 	font-family: arial;
+	font-family: sans-serif;
+	background: #fff;
+}
+.top_logo_bar{
+	height:54px;
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 100%;
+	outline: 1px solid #f4f4f4;
+	box-shadow: 0px -2px 10px #E5E5E5;
+	z-index: 10;
+	background: #fff;
+}
+.left_section{
+	position: fixed;
+	top: 54px;
+	left: 0;
+	bottom: 0;
+	box-shadow: 0px 0px 15px 0px #E5E5E5;
+	z-index: 1;
+	width: 215px;
+	outline: 1px solid #f4f4f4;
+	background: #fff;
+}
+.right_section {
+	position: fixed;
+	top: 54px;
+	left: 215px;
+	right: 0;
+	bottom: 0;
+	z-index: -1;
+	background: #FAFAFA;
+}
+.right_section_top_bar {
+	background: #fff;
+	width: 100%;
+	height: 53px;
+	box-shadow: 0px -4px 10px #E5E5E5;
+	outline: 1px solid #f4f4f4;
 }
 
-span.logo {
-	background: #999;
-	width: 10%;
+
+.nav_link_header {
+	font-size: 11px;
+	line-height: 20px;
+	padding-left: 18px;
+	padding-top: 17px;
+	color: #607d8b;
 }
-span.logo:after, span.logo::after{
-	clear:both;
+.nav_link {
+	margin: 17px 10px 5px 13px;
 }
-.navigation{
-	width: 10%;
+.nav_link a {
+	color: #607d8b;
+	text-decoration: none;
+	font-size: 12px;
+	display: block;
+	line-height: 20px;
+}
+.nav_link a span.link_text{
+	margin-left: 10px;
+}
+.nav_link a:hover {
+	color: #1976d2;
+}
+.nav_link a:active {
+	
+}
+span.link_text:before, span.link_text::before {
+	content: "\8441";
+	float: left;
+	height: 30px;
+	display: block;
+	margin-top: 2px;
+}
+.link_count{
+	background: #4680ff;
+	color: #fff;
+	line-height: 11px;
+	padding: 4px 8px 2px;
+	font-size: 9px;
+	border-radius: 3px;
+	margin-right: 8px;
+}
+.link_arrow{
+	float: right;
+}
+a:hover .link_arrow{
+	color: #607d8b;
+}
+.link_arrow:after, .link_arrow::after {
+	clear: both;
+}
+.nav_link .sub_links{
+	height: 0;
+	overflow: hidden;
+}
+.nav_link:hover .sub_links{
+	overflow: auto;
+	height: auto;
+}
+.sub_links {
+	margin-left: 26px;
+}
+.sub_links a{
+	margin-top: 13px;
+	line-height: 16px;
 }
 
-.page_content{
-	width: 90%;
+
+.copyright_footer {
+	margin-top: 20px;
+	background: #fff;
+	height: 53px;
+	font-size: 16px;
+	line-height: 53px;
+	padding-left: 20px;
+	color: #67757c;
+	outline: 1px solid #E5E5E5;
 }
