@@ -2,6 +2,7 @@ body {
 	font-family: arial;
 	font-family: sans-serif;
 	background: #fff;
+	color: #67757c;
 }
 .top_logo_bar{
 	height:54px;
@@ -116,9 +117,27 @@ a:hover .link_arrow{
 	line-height: 16px;
 }
 
+.page_title {
+	font-size: 17px;
+	line-height: 55px;
+	margin-left: 22px;
+	color: #007bff;
+}
+
+
+.content_box {
+    margin: 41px 27px;
+}
+.content_box_full {
+	background: #fff;
+    border: 0 solid #e7e7e7;
+    border-radius: 5px;
+    box-shadow: 0 5px 20px #E5E5E5;
+    height: 218px;
+}
+
 
 .copyright_footer {
-	margin-top: 20px;
 	background: #fff;
 	height: 53px;
 	font-size: 16px;
