@@ -14,7 +14,7 @@ body {
 	z-index: 10;
 	background: #fff;
 }
-.left_section{
+.left_right_partition{
 	position: fixed;
 	top: 54px;
 	left: 0;
@@ -25,13 +25,19 @@ body {
 	outline: 1px solid #f4f4f4;
 	background: #fff;
 }
+.left_section{
+	position: absolute;
+	top: 54px;
+	left: 0;
+	z-index: 2;
+	width: 215px;
+}
 .right_section {
-	position: fixed;
+	position: absolute;
 	top: 54px;
 	left: 215px;
 	right: 0;
-	bottom: 0;
-	z-index: -1;
+	z-index: 0;
 	background: #FAFAFA;
 }
 .right_section_top_bar {
