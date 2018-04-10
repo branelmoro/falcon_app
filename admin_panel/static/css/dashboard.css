@@ -50,7 +50,7 @@ body {
 	height: 53px;
 	box-shadow: 0px -4px 10px #E5E5E5;
 	outline: 1px solid #f4f4f4;
-	margin-bottom: 26px;
+	margin-bottom: 28px;
 }
 
 
@@ -131,7 +131,7 @@ a:hover .link_arrow{
 
 
 .content_section {
-    margin: 12px 14px;
+    margin: 15px 13px;
 }
 .content_section .wrapper {
 	float: left;
@@ -167,7 +167,7 @@ a:hover .link_arrow{
 	width: 20%;
 }
 .content_box{
-    margin: 14px;
+    margin: 13px;
 	background: #fff;
     border: 0 solid #e7e7e7;
     border-radius: 5px;
@@ -184,5 +184,5 @@ a:hover .link_arrow{
 	padding-left: 20px;
 	color: #67757c;
 	outline: 1px solid #E5E5E5;
-	margin-top: 26px;
+	margin-top: 28px;
 }
