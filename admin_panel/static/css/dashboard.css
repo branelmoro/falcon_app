@@ -175,6 +175,29 @@ a:hover .link_arrow{
     height: 218px;
 }
 
+.data_table_wrapper{
+	margin: 0 10px;
+	padding: 10px 0;
+}
+.data_table_wrapper table {
+
+	width: 100%;
+	text-align: left;
+	border: 1px solid;
+}
+.data_table_wrapper table tr{
+
+}
+.data_table_wrapper table td {
+
+	border: 1px solid;
+}
+.data_table_wrapper table th {
+	
+	border: 1px solid;
+}
+
+
 
 .copyright_footer {
 	background: #fff;
