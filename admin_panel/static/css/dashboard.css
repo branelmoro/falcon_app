@@ -4,7 +4,7 @@ body {
 	background: #fff;
 	color: #67757c;
 }
-.clear{
+.clear, .clear_after::after, .clear_after::after, .clear_before::before, .clear_before::before{
 	clear: both;
 }
 .top_logo_bar{
@@ -168,16 +168,15 @@ a:hover .link_arrow{
 }
 .content_box{
     margin: 13px;
-	background: #fff;
+		background: #fff;
     border: 0 solid #e7e7e7;
     border-radius: 5px;
     box-shadow: 0 5px 20px #E5E5E5;
-    height: 218px;
 }
 
-.data_table_wrapper{
-	margin: 0 10px;
-	padding: 10px 0;
+.data_table_wrapper {
+    margin: 0 20px;
+    padding: 20px 0;
 }
 .data_table_wrapper table {
 
@@ -186,15 +185,28 @@ a:hover .link_arrow{
 	border: 1px solid;
 }
 .data_table_wrapper table tr{
-
+	background: #fff;
 }
-.data_table_wrapper table td {
-
-	border: 1px solid;
+.data_table_wrapper table tr.dark {
+	background: #F2F2F2;
+}
+.data_table_wrapper table tr:hover{
+	background: #ececec;
+}
+.data_table_wrapper table td, .data_table_wrapper table th {
+	border: 1px solid #dee2e6;
+	font-size: 14px;
+	line-height: 49px;
+	padding: 0px 10px;
 }
 .data_table_wrapper table th {
-	
-	border: 1px solid;
+	border-bottom: 1px solid #e7e7e7;
+	font-weight: 500;
+	color: #455a64;
+}
+.data_table_wrapper table td {
+	border: 1px solid #dee2e6;
+	color: #99abb4;
 }
 
 
