@@ -4,7 +4,7 @@ body {
 	background: #fff;
 	color: #67757c;
 }
-.clear, .clear_after::after, .clear_after::after, .clear_before::before, .clear_before::before{
+.clear, .clear_after::after, .clear_after:after, .clear_before::before, .clear_before:before{
 	clear: both;
 }
 .top_logo_bar{
