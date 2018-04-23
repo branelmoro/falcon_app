@@ -1,0 +1,43 @@
+.content_section {
+    margin: 15px 13px;
+}
+.content_section .wrapper {
+	float: left;
+}
+.content_section .w100per {
+	width: 100%;
+}
+.content_section .w80per {
+	width: 80%;
+}
+.content_section .w75per {
+	width: 75%;
+}
+.content_section .w70per {
+	width: 70%;
+}
+.content_section .w60per {
+	width: 60%;
+}
+.content_section .w50per {
+	width: 50%;
+}
+.content_section .w40per {
+	width: 40%;
+}
+.content_section .w30per {
+	width: 30%;
+}
+.content_section .w25per {
+	width: 25%;
+}
+.content_section .w20per {
+	width: 20%;
+}
+.content_box{
+    margin: 13px;
+	background: #fff;
+    border: 0 solid #e7e7e7;
+    border-radius: 5px;
+    box-shadow: 0 5px 20px #E5E5E5;
+}
