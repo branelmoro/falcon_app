@@ -165,56 +165,56 @@ class baseController(object):
 		resp.set_header("content-type", "application/json")
 		return container(req=req, resp=resp)
 
-	def on_get(self, req, resp):
+	def on_get(self, req, resp, **kargs):
 		try:
 			container = self.__defaultRequestSetup(req, resp)
-			self.get(container)
+			self.get(container, **kargs)
 		except appException.clientException as e:
 			self.__sendError(container, e)
 		except:
 			#catch error
 			self.__internalServerError(container)
 
-	def on_post(self, req, resp):
+	def on_post(self, req, resp, **kargs):
 		try:
 			container = self.__defaultRequestSetup(req, resp)
-			self.post(container)
+			self.post(container, **kargs)
 		except appException.clientException as e:
 			self.__sendError(container, e)
 		except:
 			#catch error
 			self.__internalServerError(container)
 
-	def on_put(self, req, resp):
+	def on_put(self, req, resp, **kargs):
 		try:
 			container = self.__defaultRequestSetup(req, resp)
-			self.put(container)
+			self.put(container, **kargs)
 		except appException.clientException as e:
 			self.__sendError(container, e)
 		except:
 			#catch error
 			self.__internalServerError(container)
 
-	def on_delete(self, req, resp):
+	def on_delete(self, req, resp, **kargs):
 		try:
 			container = self.__defaultRequestSetup(req, resp)
-			self.delete(container)
+			self.delete(container, **kargs)
 		except appException.clientException as e:
 			self.__sendError(container, e)
 		except:
 			#catch error
 			self.__internalServerError(container)
 
-	def get(self, req, resp):
+	def get(self, container, **kargs):
 		raise appException.clientException_405({"message" : "get method not allowed"})
 
-	def post(self, req, resp):
+	def post(self, container, **kargs):
 		raise appException.clientException_405({"message" : "post method not allowed"})
 
-	def put(self, req, resp):
+	def put(self, container, **kargs):
 		raise appException.clientException_405({"message" : "put method not allowed"})
 
-	def delete(self, req, resp):
+	def delete(self, container, **kargs):
 		raise appException.clientException_405({"message" : "delete method not allowed"})
 
 	def _getFilteredRequestData(self, req, fieldList):

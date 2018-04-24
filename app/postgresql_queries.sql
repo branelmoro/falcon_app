@@ -334,7 +334,7 @@ CREATE INDEX skill_synonym_assigned_to ON speciality.skill_synonym (assigned_to)
 CREATE TABLE speciality.search_skill (
  id serial PRIMARY KEY,
  search_word varchar(80) NOT NULL UNIQUE,
- assigned_to int,
+ assigned_to int DEFAULT NULL,
  status search_skill_status DEFAULT 'pending',
  search_count int DEFAULT 0
 );

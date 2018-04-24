@@ -11,13 +11,97 @@ from ...models.specialityModel import skillSearchModel
 from ...models.specialityModel import skillSynonymModel
 from ...models.specialityModel import skillParentModel
 
-class saveSearchSkill(baseController):
+
+class SearchSkill(baseController):
 
 	def __init__(self):
-		self.__path = "/save-search-skill/"
+		self.__path = '/search-skill/{uid:int}'
 
 	def getPath(self):
 		return self.__path
+
+	def get(self, container):
+		pass
+
+	def post(self, container):
+		req = container.req
+		resp = container.resp
+		"""Handles POST requests"""
+		self.__validateHttpPost(req)
+
+		# this is valid request
+		appResponce = {}
+
+		resp.status = HTTP_200  # This is the default status
+
+		appResponce["woking"] = "fine"
+		appResponce["body"] = req.body
+
+		if False:
+			#exists in cache
+			#increament cache count
+			pass
+		else:
+			# create model object
+			search_skill_model = skillSearchModel()
+			skill_status = search_skill_model.getSearchSkillStatus(req.body["search_word"])
+			if skill_status:
+				if skill_status == "pending" :
+					# set cache count to 1
+					appResponce["result"] = search_skill_model.increaseSearchCount(req.body["search_word"], 1)
+			else:
+				appResponce["result"] = search_skill_model.insertNewSearchKeyWord(req.body["search_word"])
+
+		resp.body = json.encode(appResponce)
+
+	# function to handle all validation
+	def __validateHttpPost(self, req):
+		# token validation
+		self.validateHTTPRequest(req)
+
+		# data validation
+		appResponce = {}
+		if("search_word" not in req.body or (not isinstance(req.body["search_word"], str)) or req.body["search_word"] == ""):
+			appResponce["message"] = "Please provide search word"
+			raise appException.clientException_400(appResponce)
+
+	def put(self, container):
+		pass
+
+	def delete(self, container):
+		pass
+
+
+
+class SearchSkill_findapi_(SearchSkill):
+
+	def __init__(self):
+		self.__path = "/search-skill/_find_/"
+
+	def __find(self, criteria):
+		pass
+
+	def get(self, container):
+		pass
+
+	def post(self, container):
+		req = container.req
+		resp = container.resp
+
+
+
+
+class saveSearchSkill(baseController):
+
+	def __init__(self):
+		self.__path = "/save-search-skill/{id}"
+
+	def getPath(self):
+		return self.__path
+
+	def get(self, container, id = None):
+		resp.status = HTTP_200
+		pass
 
 	def post(self, container):
 		req = container.req
