@@ -39,7 +39,12 @@ print(arrControllers)
 
 for cntClass in arrControllers:
 	obj = cntClass()
-	api.add_route(obj.getPath(), obj)
+	path = obj.getPath()
+	if not isinstance(path, list):
+		path = [path]
+
+	for i in path:
+		api.add_route(i, obj)
 
 
 

@@ -1,7 +1,7 @@
 # always extend your controller from base_controller
 # always give controller class name same as filename
 from falcon import HTTP_200
-from ..base_controller import baseController
+from ..base_controller import baseController, CRUDS
 from ..base_controller import appException
 
 from ...library import json
@@ -12,18 +12,25 @@ from ...models.specialityModel import skillSynonymModel
 from ...models.specialityModel import skillParentModel
 
 
-class SearchSkill(baseController):
+
+class SearchSkill(CRUDS):
 
 	def __init__(self):
-		self.__path = '/search-skill/{uid:int}'
+		self._search_template = '/search-skill/_find_'
+		self._create_template = '/search-skill/'
+		self._crud_template = '/search-skill/{uid:int}'
 
 	def getPath(self):
-		return self.__path
+		return [
+			self._create_template,
+			self._search_template,
+			self._crud_template
+		]
 
-	def get(self, container):
+	def _get(self, container, uid = None):
 		pass
 
-	def post(self, container):
+	def _post(self, container):
 		req = container.req
 		resp = container.resp
 		"""Handles POST requests"""
@@ -34,8 +41,7 @@ class SearchSkill(baseController):
 
 		resp.status = HTTP_200  # This is the default status
 
-		appResponce["woking"] = "fine"
-		appResponce["body"] = req.body
+		appResponce["acknowledge"] = True
 
 		if False:
 			#exists in cache
@@ -65,28 +71,14 @@ class SearchSkill(baseController):
 			appResponce["message"] = "Please provide search word"
 			raise appException.clientException_400(appResponce)
 
-	def put(self, container):
+	def _put(self, container):
 		pass
 
-	def delete(self, container):
-		pass
+	def _delete(self, container):
+		raise appException.clientException_404({"message" : "Url does not exists"})
 
-
-
-class SearchSkill_findapi_(SearchSkill):
-
-	def __init__(self):
-		self.__path = "/search-skill/_find_/"
-
-	def __find(self, criteria):
-		pass
-
-	def get(self, container):
-		pass
-
-	def post(self, container):
-		req = container.req
-		resp = container.resp
+	def _search(self, container):
+		raise appException.clientException_404({"message" : "Url does not exists"})
 
 
 
@@ -94,14 +86,10 @@ class SearchSkill_findapi_(SearchSkill):
 class saveSearchSkill(baseController):
 
 	def __init__(self):
-		self.__path = "/save-search-skill/{id}"
+		self.__path = "/save-search-skill/"
 
 	def getPath(self):
 		return self.__path
-
-	def get(self, container, id = None):
-		resp.status = HTTP_200
-		pass
 
 	def post(self, container):
 		req = container.req

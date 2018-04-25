@@ -42,7 +42,7 @@ class skillSearchModel(baseModel):
 		return resultCursor.getStatusMessage()
 
 	def markSearchSkillInvalid(self, search_skill_id):
-		qry = """UPDATE speciality.search_skill SET status = %s WHERE search_skill_id = %s;"""
+		qry = """UPDATE speciality.search_skill SET status = %s WHERE id = %s;"""
 		resultCursor = self.pgMaster().query(qry, ["invalid", search_skill_id])
 		return resultCursor.getStatusMessage()
 

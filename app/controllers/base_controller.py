@@ -229,3 +229,51 @@ class baseController(object):
 		if data:
 			message = message.format(**data)
 		return message
+
+
+
+
+class CRUDS(baseController):
+
+	def get(self, container, **kwarg):
+		if container.req.uri_template == self._crud_template:
+			self._get(container, **kwarg)
+		elif container.req.uri_template == self._search_template:
+			self._search(container, **kwarg)
+		else:
+			raise appException.clientException_404({"message" : "Url does not exists"})
+
+	def post(self, container, **kwarg):
+		if container.req.uri_template == self._crud_template or container.req.uri_template == self._create_template:
+			self._post(container, **kwarg)
+		elif container.req.uri_template == self._search_template:
+			self._search(container, **kwarg)
+		else:
+			raise appException.clientException_404({"message" : "Url does not exists"})
+
+	def put(self, container, **kwarg):
+		if container.req.uri_template == self._crud_template:
+			self._put(container, **kwarg)
+		else:
+			raise appException.clientException_404({"message" : "Url does not exists"})
+
+	def delete(self, container, **kwarg):
+		if container.req.uri_template == self._crud_template:
+			self._delete(container, **kwarg)
+		else:
+			raise appException.clientException_404({"message" : "Url does not exists"})
+
+	def _get(self, container, **kwarg):
+		raise appException.clientException_404({"message" : "Url does not exists"})
+
+	def _post(self, container, **kwarg):
+		raise appException.clientException_404({"message" : "Url does not exists"})
+
+	def _put(self, container, **kwarg):
+		raise appException.clientException_404({"message" : "Url does not exists"})
+
+	def _delete(self, container, **kwarg):
+		raise appException.clientException_404({"message" : "Url does not exists"})
+
+	def _search(self, container):
+		raise appException.clientException_404({"message" : "Url does not exists"})

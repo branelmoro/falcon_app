@@ -336,11 +336,13 @@ CREATE TABLE speciality.search_skill (
  search_word varchar(80) NOT NULL UNIQUE,
  assigned_to int DEFAULT NULL,
  status search_skill_status DEFAULT 'pending',
- search_count int DEFAULT 0
+ search_count int DEFAULT 0,
+ last_edit_time TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT now()
 );
 CREATE INDEX search_skill_assigned_to ON speciality.search_skill (assigned_to);
 CREATE INDEX search_skill_status ON speciality.search_skill (status);
 CREATE INDEX search_search_count ON speciality.search_skill (search_count);
+CREATE INDEX search_skill_last_edit_time ON speciality.search_skill (last_edit_time);
 
 
 CREATE TABLE speciality.skill_parent_child_mapping (
