@@ -1,4 +1,5 @@
 from . import HTTPTESTER, HTTP_200, HTTP_404, HTTP_400, HTTP_405, HTTP_500
+import json
 
 def test_search_skill_get():
 	http_method = 'GET'
@@ -7,6 +8,8 @@ def test_search_skill_get():
 		'method':http_method
 	}
 	response = HTTPTESTER.simulate_request(**test_case)
+	data = json.loads(response.content.decode('utf-8'))
+	assert data == {'message': 'Url does not exists'}
 	assert response.status == HTTP_404
 
 	test_case = {
@@ -14,6 +17,8 @@ def test_search_skill_get():
 		'method':http_method
 	}
 	response = HTTPTESTER.simulate_request(**test_case)
+	data = json.loads(response.content.decode('utf-8'))
+	assert data == {'message': 'Url does not exists'}
 	assert response.status == HTTP_404
 
 	test_case = {
@@ -21,6 +26,8 @@ def test_search_skill_get():
 		'method':http_method
 	}
 	response = HTTPTESTER.simulate_request(**test_case)
+	data = json.loads(response.content.decode('utf-8'))
+	assert data == {'message': 'Url does not exists'}
 	assert response.status == HTTP_404
 
 
@@ -39,6 +46,8 @@ def test_search_skill_post():
 		'method':http_method
 	}
 	response = HTTPTESTER.simulate_request(**test_case)
+	data = json.loads(response.content.decode('utf-8'))
+	assert data == {'message': 'Url does not exists'}
 	assert response.status == HTTP_404
 
 	test_case = {
@@ -76,6 +85,8 @@ def test_search_skill_put():
 		'method':http_method
 	}
 	response = HTTPTESTER.simulate_request(**test_case)
+	data = json.loads(response.content.decode('utf-8'))
+	assert data == {'message': 'Url does not exists'}
 	assert response.status == HTTP_404
 
 	test_case = {
@@ -83,6 +94,8 @@ def test_search_skill_put():
 		'method':http_method
 	}
 	response = HTTPTESTER.simulate_request(**test_case)
+	data = json.loads(response.content.decode('utf-8'))
+	assert data == {'message': 'Url does not exists'}
 	assert response.status == HTTP_404
 
 	test_case = {
@@ -92,3 +105,82 @@ def test_search_skill_put():
 	response = HTTPTESTER.simulate_request(**test_case)
 	# assert response.content == ''
 	assert response.status == HTTP_400
+
+	test_case = {
+		'path':'/search-skill/1',
+		'method':http_method
+	}
+	response = HTTPTESTER.simulate_request(**test_case)
+	data = json.loads(response.content.decode('utf-8'))
+	assert data == {'search_skill_id': 'Please provide information to update'}
+	assert response.status == HTTP_400
+
+	test_case = {
+		'path':'/search-skill/1',
+		'method':http_method,
+		'body':'{"search_count":10}'
+	}
+	response = HTTPTESTER.simulate_request(**test_case)
+	data = json.loads(response.content.decode('utf-8'))
+	assert data == {'acknowledge': True, 'result': 'UPDATE 1'}
+	assert response.status == HTTP_200
+
+	test_case = {
+		'path':'/search-skill/1',
+		'method':http_method,
+		'body':'{"search_count":"10"}'
+	}
+	response = HTTPTESTER.simulate_request(**test_case)
+	data = json.loads(response.content.decode('utf-8'))
+	assert response.status == HTTP_400
+	assert data == {'search_count': 'Please provide valid search count'}
+
+	test_case = {
+		'path':'/search-skill/1',
+		'method':http_method,
+		'body':'{"assigned_to":10}'
+	}
+	response = HTTPTESTER.simulate_request(**test_case)
+	data = json.loads(response.content.decode('utf-8'))
+	assert data == {'acknowledge': True, 'result': 'UPDATE 1'}
+	assert response.status == HTTP_200
+
+	test_case = {
+		'path':'/search-skill/1',
+		'method':http_method,
+		'body':'{"assigned_to":"10"}'
+	}
+	response = HTTPTESTER.simulate_request(**test_case)
+	data = json.loads(response.content.decode('utf-8'))
+	assert response.status == HTTP_400
+	assert data == {'assigned_to': 'Please provide valid admin user id'}
+
+	test_case = {
+		'path':'/search-skill/1',
+		'method':http_method,
+		'body':'{"status":10}'
+	}
+	response = HTTPTESTER.simulate_request(**test_case)
+	data = json.loads(response.content.decode('utf-8'))
+	assert response.status == HTTP_400
+	assert data == {'status': 'Please provide valid status - invalid, valid, pending'}
+
+	test_case = {
+		'path':'/search-skill/1',
+		'method':http_method,
+		'body':'{"status":"10"}'
+	}
+	response = HTTPTESTER.simulate_request(**test_case)
+	data = json.loads(response.content.decode('utf-8'))
+	assert response.status == HTTP_400
+	assert data == {'status': 'Please provide valid status - invalid, valid, pending'}
+
+	test_case = {
+		'path':'/search-skill/1',
+		'method':http_method,
+		'body':'{"status":"invalid"}'
+	}
+	response = HTTPTESTER.simulate_request(**test_case)
+	data = json.loads(response.content.decode('utf-8'))
+	assert data == {'acknowledge': True, 'result': 'UPDATE 1'}
+	assert response.status == HTTP_200

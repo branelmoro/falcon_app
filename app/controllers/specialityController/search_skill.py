@@ -85,14 +85,14 @@ class SearchSkill(CRUDS):
 	def __validateHttpPut(self, req, uid):
 		appResponce = {}
 
-		if not "assigned_to" in req.body and not "assigned_to" in req.body and not "status" in req.body:
+		if not "assigned_to" in req.body and not "search_count" in req.body and not "status" in req.body:
 			appResponce["search_skill_id"] = 'Please provide information to update'
 		else:
 			if 'assigned_to' in req.body and not isinstance(req.body['assigned_to'], int):
 				appResponce["assigned_to"] = 'Please provide valid admin user id'
 			if 'search_count' in req.body and not isinstance(req.body['search_count'], int):
 				appResponce["search_count"] = 'Please provide valid search count'
-			if 'status' in req.body and not isinstance(req.body['status'], str):
+			if 'status' in req.body and (not isinstance(req.body['status'], str) or req.body['status'] not in ['invalid', 'valid', 'pending']):
 				appResponce["status"] = 'Please provide valid status - invalid, valid, pending'
 		if appResponce:
 			raise appException.clientException_400(appResponce)
