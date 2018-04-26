@@ -48,6 +48,24 @@ def test_search_skill_post():
 	response = HTTPTESTER.simulate_request(**test_case)
 	assert response.status == HTTP_500
 
+	test_case = {
+		'path':'/search-skill',
+		'method':http_method,
+		'body':'{"search_word":"carpenter"}'
+	}
+	response = HTTPTESTER.simulate_request(**test_case)
+	# assert response.content == ''
+	assert response.status == HTTP_200
+
+	test_case = {
+		'path':'/search-skill',
+		'method':http_method,
+		'body':'{"search_word":"carpenter"}'
+	}
+	response = HTTPTESTER.simulate_request(**test_case)
+	assert response.status == HTTP_200
+
+
 
 
 

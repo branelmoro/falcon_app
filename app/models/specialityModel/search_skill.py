@@ -60,11 +60,11 @@ class searchSkillModel(baseModel):
 
 	def upsertSearchKeyword(self,search_skill_name, count):
 		qry = '''
-		INSERT INTO speciality.search_skill (search_word, search_count, last_edit_time) values (%s, %s, now())
+		INSERT INTO speciality.search_skill as e (search_word, search_count, last_edit_time) values (%s, %s, now())
 		ON CONFLICT (search_word)
-			DO UPDATE speciality.search_skill SET search_count = search_count + %s
+			DO UPDATE SET search_count = e.search_count + %s,
 					last_edit_time = now();
-				--WHERE status = %s;
+				--WHERE status = s;
 		'''
 		# resultCursor = self.pgMaster().query(qry, [search_skill_name, count, count, 'pending'])
 		resultCursor = self.pgMaster().query(qry, [search_skill_name, count, count])
