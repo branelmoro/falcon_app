@@ -7,7 +7,7 @@ from ..base_controller import appException
 from ...library import json
 
 # import all required models here
-from ...models.specialityModel import skillSearchModel
+from ...models.specialityModel import searchSkillModel
 from ...models.specialityModel import skillSynonymModel
 from ...models.specialityModel import skillParentModel
 

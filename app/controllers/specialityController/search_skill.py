@@ -7,7 +7,7 @@ from ..base_controller import appException
 from ...library import json
 
 # import all required models here
-from ...models.specialityModel import skillSearchModel
+from ...models.specialityModel import searchSkillModel
 from ...models.specialityModel import skillSynonymModel
 from ...models.specialityModel import skillParentModel
 
@@ -27,7 +27,10 @@ class SearchSkill(CRUDS):
 			self._crud_template
 		]
 
-	def _get(self, container, uid = None):
+	def _search(self, container):
+		req = container.req
+		resp = container.resp
+
 		pass
 
 	def _post(self, container):
@@ -41,55 +44,83 @@ class SearchSkill(CRUDS):
 
 		resp.status = HTTP_200  # This is the default status
 
-		appResponce["acknowledge"] = True
-
 		if False:
 			#exists in cache
 			#increament cache count
 			pass
 		else:
 			# create model object
-			search_skill_model = skillSearchModel()
-			skill_status = search_skill_model.getSearchSkillStatus(req.body["search_word"])
-			if skill_status:
-				if skill_status == "pending" :
-					# set cache count to 1
-					appResponce["result"] = search_skill_model.increaseSearchCount(req.body["search_word"], 1)
-			else:
-				appResponce["result"] = search_skill_model.insertNewSearchKeyWord(req.body["search_word"])
+			search_skill_model = searchSkillModel()
+			appResponce["result"] = search_skill_model.upsertSearchKeyword(req.body["search_word"], 1)
 
+		appResponce["acknowledge"] = True
 		resp.body = json.encode(appResponce)
 
 	# function to handle all validation
 	def __validateHttpPost(self, req):
-		# token validation
-		self.validateHTTPRequest(req)
-
 		# data validation
 		appResponce = {}
 		if("search_word" not in req.body or (not isinstance(req.body["search_word"], str)) or req.body["search_word"] == ""):
 			appResponce["message"] = "Please provide search word"
 			raise appException.clientException_400(appResponce)
 
-
-
 	def _put(self, container, uid):
 		req = container.req
 		resp = container.resp
+
+		self.__validateHttpPut(req, uid)
+
+		appResponce = {}
+
+		search_skill_detail = self._getFilteredRequestData(req, ["assigned_to", "search_count", "status"])
+		search_skill_model = searchSkillModel()
+		appResponce['result'] = search_skill_model.updateSearchSkill(uid, search_skill_detail)
+		appResponce["acknowledge"] = True
+
+		resp.status = HTTP_200
+
+		resp.body = json.encode(appResponce)
+
+
+	def __validateHttpPut(self, req, uid):
+		appResponce = {}
+
+		if not "assigned_to" in req.body and not "assigned_to" in req.body and not "status" in req.body:
+			appResponce["search_skill_id"] = 'Please provide information to update'
+		else:
+			if 'assigned_to' in req.body and not isinstance(req.body['assigned_to'], int):
+				appResponce["assigned_to"] = 'Please provide valid admin user id'
+			if 'search_count' in req.body and not isinstance(req.body['search_count'], int):
+				appResponce["search_count"] = 'Please provide valid search count'
+			if 'status' in req.body and not isinstance(req.body['status'], str):
+				appResponce["status"] = 'Please provide valid status - invalid, valid, pending'
+		if appResponce:
+			raise appException.clientException_400(appResponce)
+
+		# database level validation goes here
+		search_skill_model = searchSkillModel()
+
+		if not search_skill_model.ifSkillAlreadyExists(uid):
+			self.raise404()
+
+
+	def _put1(self, container, uid):
+		req = container.req
+		resp = container.resp
 		"""Handles POST requests"""
-		self.__validateHttpPut(req)
+		self.__validateHttpPut1(req, uid)
 
 		appResponce = {}
 
 		resp.status = HTTP_200  # This is the default status
 
 		if req.body["status"] == "invalid":
-			search_skill_model = skillSearchModel()
-			appResponce["result"] = search_skill_model.markSearchSkillInvalid(req.body["search_skill_id"])
+			search_skill_model = searchSkillModel()
+			appResponce["result"] = search_skill_model.markSearchSkillInvalid(uid)
 		else:
-			search_skill_model = skillSearchModel()
+			search_skill_model = searchSkillModel()
 			if "skill_synonym_id" in req.body:
-				search_skill_detail = search_skill_model.getSearchSkillDetailFromId(req.body["search_skill_id"])
+				search_skill_detail = search_skill_model.getSearchSkillDetailFromId(uid)
 				# insert in skill synonym
 				skill_synonym_model = skillSynonymModel()
 				appResponce["result"] = skill_synonym_model.createSynonymFromSearchSkill(search_skill_detail,req.body["languages"],req.body["skill_synonym_id"])
@@ -119,14 +150,14 @@ class SearchSkill(CRUDS):
 
 
 	# function to handle all validation
-	def __validateHttpPut(self, req):
-		# token validation
-		self.validateHTTPRequest(req)
+	def __validateHttpPut1(self, req, uid):
+		self.__commonPreDBValidation1(req)
+		self.__commonPostDBValidation1(req, uid)
 
+	def __commonPreDBValidation1(self, req, uid):
 		# data validation
 		appResponce = {}
-		if("search_skill_id" not in req.body or req.body["search_skill_id"] == "" or (not isinstance(req.body["search_skill_id"], int))):
-			appResponce["search_skill_id"] = "Please provide valid search skill"
+
 		if("status" not in req.body or req.body["status"] == ""):
 			appResponce["status"] = "Please provide search word status - valid or invalid"
 		elif req.body["status"] != "valid" and req.body["status"] != "invalid":
@@ -163,29 +194,30 @@ class SearchSkill(CRUDS):
 
 		if appResponce:
 			raise appException.clientException_400(appResponce)
+
+	def __commonPostDBValidation1(self, req, uid):
+		appResponce = {}
+		# database level validation goes here
+		search_skill_model = searchSkillModel()
+
+		if not search_skill_model.ifSkillAlreadyExists(uid):
+			appResponce["search_skill_id"] = "Please provide valid search skill"
+
+		skill_synonym_model = skillSynonymModel()
+		if "skill_synonym_id" in req.body:
+			if not skill_synonym_model.ifValidSkillNameExists(req.body["skill_synonym_id"]):
+				appResponce["skill_synonym_id"] = "Please provide valid skill synonym"
 		else:
-			# database level validation goes here
-			if "search_skill_id" in req.body:
-				search_skill_model = skillSearchModel()
-				skill_exists = search_skill_model.ifSkillAlreadyExists(req.body["search_skill_id"])
-				if not skill_exists:
-					appResponce["search_skill_id"] = "Please provide valid search skill"
-
-			skill_synonym_model = skillSynonymModel()
-			if "skill_synonym_id" in req.body:
-				if not skill_synonym_model.ifValidSkillNameExists(req.body["skill_synonym_id"]):
-					appResponce["skill_synonym_id"] = "Please provide valid skill synonym"
+			arrSearchSkill = [req.body["all_langs"][lang] for lang in req.body["all_langs"]];
+			if not search_skill_model.ifValidLangProvidedForSearchSkill(req.body["search_skill_id"],arrSearchSkill):
+				appResponce["all_langs"] = "Please provide valid Language for search skill!"
 			else:
-				arrSearchSkill = [req.body["all_langs"][lang] for lang in req.body["all_langs"]];
-				if not search_skill_model.ifValidLangProvidedForSearchSkill(req.body["search_skill_id"],arrSearchSkill):
-					appResponce["all_langs"] = "Please provide valid Language for search skill!"
-				else:
-					arrSynonyms = skill_synonym_model.getSkillSynonymsByName(arrSearchSkill);
-					if arrSynonyms:
-						appResponce["all_langs"] = "Skill synonyms already present in system! - " + (",".join(arrSynonyms))
+				arrSynonyms = skill_synonym_model.getSkillSynonymsByName(arrSearchSkill);
+				if arrSynonyms:
+					appResponce["all_langs"] = "Skill synonyms already present in system! - " + (",".join(arrSynonyms))
 
-			if appResponce:
-				raise appException.clientException_400(appResponce)
+		if appResponce:
+			raise appException.clientException_400(appResponce)
 
 
 
@@ -222,7 +254,7 @@ class saveSearchSkill(baseController):
 			pass
 		else:
 			# create model object
-			search_skill_model = skillSearchModel()
+			search_skill_model = searchSkillModel()
 			skill_status = search_skill_model.getSearchSkillStatus(req.body["search_word"])
 			if skill_status:
 				if skill_status == "pending" :
@@ -262,10 +294,10 @@ class searchSkillStatus(baseController):
 		resp.status = HTTP_200  # This is the default status
 
 		if req.body["status"] == "invalid":
-			search_skill_model = skillSearchModel()
+			search_skill_model = searchSkillModel()
 			appResponce["result"] = search_skill_model.markSearchSkillInvalid(req.body["search_skill_id"])
 		else:
-			search_skill_model = skillSearchModel()
+			search_skill_model = searchSkillModel()
 			if "skill_synonym_id" in req.body:
 				search_skill_detail = search_skill_model.getSearchSkillDetailFromId(req.body["search_skill_id"])
 				# insert in skill synonym
@@ -344,7 +376,7 @@ class searchSkillStatus(baseController):
 		else:
 			# database level validation goes here
 			if "search_skill_id" in req.body:
-				search_skill_model = skillSearchModel()
+				search_skill_model = searchSkillModel()
 				skill_exists = search_skill_model.ifSkillAlreadyExists(req.body["search_skill_id"])
 				if not skill_exists:
 					appResponce["search_skill_id"] = "Please provide valid search skill"

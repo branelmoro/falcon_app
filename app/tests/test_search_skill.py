@@ -1,42 +1,76 @@
-from . import HTTPTESTER, HTTP_200, HTTP_405
+from . import HTTPTESTER, HTTP_200, HTTP_404, HTTP_400, HTTP_405, HTTP_500
 
-def test_search_skill_get5():
+def test_search_skill_get():
+	http_method = 'GET'
 	test_case = {
-		"path":"/save-search-skill/sdsdfsdfsd",
-		"method":"GET"
+		'path':'/search-skill',
+		'method':http_method
 	}
 	response = HTTPTESTER.simulate_request(**test_case)
-	assert response.status == HTTP_405
+	assert response.status == HTTP_404
 
-def test_search_skill_get4():
 	test_case = {
-		"path":"/save-search-skill/_find_",
-		"method":"GET"
+		'path':'/search-skill/sdfdfd',
+		'method':http_method
 	}
 	response = HTTPTESTER.simulate_request(**test_case)
-	assert response.status == HTTP_405
+	assert response.status == HTTP_404
 
-def test_search_skill_get2():
 	test_case = {
-		"path":"/save-search-skill/",
-		"method":"POST"
+		'path':'/search-skill/1',
+		'method':http_method
 	}
 	response = HTTPTESTER.simulate_request(**test_case)
-	assert response.status == HTTP_405
+	assert response.status == HTTP_404
 
-def test_search_skill_get1():
+
+
+def test_search_skill_post():
+	http_method = 'POST'
 	test_case = {
-		"path":"/save-search-skill/23",
-		"method":"GET"
+		'path':'/search-skill',
+		'method':http_method
 	}
 	response = HTTPTESTER.simulate_request(**test_case)
-	assert response.content == ''
-	assert response.status == HTTP_405
+	assert response.status == HTTP_400
 
-def test_search_skill_get3():
 	test_case = {
-		"path":"/save-search-skill/",
-		"method":"GET"
+		'path':'/search-skill/sdsd',
+		'method':http_method
 	}
 	response = HTTPTESTER.simulate_request(**test_case)
-	assert response.status == HTTP_405
+	assert response.status == HTTP_404
+
+	test_case = {
+		'path':'/search-skill/2',
+		'method':http_method
+	}
+	response = HTTPTESTER.simulate_request(**test_case)
+	assert response.status == HTTP_500
+
+
+
+
+def test_search_skill_put():
+	http_method = 'PUT'
+	test_case = {
+		'path':'/search-skill',
+		'method':http_method
+	}
+	response = HTTPTESTER.simulate_request(**test_case)
+	assert response.status == HTTP_404
+
+	test_case = {
+		'path':'/search-skill/sdsd',
+		'method':http_method
+	}
+	response = HTTPTESTER.simulate_request(**test_case)
+	assert response.status == HTTP_404
+
+	test_case = {
+		'path':'/search-skill/2',
+		'method':http_method
+	}
+	response = HTTPTESTER.simulate_request(**test_case)
+	# assert response.content == ''
+	assert response.status == HTTP_400

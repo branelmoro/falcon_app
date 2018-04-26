@@ -230,50 +230,58 @@ class baseController(object):
 			message = message.format(**data)
 		return message
 
-
+	def raise404(self):
+		raise appException.clientException_404({"message" : "Url does not exists"})
 
 
 class CRUDS(baseController):
 
 	def get(self, container, **kwarg):
 		if container.req.uri_template == self._crud_template:
+			self.validateHTTPRequest(container.req)
 			self._get(container, **kwarg)
 		elif container.req.uri_template == self._search_template:
+			self.validateHTTPRequest(container.req)
 			self._search(container, **kwarg)
 		else:
-			raise appException.clientException_404({"message" : "Url does not exists"})
+			self.raise404()
 
 	def post(self, container, **kwarg):
+		# if container.req.uri_template == self._create_template:
 		if container.req.uri_template == self._crud_template or container.req.uri_template == self._create_template:
+			self.validateHTTPRequest(container.req)
 			self._post(container, **kwarg)
 		elif container.req.uri_template == self._search_template:
+			self.validateHTTPRequest(container.req)
 			self._search(container, **kwarg)
 		else:
-			raise appException.clientException_404({"message" : "Url does not exists"})
+			self.raise404()
 
 	def put(self, container, **kwarg):
 		if container.req.uri_template == self._crud_template:
+			self.validateHTTPRequest(container.req)
 			self._put(container, **kwarg)
 		else:
-			raise appException.clientException_404({"message" : "Url does not exists"})
+			self.raise404()
 
 	def delete(self, container, **kwarg):
 		if container.req.uri_template == self._crud_template:
+			self.validateHTTPRequest(container.req)
 			self._delete(container, **kwarg)
 		else:
-			raise appException.clientException_404({"message" : "Url does not exists"})
+			self.raise404()
 
 	def _get(self, container, **kwarg):
-		raise appException.clientException_404({"message" : "Url does not exists"})
+		self.raise404()
 
 	def _post(self, container, **kwarg):
-		raise appException.clientException_404({"message" : "Url does not exists"})
+		self.raise404()
 
 	def _put(self, container, **kwarg):
-		raise appException.clientException_404({"message" : "Url does not exists"})
+		self.raise404()
 
 	def _delete(self, container, **kwarg):
-		raise appException.clientException_404({"message" : "Url does not exists"})
+		self.raise404()
 
 	def _search(self, container):
-		raise appException.clientException_404({"message" : "Url does not exists"})
+		self.raise404()

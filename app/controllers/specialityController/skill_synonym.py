@@ -7,7 +7,7 @@ from ..base_controller import appException
 from ...library import json
 
 # import all required models here
-from ...models.specialityModel import skillSearchModel
+from ...models.specialityModel import searchSkillModel
 from ...models.specialityModel import skillSynonymModel
 from ...models.specialityModel import skillParentModel
 
@@ -132,7 +132,7 @@ class skillSynonymStatus(baseController):
 			if "parent_skill_synonym_id" in req.body:
 				appResponce["result"] = skill_synonym_model.createSynonymFromParentSkillSynonym(req.body["skill_synonym_id"], req.body["languages"], req.body["parent_skill_synonym_id"])
 			else:
-				search_skill_model = skillSearchModel()
+				search_skill_model = searchSkillModel()
 				#create new parent skill and mark entry in skill_synonym
 				arrLang = self.getAllLangs()
 

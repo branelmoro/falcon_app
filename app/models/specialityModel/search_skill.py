@@ -2,7 +2,7 @@
 # always give model class name same as model name
 from ..base_model import baseModel
 
-class skillSearchModel(baseModel):
+class searchSkillModel(baseModel):
 	"""entire code goes here"""
 
 	def ifSkillAlreadyExists(self,search_skill_id):
@@ -39,6 +39,35 @@ class skillSearchModel(baseModel):
 	def increaseSearchCount(self,search_skill_name, count):
 		qry = """UPDATE speciality.search_skill SET search_count = search_count + %s WHERE search_word = %s;"""
 		resultCursor = self.pgMaster().query(qry, [count, search_skill_name])
+		return resultCursor.getStatusMessage()
+
+	def updateSearchSkill(self, uid, data):
+		params = []
+		updateFields = []
+		if 'search_count' in data:
+			updateFields.append('search_count = search_count + %s')
+			params.append(data['search_count'])
+		if 'assigned_to' in data:
+			updateFields.append('assigned_to = %s')
+			params.append(data['assigned_to'])
+		if 'status' in data:
+			updateFields.append('status = %s')
+			params.append(data['status'])
+		qry = 'UPDATE speciality.search_skill SET '+(', '.join(updateFields))+' WHERE id = %s;'
+		params.append(uid)
+		resultCursor = self.pgMaster().query(qry, params)
+		return resultCursor.getStatusMessage()
+
+	def upsertSearchKeyword(self,search_skill_name, count):
+		qry = '''
+		INSERT INTO speciality.search_skill (search_word, search_count, last_edit_time) values (%s, %s, now())
+		ON CONFLICT (search_word)
+			DO UPDATE speciality.search_skill SET search_count = search_count + %s
+					last_edit_time = now();
+				--WHERE status = %s;
+		'''
+		# resultCursor = self.pgMaster().query(qry, [search_skill_name, count, count, 'pending'])
+		resultCursor = self.pgMaster().query(qry, [search_skill_name, count, count])
 		return resultCursor.getStatusMessage()
 
 	def markSearchSkillInvalid(self, search_skill_id):
