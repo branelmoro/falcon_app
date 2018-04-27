@@ -17,7 +17,7 @@ class SearchSkill(CRUDS):
 
 	def __init__(self):
 		self._search_template = '/search-skill/_find_'
-		self._search_page_template = '/search-skill/_find_/{page}'
+		self._search_page_template = '/search-skill/_find_/{page:int}'
 		self._create_template = '/search-skill/'
 		self._crud_template = '/search-skill/{uid:int}'
 

@@ -208,12 +208,51 @@ def test_search_skill_put():
 
 def test_search_skill_find():
 
-	# PUT /search-skill/{int} is valid and data sent in body is valid
 	test_case = {
 		'path':'/search-skill/_find_',
 		'method':'GET'
 	}
 	response = HTTPTESTER.simulate_request(**test_case)
 	data = json.loads(response.content.decode('utf-8'))
-	assert data == {}
+	# assert data == {}
+	assert response.status == HTTP_200
+
+
+	test_case = {
+		'path':'/search-skill/_find_/1',
+		'method':'GET'
+	}
+	response = HTTPTESTER.simulate_request(**test_case)
+	data = json.loads(response.content.decode('utf-8'))
+	# assert data == {}
+	assert response.status == HTTP_200
+
+
+	test_case = {
+		'path':'/search-skill/_find_/1',
+		'method':'POST'
+	}
+	response = HTTPTESTER.simulate_request(**test_case)
+	data = json.loads(response.content.decode('utf-8'))
+	# assert data == {}
+	assert response.status == HTTP_200
+
+
+	test_case = {
+		'path':'/search-skill/_find_/12',
+		'method':'GET'
+	}
+	response = HTTPTESTER.simulate_request(**test_case)
+	data = json.loads(response.content.decode('utf-8'))
+	# assert data == {}
+	assert response.status == HTTP_200
+
+
+	test_case = {
+		'path':'/search-skill/_find_/12',
+		'method':'POST'
+	}
+	response = HTTPTESTER.simulate_request(**test_case)
+	data = json.loads(response.content.decode('utf-8'))
+	# assert data == {}
 	assert response.status == HTTP_200
