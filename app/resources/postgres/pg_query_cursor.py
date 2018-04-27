@@ -63,6 +63,7 @@ class pgQueryCursor(object):
 		qry = cursor.mogrify(query, params)
 		cursor.close()
 		self.__leaveConnection()
+		return qry
 
 	# def closeCursor(self):
 	# 	self.__cursor.close()

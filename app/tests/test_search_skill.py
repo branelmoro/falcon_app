@@ -208,6 +208,20 @@ def test_search_skill_put():
 
 def test_search_skill_find():
 
+	i=0
+	while i < 21:
+		test_case = {
+			'path':'/search-skill',
+			'method':'POST',
+			'body':'{"search_word":"test'+str(i)+'"}'
+		}
+		response = HTTPTESTER.simulate_request(**test_case)
+		# assert response.content == ''
+		assert response.status == HTTP_200
+		i = i + 1
+
+
+
 	test_case = {
 		'path':'/search-skill/_find_',
 		'method':'GET'
@@ -220,6 +234,7 @@ def test_search_skill_find():
 
 	test_case = {
 		'path':'/search-skill/_find_/1',
+		'query_string':'fields=status&fields=id',
 		'method':'GET'
 	}
 	response = HTTPTESTER.simulate_request(**test_case)
@@ -228,9 +243,14 @@ def test_search_skill_find():
 	assert response.status == HTTP_200
 
 
+	body = {
+		'fields':['id','status','assigned_to']
+	}
+
 	test_case = {
 		'path':'/search-skill/_find_/1',
-		'method':'POST'
+		'method':'POST',
+		'body':json.dumps(body)
 	}
 	response = HTTPTESTER.simulate_request(**test_case)
 	data = json.loads(response.content.decode('utf-8'))
@@ -239,7 +259,7 @@ def test_search_skill_find():
 
 
 	test_case = {
-		'path':'/search-skill/_find_/12',
+		'path':'/search-skill/_find_/3',
 		'method':'GET'
 	}
 	response = HTTPTESTER.simulate_request(**test_case)

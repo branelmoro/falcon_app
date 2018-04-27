@@ -31,7 +31,7 @@ class searchSkillModel(baseModel):
 			# for i in criteria['fields']:
 			# 	params.insert(0, i)
 			# search_query = '''SELECT ''' + ('%s, '*(len(criteria['fields']) - 1) + '%s' ) + qry_condition + ''' LIMIT %s OFFSET %s'''
-			search_query = '''SELECT ''' + (', '.join(criteria['fields'])) + qry_condition + ''' LIMIT %s OFFSET %s'''
+			search_query = 'SELECT ' + (', '.join(criteria['fields'])) + qry_condition + ' ORDER BY id desc LIMIT %s OFFSET %s;'
 			params.append(count_per_page)
 			offset = (page - 1) * count_per_page
 			params.append(offset)
@@ -43,6 +43,7 @@ class searchSkillModel(baseModel):
 			search_result['records'] = [{k:record[columns[k]] for k in columns} for record in resultCursor.getAllRecords()]
 			# search_result['records'] = result
 			search_result['found'] = len(search_result['records'])
+			# search_result['qry'] = self.pgSlave().getBoundQuery(search_query,params).decode('utf-8')
 
 		return search_result
 

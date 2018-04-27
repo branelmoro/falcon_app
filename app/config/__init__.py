@@ -1,6 +1,6 @@
 import sys
 
-if sys.argv and sys.argv[1] == "run_tests.py":
+if sys.argv and "run_tests.py" in sys.argv:
 	enviornment = "tdd"
 else:
 	try:
