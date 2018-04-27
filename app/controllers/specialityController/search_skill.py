@@ -17,6 +17,7 @@ class SearchSkill(CRUDS):
 
 	def __init__(self):
 		self._search_template = '/search-skill/_find_'
+		self._search_page_template = '/search-skill/_find_/{page}'
 		self._create_template = '/search-skill/'
 		self._crud_template = '/search-skill/{uid:int}'
 
@@ -24,14 +25,26 @@ class SearchSkill(CRUDS):
 		return [
 			self._create_template,
 			self._search_template,
+			self._search_page_template,
 			self._crud_template
 		]
 
-	def _search(self, container):
+	def _search(self, container, page=1):
 		req = container.req
 		resp = container.resp
+		params = req.params
+		params.update(req.body)
 
-		pass
+		params['page'] = page
+
+		if 'count_per_page' not in params:
+			params['count_per_page'] = 10
+
+		if 'fields' not in params:
+			params['fields'] = ['id']
+
+		resp.status = HTTP_200
+		resp.body = json.encode(searchSkillModel().search(**params))
 
 	def _post(self, container):
 		req = container.req

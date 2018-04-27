@@ -80,6 +80,8 @@ def test_search_skill_post():
 
 def test_search_skill_put():
 	http_method = 'PUT'
+
+	# PUT /search-skill should send 404 not found error
 	test_case = {
 		'path':'/search-skill',
 		'method':http_method
@@ -89,6 +91,8 @@ def test_search_skill_put():
 	assert data == {'message': 'Url does not exists'}
 	assert response.status == HTTP_404
 
+
+	# PUT /search-skill/{anystring} should send 404 not found error
 	test_case = {
 		'path':'/search-skill/sdsd',
 		'method':http_method
@@ -98,14 +102,21 @@ def test_search_skill_put():
 	assert data == {'message': 'Url does not exists'}
 	assert response.status == HTTP_404
 
+
+	# PUT /search-skill/{int} is valid
+	# but it should send 404 as {int} does not exists
 	test_case = {
-		'path':'/search-skill/2',
-		'method':http_method
+		'path':'/search-skill/20',
+		'method':http_method,
+		'body':'{"status":"invalid"}'
 	}
 	response = HTTPTESTER.simulate_request(**test_case)
 	# assert response.content == ''
-	assert response.status == HTTP_400
+	assert response.status == HTTP_404
 
+
+	# PUT /search-skill/{int} is valid
+	# but it should send 400 as no updated data sent in body
 	test_case = {
 		'path':'/search-skill/1',
 		'method':http_method
@@ -115,6 +126,8 @@ def test_search_skill_put():
 	assert data == {'search_skill_id': 'Please provide information to update'}
 	assert response.status == HTTP_400
 
+
+	# PUT /search-skill/{int} is valid and data sent in body is valid
 	test_case = {
 		'path':'/search-skill/1',
 		'method':http_method,
@@ -125,6 +138,9 @@ def test_search_skill_put():
 	assert data == {'acknowledge': True, 'result': 'UPDATE 1'}
 	assert response.status == HTTP_200
 
+
+	# PUT /search-skill/{int} is valid and data sent in body - search_count is invalid
+	# as it is string and hence it should send 400
 	test_case = {
 		'path':'/search-skill/1',
 		'method':http_method,
@@ -135,6 +151,7 @@ def test_search_skill_put():
 	assert response.status == HTTP_400
 	assert data == {'search_count': 'Please provide valid search count'}
 
+	# PUT /search-skill/{int} is valid and data sent in body is valid
 	test_case = {
 		'path':'/search-skill/1',
 		'method':http_method,
@@ -175,6 +192,7 @@ def test_search_skill_put():
 	assert response.status == HTTP_400
 	assert data == {'status': 'Please provide valid status - invalid, valid, pending'}
 
+	# PUT /search-skill/{int} is valid and data sent in body is valid
 	test_case = {
 		'path':'/search-skill/1',
 		'method':http_method,
@@ -183,4 +201,19 @@ def test_search_skill_put():
 	response = HTTPTESTER.simulate_request(**test_case)
 	data = json.loads(response.content.decode('utf-8'))
 	assert data == {'acknowledge': True, 'result': 'UPDATE 1'}
+	assert response.status == HTTP_200
+
+
+
+
+def test_search_skill_find():
+
+	# PUT /search-skill/{int} is valid and data sent in body is valid
+	test_case = {
+		'path':'/search-skill/_find_',
+		'method':'GET'
+	}
+	response = HTTPTESTER.simulate_request(**test_case)
+	data = json.loads(response.content.decode('utf-8'))
+	assert data == {}
 	assert response.status == HTTP_200

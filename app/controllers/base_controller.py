@@ -240,7 +240,7 @@ class CRUDS(baseController):
 		if container.req.uri_template == self._crud_template:
 			self.validateHTTPRequest(container.req)
 			self._get(container, **kwarg)
-		elif container.req.uri_template == self._search_template:
+		elif container.req.uri_template == self._search_template or container.req.uri_template == self._search_page_template:
 			self.validateHTTPRequest(container.req)
 			self._search(container, **kwarg)
 		else:
@@ -251,7 +251,7 @@ class CRUDS(baseController):
 		if container.req.uri_template == self._crud_template or container.req.uri_template == self._create_template:
 			self.validateHTTPRequest(container.req)
 			self._post(container, **kwarg)
-		elif container.req.uri_template == self._search_template:
+		elif container.req.uri_template == self._search_template or container.req.uri_template == self._search_page_template:
 			self.validateHTTPRequest(container.req)
 			self._search(container, **kwarg)
 		else:

@@ -1,9 +1,51 @@
+import math
 # always extend your model from base_model
 # always give model class name same as model name
 from ..base_model import baseModel
 
 class searchSkillModel(baseModel):
 	"""entire code goes here"""
+
+	def search(self, page, count_per_page, **criteria):
+
+		params = []
+		qry_condition = ''' FROM speciality.search_skill '''
+
+		count_query = '''SELECT count(id) as cnt ''' + qry_condition
+
+		resultCursor = self.pgSlave().query(count_query, params)
+		result = resultCursor.getOneRecord()
+		total_count = result[0]
+
+
+		search_result = {
+			'total' : total_count,
+			'page' : page,
+			'count_per_page':count_per_page,
+			'found' : 0,
+			'records' : []
+		}
+
+		if total_count > 0 and page <= math.ceil(total_count/count_per_page):
+
+			# for i in criteria['fields']:
+			# 	params.insert(0, i)
+			# search_query = '''SELECT ''' + ('%s, '*(len(criteria['fields']) - 1) + '%s' ) + qry_condition + ''' LIMIT %s OFFSET %s'''
+			search_query = '''SELECT ''' + (', '.join(criteria['fields'])) + qry_condition + ''' LIMIT %s OFFSET %s'''
+			params.append(count_per_page)
+			offset = (page - 1) * count_per_page
+			params.append(offset)
+
+			resultCursor = self.pgSlave().query(search_query, params)
+			# result = resultCursor.getAllRecords()
+			columns = resultCursor.getColumns()
+
+			search_result['records'] = [{k:record[columns[k]] for k in columns} for record in resultCursor.getAllRecords()]
+			# search_result['records'] = result
+			search_result['found'] = len(search_result['records'])
+
+		return search_result
+
 
 	def ifSkillAlreadyExists(self,search_skill_id):
 		qry = """
