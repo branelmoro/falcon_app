@@ -37,6 +37,8 @@ class APP_API(object):
 
 	__client_session = None
 
+	__client_resources = {}
+
 	def __init__(self, container):
 		self.__container = container
 		self.__session = container.getSession()
@@ -283,6 +285,7 @@ class APP_API(object):
 		else:
 			# client doesn't have right throw exception
 			self.__generateClientToken()
+			self.__container.reset_all_resources()
 
 	def __getToken(self):
 		if self.__session.isUserLoggedIn():
@@ -306,6 +309,11 @@ class APP_API(object):
 	def __setClientSession(cls,client_session_id, conn):
 		data = conn.hgetall(client_session_id)
 		cls.__client_session = {k.decode():data[k].decode() for k in data}
+		cls.__client_resources['get'] = conn.smembers(client_session_id + '_get')
+		cls.__client_resources['post'] = conn.smembers(client_session_id + '_post')
+		cls.__client_resources['put'] = conn.smembers(client_session_id + '_put')
+		cls.__client_resources['delete'] = conn.smembers(client_session_id + '_delete')
+
 
 	@classmethod
 	def __generateClientToken(cls, conn=None):
@@ -337,7 +345,16 @@ class APP_API(object):
 				raise appException.serverException_500({"app":"APP authorization failed"})
 			cls.__client_session = json.decode(arrResponce["response"])
 			cls.__client_session["token_api_call"] = "no"
+
+			if 'resources' in cls.__client_session:
+				for method in cls.__client_session['resources']:
+					cls.__client_resources[method] = set(cls.__client_session['resources'][method])
+					conn.add(client_session_id + '_' + method, cls.__client_session['resources'][method])
+					conn.expire(client_session_id + '_' + method, cls.__client_session['accessTokenExpiry'])
+				del cls.__client_session['resources']
+
 			conn.hmset(client_session_id,cls.__client_session)
+			conn.expire(client_session_id, cls.__client_session['accessTokenExpiry'])
 		else:
 			while conn.hget(client_session_id, "token_api_call")=="yes":
 				time.sleep(0.1)
@@ -353,6 +370,8 @@ class APP_API(object):
 		else:
 			cls.__generateClientToken(conn)
 
+	def getResources(cls, method):
+		return cls.__client_resources[method]
 
 # start client session
 APP_API.startClientSession()

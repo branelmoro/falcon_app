@@ -27,9 +27,31 @@ class container(object):
 		self.resp = resp
 		self.data = {}
 		self.__session = SESSION(self)
+		self.__app_api = APP_API(self)
+		self.__resources = {}
 
 	def getSession(self):
 		return self.__session
+
+	def getAPI(self):
+		return self.__app_api
+
+	def is_allowed(self, method, resource_code):
+		if method in self.__resources:
+			return resource_code in self.__resources[method]:
+		else:
+			self.__reset_resources(method)
+			return resource_code in self.__resources[method]:
+
+	def reset_all_resources(self):
+		for method in self.__resources:
+			self.__reset_resources(method)
+
+	def __reset_resources(self, method):
+		if self.__session.isUserLoggedIn():
+			self.__resources[method] = self.__session.getResources(method)
+		else:
+			self.__resources[method] = self.__app_api.getResources(method)
 
 
 

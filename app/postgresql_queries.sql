@@ -60,7 +60,7 @@ CREATE INDEX oauth2_scope_allowed_put ON oauth2.scope (allowed_put);
 CREATE INDEX oauth2_scope_allowed_delete ON oauth2.scope (allowed_delete);
 CREATE INDEX oauth2_scope_is_editable ON oauth2.scope (is_editable);
 INSERT INTO oauth2.scope (id, scope_name, scope_info, allowed_get, allowed_post, allowed_put, allowed_delete, is_editable) VALUES
-(1, 'superuser', '123456', '{1,2,3}', '{1,2,3}', '{1,2,3}', '{1,2,3}', false);
+(1, 'superuser', '123456', '{"RS","AS","AU"}', '{"RS","AS","AU"}', '{"RS","AS","AU"}', '{"RS","AS","AU"}', false);
 ALTER SEQUENCE oauth2.scope_id_seq RESTART WITH 2;
 CREATE TABLE oauth2.admin_user (
  id serial PRIMARY KEY,

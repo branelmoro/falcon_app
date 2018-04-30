@@ -100,7 +100,7 @@ class redisCrud(object):
 	def get(self, key):
 		data = self.getConnection().get(key)
 		if data:
-			return data.decode()
+			return data.decode('utf-8')
 		else:
 			return data
 
@@ -135,7 +135,7 @@ class redisCrud(object):
 		return self.getConnection().sismember(key, value)
 
 	def smembers(self, key):
-		return self.getConnection().smembers(key)
+		return {i.decode('utf-8') for i in self.getConnection().smembers(key)}
 
 
 	# hash/object commands
@@ -145,7 +145,7 @@ class redisCrud(object):
 	def hget(self, hashkey, key):
 		data = self.getConnection().hget(hashkey, key)
 		if data:
-			return data.decode()
+			return data.decode('utf-8')
 		else:
 			return data
 	
@@ -155,7 +155,7 @@ class redisCrud(object):
 	def hgetall(self, key):
 		data = self.getConnection().hgetall(key)
 		if data:
-			return {k.decode():data[k].decode() for k in data}
+			return {k.decode('utf-8'):data[k].decode('utf-8') for k in data}
 		else:
 			return data
 	

@@ -73,10 +73,10 @@ class scope(baseModel):
 			delete = delete + row[5]
 
 		return {
-			"allowed_get" : list(set(get))
-			"allowed_post" : list(set(post))
-			"allowed_put" : list(set(put))
-			"allowed_delete" : list(set(delete))
+			"get" : list(set(get))
+			"post" : list(set(post))
+			"put" : list(set(put))
+			"delete" : list(set(delete))
 		}
 
 

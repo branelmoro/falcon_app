@@ -17,26 +17,27 @@ class SESSION(object):
 	__session_key = "admin-session"
 	__sessionData = {}
 
-	__req = None
-	__resp = None
-
 	def __init__(self, container):
-		self.__req = container.req
-		self.__resp = container.resp
+		self.__container = container
 		# load session
-		if self.__session_key in self.__req.cookies:
-			if SESSION_DB.exists(self.__req.cookies[self.__session_key]):
-				self.__sessionData = SESSION_DB.hgetall(self.__req.cookies[self.__session_key])
-				self.__session_id = self.__req.cookies[self.__session_key]
+		if self.__session_key in self.__container.req.cookies:
+			if SESSION_DB.exists(self.__container.req.cookies[self.__session_key]):
+				self.__sessionData = SESSION_DB.hgetall(self.__container.req.cookies[self.__session_key])
+				self.__session_id = self.__container.req.cookies[self.__session_key]
 			else:
 				# session is expired hence unset cookie
-				self.__resp.unset_cookie(self.__req.cookies[self.__session_key])
+				self.__container.resp.unset_cookie(self.__container.req.cookies[self.__session_key])
 
 	def __isSessionIdLocked(self, session_id, data):
 		conn = SESSION_DB.getConnection("client_sessionDb")
 		pipe = conn.pipeline(transaction=True)
 		pipe.watch(session_id)
 		pipe.multi()
+		if 'resources' in data:
+			for method in data['resources']:
+				conn.add(client_session_id + '_' + method, data['resources'][method])
+				conn.expire(client_session_id + '_' + method, data['accessTokenExpiry'])
+			del data['resources']
 		pipe.hmset(session_id, data)
 		pipe.execute()
 
@@ -64,8 +65,8 @@ class SESSION(object):
 
 	def start(self, expiry = 900, data={}):
 		self.__session_id = self.__generateUniqueIdFromKey(data=data)
-		self.__resp.set_cookie(name=self.__session_key, value=self.__session_id, max_age=expiry, secure=(self.__req.protocol=="https"))
-		# self.__resp.set_cookie(name=self.__session_key, value=self.__session_id, expires=None, max_age=900, domain=None, path=None, secure=None, http_only=True)
+		self.__container.resp.set_cookie(name=self.__session_key, value=self.__session_id, max_age=expiry, secure=(self.__container.req.protocol=="https"))
+		# self.__container.resp.set_cookie(name=self.__session_key, value=self.__session_id, expires=None, max_age=900, domain=None, path=None, secure=None, http_only=True)
 
 	def setData(self, data):
 		self.__sessionData.update(data)
@@ -76,14 +77,14 @@ class SESSION(object):
 
 	def set(self, key, value):
 		self.__sessionData[key] = value
-		SESSION_DB = hset(self.__session_id, key, value)
+		SESSION_DB.hset(self.__session_id, key, value)
 
 	def get(self, key):
 		return self.__sessionData[key]
 
 	def destroy(self):
 		SESSION_DB.delete(self.__session_id)
-		self.__resp.unset_cookie(self.__session_key)
+		self.__container.resp.unset_cookie(self.__session_key)
 		self.__session_id = None
 		self.__sessionData = {}
 
@@ -92,3 +93,7 @@ class SESSION(object):
 		sessionData.update(data)
 		self.destroy()
 		self.start(expiry = data["refreshTokenExpiry"], data=sessionData)
+		self.__container.reset_all_resources()
+
+	def getResources(self, method):
+		return SESSION_DB.smembers(self.__session_id + '_' + method)
