@@ -28,22 +28,29 @@ CREATE TYPE usertype AS ENUM ('guest','registered_user','admin');
 CREATE SCHEMA oauth2;
 CREATE TABLE oauth2.resource (
  id serial PRIMARY KEY,
- resource_path varchar(300) NOT NULL,
+ code varchar(50) NOT NULL UNIQUE,
+ resource_path varchar(300) NOT NULL UNIQUE,
  resource_info varchar(300),
  is_editable boolean DEFAULT true,
- last_edit_time TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT now(),
- UNIQUE (resource_path)
+ last_edit_time TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT now()
 );
-INSERT INTO oauth2.resource (id, resource_path, resource_info, is_editable) VALUES (1, '/resource/', 'manage resource', false), (2, '/access-scope/', 'manage access-scope', false), (3, '/admin-user/', 'manage admin-user', false), (4, '/client/', 'manage clients', false), (5, '/errors/', 'manage errors', false);
+INSERT INTO oauth2.resource (resource_code, resource_path, resource_info, is_editable) VALUES
+('RS', '/resource/', 'manage resource', false),
+('AS', '/access-scope/', 'manage access-scope', false),
+('AU', '/admin-user/', 'manage admin-user', false),
+('CL', '/client/', 'manage clients app', false),
+('ER', '/errors/', 'manage errors', false);
+
+
 ALTER SEQUENCE oauth2.resource_id_seq RESTART WITH 5;
 CREATE TABLE oauth2.scope (
  id serial PRIMARY KEY,
  scope_name varchar(80) NOT NULL UNIQUE,
  scope_info varchar(100),
- allowed_get smallint[],
- allowed_post smallint[],
- allowed_put smallint[],
- allowed_delete smallint[],
+ allowed_get text[],
+ allowed_post text[],
+ allowed_put text[],
+ allowed_delete text[],
  is_editable boolean DEFAULT true,
  last_edit_time TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT now()
 );
@@ -52,7 +59,8 @@ CREATE INDEX oauth2_scope_allowed_post ON oauth2.scope (allowed_post);
 CREATE INDEX oauth2_scope_allowed_put ON oauth2.scope (allowed_put);
 CREATE INDEX oauth2_scope_allowed_delete ON oauth2.scope (allowed_delete);
 CREATE INDEX oauth2_scope_is_editable ON oauth2.scope (is_editable);
-INSERT INTO oauth2.scope (id, scope_name, scope_info, allowed_get, allowed_post, allowed_put, allowed_delete, is_editable) VALUES (1, 'superuser', '123456', '{1,2,3}', '{1,2,3}', '{1,2,3}', '{1,2,3}', false);
+INSERT INTO oauth2.scope (id, scope_name, scope_info, allowed_get, allowed_post, allowed_put, allowed_delete, is_editable) VALUES
+(1, 'superuser', '123456', '{1,2,3}', '{1,2,3}', '{1,2,3}', '{1,2,3}', false);
 ALTER SEQUENCE oauth2.scope_id_seq RESTART WITH 2;
 CREATE TABLE oauth2.admin_user (
  id serial PRIMARY KEY,
@@ -65,7 +73,7 @@ CREATE TABLE oauth2.admin_user (
 CREATE INDEX oauth2_admin_user_password ON oauth2.admin_user (password);
 CREATE INDEX oauth2_admin_scope ON oauth2.admin_user (scope);
 CREATE INDEX oauth2_admin_user_is_editable ON oauth2.admin_user (is_editable);
-INSERT INTO oauth2.admin_user (id, username, password, scope, is_editable) VALUES (1, 'branelm', '123456', '{1}', false);
+INSERT INTO oauth2.admin_user (id, username, password, scope, is_editable) VALUES(1, 'branelm', '123456', '{1}', false);
 ALTER SEQUENCE oauth2.admin_user_id_seq RESTART WITH 2;
 CREATE TABLE oauth2.client (
  id serial PRIMARY KEY,

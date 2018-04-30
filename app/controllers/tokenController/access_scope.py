@@ -108,7 +108,7 @@ class accessScope(baseController):
 			if(not isinstance(req.body[allowed_method], list)):
 				appResponce[allowed_method] = self._getError(16, data={"method":allowed_method})
 			else:
-				nonInt = [i for i in req.body[allowed_method] if not isinstance(i, int)]
+				nonInt = [i for i in req.body[allowed_method] if not isinstance(i, str)]
 				if nonInt:
 					appResponce[allowed_method] = self._getError(16, data={"method":allowed_method})
 		else:

@@ -179,7 +179,8 @@ class index(baseController):
 		params = {
 			"accessToken" : accessToken,
 			"accessTokenExpiry" : self.__accessTokenExpiry,
-			"scope": oauth2ScopeModel().getScopeNamesFromIds(scope)
+			"scope": oauth2ScopeModel().getScopeNamesFromIds(scope),
+			"resources": oauth2ScopeModel().getAllowedResourcesFromScopeIds(scope)
 		}
 
 		return params
@@ -251,7 +252,8 @@ class index(baseController):
 			"refreshToken" : refreshToken,
 			"accessTokenExpiry" : self.__accessTokenExpiry,
 			"refreshTokenExpiry" : self.__refreshTokenExpiry,
-			"scope": oauth2ScopeModel().getScopeNamesFromIds(scope)
+			"scope": oauth2ScopeModel().getScopeNamesFromIds(scope),
+			"resources": oauth2ScopeModel().getAllowedResourcesFromScopeIds(scope)
 		}
 
 		return params

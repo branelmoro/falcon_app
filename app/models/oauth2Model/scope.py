@@ -57,6 +57,30 @@ class scope(baseModel):
 		return [i[0] for i in result]
 
 
+	def getAllowedResourcesFromScopeIds(self, ids):
+
+		result = self.__getScopeDetails(ids)
+
+		get = []
+		post = []
+		put = []
+		delete = []
+
+		for row in result:
+			get = get + row[2]
+			post = post + row[3]
+			put = put + row[4]
+			delete = delete + row[5]
+
+		return {
+			"allowed_get" : list(set(get))
+			"allowed_post" : list(set(post))
+			"allowed_put" : list(set(put))
+			"allowed_delete" : list(set(delete))
+		}
+
+
+
 	def __addScopeToCache(self, result):
 		return
 
@@ -141,7 +165,7 @@ class scope(baseModel):
 		fieldList = ["allowed_get", "allowed_post", "allowed_put", "allowed_delete"]
 		for i in fieldList:
 			if i in scope_detail:
-				listSet.append(i + " = %s::smallint[]")
+				listSet.append(i + " = %s::text[]")
 				params.append(scope_detail[i])
 
 		listSet.append("last_edit_time = %s")
@@ -200,7 +224,7 @@ class scope(baseModel):
 
 		# allowed_resource = ["cardinality("+i+") > 0" for i in allowed_resource]
 
-		allowed_resource = [i+" != %s::smallint[]" for i in allowed_resource]
+		allowed_resource = [i+" != %s::text[]" for i in allowed_resource]
 		params.extend([[] for i in allowed_resource])
 
 		qry = """
@@ -215,19 +239,19 @@ class scope(baseModel):
 		result = resultCursor.getOneRecord()
 		return result[0]
 
-	def deleteResourceFromScope(self, resource_id, dbObj = None):
+	def deleteResourceFromScope(self, resource_code, dbObj = None):
 		if dbObj is None:
 			dbObj = self.pgMaster()
 
-		params = [resource_id, resource_id, resource_id, resource_id]
+		params = [resource_code, resource_code, resource_code, resource_code]
 
 		qry = """
 			SELECT id
 			FROM oauth2.scope
-			WHERE %s::smallint = ANY(allowed_get)
-				or %s::smallint = ANY(allowed_post)
-				or %s::smallint = ANY(allowed_put)
-				or %s::smallint = ANY(allowed_delete);
+			WHERE %s::text = ANY(allowed_get)
+				or %s::text = ANY(allowed_post)
+				or %s::text = ANY(allowed_put)
+				or %s::text = ANY(allowed_delete);
 		"""
 		resultCursor = self.pgSlave().query(qry,params)
 		result = resultCursor.getAllRecords()
@@ -236,14 +260,14 @@ class scope(baseModel):
 
 		qry = """
 			UPDATE oauth2.scope
-			SET allowed_get = array_remove(allowed_get, %s::smallint),
-				allowed_post = array_remove(allowed_post, %s::smallint),
-				allowed_put = array_remove(allowed_put, %s::smallint),
-				allowed_delete = array_remove(allowed_delete, %s::smallint)
-			WHERE %s::smallint = ANY(allowed_get)
-				or %s::smallint = ANY(allowed_post)
-				or %s::smallint = ANY(allowed_put)
-				or %s::smallint = ANY(allowed_delete);
+			SET allowed_get = array_remove(allowed_get, %s::text),
+				allowed_post = array_remove(allowed_post, %s::text),
+				allowed_put = array_remove(allowed_put, %s::text),
+				allowed_delete = array_remove(allowed_delete, %s::text)
+			WHERE %s::text = ANY(allowed_get)
+				or %s::text = ANY(allowed_post)
+				or %s::text = ANY(allowed_put)
+				or %s::text = ANY(allowed_delete);
 		"""
 		params = params + params
 		resultCursor = dbObj.query(qry, params)

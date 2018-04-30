@@ -28,7 +28,7 @@ class resource(baseController):
 		# this is valid request
 		appResponce = {}
 
-		data = self._getFilteredRequestData(req, ["resource_path", "resource_info"])
+		data = self._getFilteredRequestData(req, ["code", "resource_path", "resource_info"])
 
 		oauth2_resource = oauth2ResourceModel()
 		appResponce["result"] = oauth2_resource.createNewResource(data)
@@ -52,6 +52,9 @@ class resource(baseController):
 			appResponce["resource_path"] = self._getError(1)
 			# appResponce["resource_path"] = "Resource path already exists in database!"
 
+		if oauth2_resource.ifResourceCodeAlreadyExists(req.body["code"]):
+			appResponce["code"] = "Resource code already exists in database!"
+
 		if appResponce:
 			raise appException.clientException_400(appResponce)
 
@@ -65,7 +68,7 @@ class resource(baseController):
 			# appResponce["resource_id"] = "Please provide a valid resource id"
 			appResponce["resource_id"] = self._getError(2)
 
-		if is_put and ("resource_path" not in req.body and "resource_info" not in req.body):
+		if is_put and ("code" not in req.body and "resource_path" not in req.body and "resource_info" not in req.body):
 			# appResponce["resource_id"] = "Please provide some information to update"
 			appResponce["resource_id"] = self._getError(3)
 
@@ -91,6 +94,16 @@ class resource(baseController):
 			# appResponce["resource_info"] = "Please provide some resource information"
 			appResponce["resource_info"] = self._getError(4)
 
+		if(
+			is_put
+			and "code" in req.body
+			and req.body["code"] == ""
+		) or (
+			not is_put
+			and ("code" not in req.body or req.body["code"] == "")
+		):
+			appResponce["code"] = "Please provide resource code"
+
 		if appResponce:
 			raise appException.clientException_400(appResponce)
 
@@ -103,7 +116,7 @@ class resource(baseController):
 		# this is valid request
 		appResponce = {}
 
-		data = self._getFilteredRequestData(req, ["resource_path", "resource_info", "resource_id"])
+		data = self._getFilteredRequestData(req, ["code", "resource_path", "resource_info", "resource_id"])
 
 		oauth2_resource = oauth2ResourceModel()
 		appResponce["result"] = oauth2_resource.updateResource(data)
@@ -129,9 +142,12 @@ class resource(baseController):
 		elif not oauth2_resource.ifResourceEditable(req.body["resource_id"]):
 			# appResponce["resource_id"] = "This resource is not editable"
 			appResponce["resource_id"] = self._getError(6)
-		elif "resource_path" in req.body and oauth2_resource.ifResourcePathAlreadyExists(req.body["resource_path"], req.body["resource_id"]):
-			# appResponce["resource_path"] = "Resource path already exists in another record"
-			appResponce["resource_path"] = self._getError(1)
+		else:
+			if "resource_path" in req.body and oauth2_resource.ifResourcePathAlreadyExists(req.body["resource_path"], req.body["resource_id"]):
+				# appResponce["resource_path"] = "Resource path already exists in another record"
+				appResponce["resource_path"] = self._getError(1)
+			if "code" in req.body and oauth2_resource.ifResourceCodeAlreadyExists(req.body["code"], req.body["resource_id"]):
+				appResponce["code"] = "Resource code already exists in another record"
 
 		if appResponce:
 			raise appException.clientException_400(appResponce)
@@ -148,7 +164,7 @@ class resource(baseController):
 		data = self._getFilteredRequestData(req, ["resource_id"])
 
 		oauth2_resource = oauth2ResourceModel()
-		appResponce["result"] = oauth2_resource.deleteResource(data)
+		appResponce["result"] = oauth2_resource.deleteResource(data["resource_id"])
 		resp.status = HTTP_200  # This is the default status
 		resp.body = json.encode(appResponce)
 
