@@ -370,6 +370,7 @@ class APP_API(object):
 		else:
 			cls.__generateClientToken(conn)
 
+	@classmethod
 	def getResources(cls, method):
 		return cls.__client_resources[method]
 
