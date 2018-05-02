@@ -48,49 +48,7 @@ class HTML_COLLECTOR(object):
 		self.__css_set = set()
 		self.__js = []
 		self.__js_set = set()
-
-	def __getMetaData(self):
-		# default http_equiv
-		# <meta http-equiv='Content-type' content='text/html; charset=utf-8'/>
-		# <meta http-equiv='X-UA-Compatible' content='IE=Edge' />
-		meta_http_equiv = {
-			# 'Content-type':{
-			# 	'content':'text/html; charset=utf-8'
-			# },
-			# 'X-UA-Compatible':{
-			# 	'content':'IE=Edge'
-			# }
-		}
-
-		meta_name = {
-			# 'application-name':'abc',
-			# 'auther':'auther',
-			# 'description':'this is description',
-			# 'keywords':'key,words'
-		}
-
-		custom_meta = []
-
-		if 'meta' in self.__head:
-			for i in self.__head['meta']:
-				if 'name' in i:
-					meta_name[i['name']] = i
-				elif 'http-equiv' in i:
-					meta_http_equiv[i['http-equiv']] = i
-				else:
-					custom_meta.append(i)
-
-		meta_data = []
-		for http_equiv in meta_http_equiv:
-			meta_data.append('<meta ' + (' '.join([(attr+'="'+escape(meta_http_equiv[http_equiv][attr])+'"') for attr in meta_http_equiv[http_equiv]])) + '/>')
-
-		for name in meta_name:
-			meta_data.append('<meta ' + (' '.join([(attr+'="'+escape(meta_name[name][attr])+'"') for attr in meta_name[name]])) + '/>')
-
-		for meta in custom_meta:
-			meta_data.append('<meta ' + (' '.join([(attr+'="'+escape(meta[attr])+'"') for attr in meta])) + '/>')
-
-		return ''.join(meta_data)
+		self.__body = ''
 
 
 	def __getHtmlHead(self):
@@ -147,6 +105,8 @@ class HTML_COLLECTOR(object):
 			self.__js.append(js)
 			self.__js_set.add(js)
 
+	def setBody(self, body):
+		self.__body = body
 
 	def getHTML(self, partial=False):
 		if partial:
@@ -155,7 +115,7 @@ class HTML_COLLECTOR(object):
 			return css + body + js
 		else:
 			head = self.__getHtmlHead()
-			return self.__base_html.format(body=body, head=head)
+			return self.__base_html.format(body=self.__body, head=head)
 
 
 
@@ -171,21 +131,15 @@ class HTML_RENDERER():
 </html>'''
 
 	@classmethod
-	def render(cls, view, container, html_collector=HTML_COLLECTOR()):
-		body = cls._renderView(view, container, html_collector)
-		if partial:
-			css = obj.__getCss()
-			js = obj.__getjs()
-			return css + body + js
-		else:
-			head = obj.__getHeaderStr()
-			return cls.__base_html.format(body=body, head=head)
-
+	def render(cls, view, container, partial=False):
+		html_collector = HTML_COLLECTOR()
+		html_collector.setBody(cls._renderView(view, container, html_collector))
+		return html_collector.getHTML(partial)
 
 	@classmethod
 	def _renderView(cls, view, container, html_collector):
 		viewClass = cls.__getViewClass(view)
-		return viewClass.render(container, html_collector)
+		return viewClass._getFormatedText(container, html_collector)
 
 	@classmethod
 	def __getViewClass(cls, view):
@@ -218,13 +172,3 @@ class HTML_RENDERER():
 			# html = re.sub(r'\n', ' ', html)
 			template = html
 		return template
-
-
-
-
-
-
-
-
-def render('view', container):
-	pass
