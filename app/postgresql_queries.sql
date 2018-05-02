@@ -34,7 +34,7 @@ CREATE TABLE oauth2.resource (
  is_editable boolean DEFAULT true,
  last_edit_time TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT now()
 );
-INSERT INTO oauth2.resource (resource_code, resource_path, resource_info, is_editable) VALUES
+INSERT INTO oauth2.resource (code, resource_path, resource_info, is_editable) VALUES
 ('RS', '/resource/', 'manage resource', false),
 ('AS', '/access-scope/', 'manage access-scope', false),
 ('AU', '/admin-user/', 'manage admin-user', false),

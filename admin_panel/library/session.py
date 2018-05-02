@@ -17,6 +17,8 @@ class SESSION(object):
 	__session_key = "admin-session"
 	__sessionData = {}
 
+	__allowed_resources = {}
+
 	def __init__(self, container):
 		self.__container = container
 		# load session
@@ -35,10 +37,11 @@ class SESSION(object):
 		pipe.multi()
 		if 'resources' in data:
 			for method in data['resources']:
-				conn.add(client_session_id + '_' + method, data['resources'][method])
-				conn.expire(client_session_id + '_' + method, data['accessTokenExpiry'])
+				pipe.sadd(session_id + '_' + method, data['resources'][method])
+				pipe.expire(session_id + '_' + method, data['accessTokenExpiry'])
 			del data['resources']
 		pipe.hmset(session_id, data)
+		pipe.expire(session_id, data['refreshTokenExpiry'])
 		pipe.execute()
 
 	def __getHashKey(self, key):
@@ -93,7 +96,11 @@ class SESSION(object):
 		sessionData.update(data)
 		self.destroy()
 		self.start(expiry = data["refreshTokenExpiry"], data=sessionData)
-		self.__container.reset_all_resources()
 
 	def getResources(self, method):
 		return SESSION_DB.smembers(self.__session_id + '_' + method)
+
+	def is_allowed(self, method, resource_code):
+		if method not in self.__resources:
+			self.__resources[method] = SESSION_DB.smembers(self.__session_id + '_' + method)
+		return resource_code in self.__resources[method]

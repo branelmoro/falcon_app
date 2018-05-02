@@ -90,55 +90,55 @@ class index(baseController):
 
 		params["running_from"] = str(current_time - server_start_time)
 
-		app_api = self.getAPI(container)
+		app_api = container.getAPI()
 
 		assync_call = [{
 				"method":"GET",
-				"url":self.getAPIURL("/"),
+				"url":container.getAPIURL("/"),
 				"callback":self.callback1,
 				"next":[{
 						"method":"GET",
-						"url":self.getAPIURL("/"),
+						"url":container.getAPIURL("/"),
 						"callback":self.callback1
 					},{
 						"method":"GET",
-						"url":self.getAPIURL("/"),
+						"url":container.getAPIURL("/"),
 						"callback":self.callback2
 					}
 				]
 			},{
 				"method":"GET",
-				"url":self.getAPIURL("/"),
+				"url":container.getAPIURL("/"),
 				"callback":self.callback2,
 				"next":{
 					"method":"GET",
-					"url":self.getAPIURL("/"),
+					"url":container.getAPIURL("/"),
 					"callback":self.callback1
 				}
 			},{
 				"method":"GET",
-				"url":self.getAPIURL("/"),
+				"url":container.getAPIURL("/"),
 				"callback":self.callback1,
 				"next":{
 					"async":[{
 							"method":"GET",
-							"url":self.getAPIURL("/"),
+							"url":container.getAPIURL("/"),
 							"callback":self.callback1
 						},{
 							"method":"GET",
-							"url":self.getAPIURL("/"),
+							"url":container.getAPIURL("/"),
 							"callback":self.callback2
 						}
 					],
 					"next":{
 						"method":"GET",
-						"url":self.getAPIURL("/"),
+						"url":container.getAPIURL("/"),
 						"callback":self.callback1
 					}
 				}
 			},{
 				"method":"GET",
-				"url":self.getAPIURL("/"),
+				"url":container.getAPIURL("/"),
 				"callback":self.callback2
 			}
 		]

@@ -73,9 +73,9 @@ class scope(baseModel):
 			delete = delete + row[5]
 
 		return {
-			"get" : list(set(get))
-			"post" : list(set(post))
-			"put" : list(set(put))
+			"get" : list(set(get)),
+			"post" : list(set(post)),
+			"put" : list(set(put)),
 			"delete" : list(set(delete))
 		}
 

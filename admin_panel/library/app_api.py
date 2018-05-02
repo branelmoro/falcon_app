@@ -37,7 +37,7 @@ class APP_API(object):
 
 	__client_session = None
 
-	__client_resources = {}
+	__allowed_resources = {}
 
 	def __init__(self, container):
 		self.__container = container
@@ -285,7 +285,6 @@ class APP_API(object):
 		else:
 			# client doesn't have right throw exception
 			self.__generateClientToken()
-			self.__container.reset_all_resources()
 
 	def __getToken(self):
 		if self.__session.isUserLoggedIn():
@@ -309,10 +308,10 @@ class APP_API(object):
 	def __setClientSession(cls,client_session_id, conn):
 		data = conn.hgetall(client_session_id)
 		cls.__client_session = {k.decode():data[k].decode() for k in data}
-		cls.__client_resources['get'] = conn.smembers(client_session_id + '_get')
-		cls.__client_resources['post'] = conn.smembers(client_session_id + '_post')
-		cls.__client_resources['put'] = conn.smembers(client_session_id + '_put')
-		cls.__client_resources['delete'] = conn.smembers(client_session_id + '_delete')
+		cls.__allowed_resources['get'] = conn.smembers(client_session_id + '_get')
+		cls.__allowed_resources['post'] = conn.smembers(client_session_id + '_post')
+		cls.__allowed_resources['put'] = conn.smembers(client_session_id + '_put')
+		cls.__allowed_resources['delete'] = conn.smembers(client_session_id + '_delete')
 
 
 	@classmethod
@@ -348,8 +347,8 @@ class APP_API(object):
 
 			if 'resources' in cls.__client_session:
 				for method in cls.__client_session['resources']:
-					cls.__client_resources[method] = set(cls.__client_session['resources'][method])
-					conn.add(client_session_id + '_' + method, cls.__client_session['resources'][method])
+					cls.__allowed_resources[method] = set(cls.__client_session['resources'][method])
+					conn.sadd(client_session_id + '_' + method, cls.__client_session['resources'][method])
 					conn.expire(client_session_id + '_' + method, cls.__client_session['accessTokenExpiry'])
 				del cls.__client_session['resources']
 
@@ -371,8 +370,8 @@ class APP_API(object):
 			cls.__generateClientToken(conn)
 
 	@classmethod
-	def getResources(cls, method):
-		return cls.__client_resources[method]
+	def is_allowed(cls, method, resource_code):
+		return resource_code in cls.__allowed_resources[method]
 
 # start client session
 APP_API.startClientSession()
