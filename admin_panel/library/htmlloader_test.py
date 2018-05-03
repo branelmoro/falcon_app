@@ -5,6 +5,13 @@ from html import escape
 from .. import exception as appException
 
 
+BASEHTML = '''<!DOCTYPE html><html>
+  <head>
+	{head}
+  </head>
+  <body>{body}</body>
+</html>'''
+
 
 
 
@@ -41,9 +48,16 @@ class JS(BASE_STATIC_LOADER):
 
 class HTML_COLLECTOR(object):
 
-	def __init__(self, container):
-		self.container = container
-		self.__head = {}
+	def __init__(self):
+		self.__head = {
+			'meta':[{
+					'http-equiv':'Content-type',
+					'content':'text/html; charset=utf-8'
+				},{
+					'http-equiv':'X-UA-Compatible',
+					'content':'IE=Edge'
+			}]
+		}
 		self.__css = []
 		self.__css_set = set()
 		self.__js = []
@@ -115,20 +129,13 @@ class HTML_COLLECTOR(object):
 			return css + body + js
 		else:
 			head = self.__getHtmlHead()
-			return self.__base_html.format(body=self.__body, head=head)
+			return BASEHTML.format(body=self.__body, head=head)
 
 
 
 
 
 class HTML_RENDERER():
-
-	__base_html = '''<!DOCTYPE html><html>
-  <head>
-	{head}
-  </head>
-  <body>{body}</body>
-</html>'''
 
 	@classmethod
 	def render(cls, view, container, partial=False):
