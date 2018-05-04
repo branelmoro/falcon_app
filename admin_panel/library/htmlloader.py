@@ -99,12 +99,12 @@ class HTML_COLLECTOR(object):
 			self.__head['meta'] = []
 		self.__head['meta'].append(data)
 
-	def addJsFile(self, js):
+	def addCssFile(self, css):
 		if css not in self.__css_set:
 			self.__css.append(CSS.get(css))
 			self.__css_set.add(css)
 
-	def addCssFile(self, js):
+	def addJsFile(self, js):
 		if js not in self.__js_set:
 			self.__js.append(JS.get(js))
 			self.__js_set.add(js)
@@ -167,7 +167,7 @@ class HTML_RENDERER():
 			except AttributeError:
 				exit("View Logic Class - "+view_class_name+" not found")
 			except:
-				exit("AAwoo... view nahi mila..")
+				exit("AAwoo... view nahi mila.." + view)
 				# raise appException.serverException_500()
 		return cls.__all_views[view]
 

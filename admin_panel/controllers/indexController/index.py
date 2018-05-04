@@ -32,13 +32,13 @@ class index(baseController):
 		resp = container.resp
 		# print(req.params)
 		# print(unescape(req.params['sampletext']))
-		# resp.body = self._render1(view='home', container=container)
+		resp.body = self._render(view='home', container=container)
 
-		if container.getSession().isUserLoggedIn():
-			# collect data for home page
-			resp.body = self._render(view='home', container=container)
-		else:
-			resp.body = self._render(view='login')
+		# if container.getSession().isUserLoggedIn():
+		# 	# collect data for home page
+		# 	resp.body = self._render(view='home', container=container)
+		# else:
+		# 	resp.body = self._render(view='login')
 
 	def post(self, container):
 		req = container.req
