@@ -1,13 +1,20 @@
 from os.path import dirname, abspath
 from pathlib import Path
-import re
 from html import escape
 
 from .. import exception as appException
 
-# from .. import views
-# print(views)
-# print("----------------------------------------")
+
+BASEHTML = '''<!DOCTYPE html><html>
+  <head>
+	{head}
+  </head>
+  <body>{body}</body>
+</html>'''
+
+
+
+
 class BASE_STATIC_LOADER(object):
 
 	@classmethod
@@ -35,52 +42,115 @@ class JS(BASE_STATIC_LOADER):
 	_static_content = {}
 
 
-# class HTML(BASE_STATIC_LOADER):
-# 	_folder = dirname(dirname(abspath(__file__))) + "/static/html/"
-# 	_static_content = {}
 
 
-class BASE_HTML():
 
-	__base_html = """<!DOCTYPE html><html>
-  <head>
-	{head}
-  </head>
-  <body>{body}</body>
-</html>"""
+
+class HTML_COLLECTOR(object):
+
+	def __init__(self):
+		self.__head = {
+			'meta':[{
+					'http-equiv':'Content-type',
+					'content':'text/html; charset=utf-8'
+				},{
+					'http-equiv':'X-UA-Compatible',
+					'content':'IE=Edge'
+			}]
+		}
+		self.__css = []
+		self.__css_set = set()
+		self.__js = []
+		self.__js_set = set()
+		self.__body = ''
+
+
+	def __getHtmlHead(self):
+		head = ''
+		if 'title' in self.__head:
+			head = head + '<title>'+escape(self.__head['title'])+'</title>'
+
+		if 'meta' in self.__head:
+			for meta_data in self.__head['meta']:
+				head = head + '<meta ' + (' '.join([attr + '="' + escape(meta_data[attr]) + '"' for attr in meta_data])) + '/>'
+
+		head = head + self.__getCss()
+		head = head + self.__getJs()
+
+		return head
+
+	def __getCss(self):
+		if self.__css:
+			return '<style type="text/css">' + ''.join(self.__css) + '</style>'
+		else:
+			return ''
+
+	def __getJs(self):
+		if self.__js:
+			return '<script type="text/javascript">' + ''.join(self.__js) + '</script>'
+		else:
+			return ''
+
+	def setTitle(self, title):
+		self.__head['title'] = title
+
+	def setMetaData(self, data):
+		if 'meta' not in self.__head:
+			self.__head['meta'] = []
+		self.__head['meta'].append(data)
+
+	def addJsFile(self, js):
+		if css not in self.__css_set:
+			self.__css.append(CSS.get(css))
+			self.__css_set.add(css)
+
+	def addCssFile(self, js):
+		if js not in self.__js_set:
+			self.__js.append(JS.get(js))
+			self.__js_set.add(js)
+
+	def addCss(self, css):
+		if css not in self.__css_set:
+			self.__css.append(css)
+			self.__css_set.add(css)
+
+	def addJs(self, js, inline=False):
+		if js not in self.__js_set:
+			self.__js.append(js)
+			self.__js_set.add(js)
+
+	def setBody(self, body):
+		self.__body = body
+
+	def getHTML(self, partial=False):
+		if partial:
+			css = self.__getCss()
+			js = self.__getjs()
+			return css + body + js
+		else:
+			head = self.__getHtmlHead()
+			return BASEHTML.format(body=self.__body, head=head)
+
+
+
+
+
+class HTML_RENDERER():
+
+	__blnUseFstring = False
 
 	__all_views = {}
 
-	def __init__(self, body={}, head={}, parent=None):
-		self._body = body
-		self.__head = head
-		self.__parent = parent
-
-		if parent is None:
-
-			self.__css = []
-			self.__css_dict = {}
-
-			self.__js = []
-			self.__js_dict = {}
-
+	@classmethod
+	def render(cls, view, partial=False, **kwargs):
+		html_collector = HTML_COLLECTOR()
+		html_collector.setBody(cls._renderView(view=view, html_collector=html_collector, **kwargs))
+		return html_collector.getHTML(partial)
 
 	@classmethod
-	def renderView(cls, view, body={}, head={}, parent=None, partial=False):
+	def _renderView(cls, view, **kwargs):
 		viewClass = cls.__getViewClass(view)
-		obj = viewClass(body=body, head=head, parent=parent)
-		body = obj._render()
-
-		if parent:
-			return body
-		else:
-			if partial:
-				css = obj.__getCss()
-				js = obj.__getjs()
-				return css + body + js
-			else:
-				head = obj.__getHeaderStr()
-				return cls.__base_html.format(body=body, head=head)
+		return viewClass._getFormatedText(**kwargs)
 
 	@classmethod
 	def __getViewClass(cls, view):
@@ -101,7 +171,6 @@ class BASE_HTML():
 				# raise appException.serverException_500()
 		return cls.__all_views[view]
 
-
 	@classmethod
 	def __getViewTemplate(cls, view_template_file):
 		# print(view_template_file)
@@ -114,97 +183,16 @@ class BASE_HTML():
 			template = html
 		return template
 
-	def __getHeaderStr(self):
-		# format head here
-		title = ""
-		if "title" in self.__head:
-			title = "<title>"+escape(self.__head["title"])+"</title>"
-		return "".join([title, self.__getMetaData(), self.__getCss(), self.__getJs()])
-
-
-	def __getMetaData(self):
-		# default http_equiv
-		# <meta http-equiv="Content-type" content="text/html; charset=utf-8"/>
-		# <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-		meta_http_equiv = {
-			# "Content-type":{
-			# 	"content":"text/html; charset=utf-8"
-			# },
-			# "X-UA-Compatible":{
-			# 	"content":"IE=Edge"
-			# }
-		}
-
-		meta_name = {
-			# "application-name":"abc",
-			# "auther":"auther",
-			# "description":"this is description",
-			# "keywords":"key,words"
-		}
-
-		custom_meta = []
-
-		if "meta" in self.__head:
-			for i in self.__head["meta"]:
-				if "name" in i:
-					meta_name[i["name"]] = i
-				elif "http-equiv" in i:
-					meta_http_equiv[i["http-equiv"]] = i
-				else:
-					custom_meta.append(i)
-
-		meta_data = []
-		for http_equiv in meta_http_equiv:
-			meta_data.append("<meta " + (" ".join([(attr+'='+'"'+escape(meta_http_equiv[http_equiv][attr])+'"') for attr in meta_http_equiv[http_equiv]])) + "/>")
-
-		for name in meta_name:
-			meta_data.append("<meta " + (" ".join([(attr+'='+'"'+escape(meta_name[name][attr])+'"') for attr in meta_name[name]])) + "/>")
-
-		for meta in custom_meta:
-			meta_data.append("<meta " + (" ".join([(attr+'='+'"'+escape(meta[attr])+'"') for attr in meta])) + "/>")
-
-		return "".join(meta_data)
-
-	def __getCss(self):
-		if self.__css:
-			return '<style type="text/css">' + ''.join(self.__css) + '</style>'
+	@classmethod
+	def _escapeHtmlChars(cls, val):
+		if isinstance(val, str):
+			return escape(val)
 		else:
-			return ''
+			return val
 
-	def __getJs(self):
-		if self.__js:
-			return '<script type="text/javascript">' + ''.join(self.__js) + '</script>'
+	@classmethod
+	def _formatHtml(cls, **kwargs):
+		if cls.__blnUseFstring:
+			return cls._getFstring(**kwargs)
 		else:
-			return ''
-
-	def _addCss(self, css, inline=False):
-		parent = self._getParentView()
-		if css not in parent.__css_dict:
-			if inline:
-				parent.__css.append(css)
-			else:
-				parent.__css.append(CSS.get(css))
-			parent.__css_dict[css] = True
-
-
-	def _addJs(self, js, inline=False):
-		parent = self._getParentView()
-		if js not in parent.__js_dict:
-			if inline:
-				parent.__js.append(js)
-			else:
-				parent.__js.append(JS.get(js))
-			parent.__js_dict[js] = True
-
-	def _getParentView(self):
-		parent = self
-		while parent.__parent is not None:
-			parent = parent.__parent
-		return parent
-
-	def _render(self):
-		for k in list(self._body):
-			if isinstance(self._body[k], str):
-				# to prevent CSRF attack
-				self._body[k] = escape(self._body[k])
-		return self._getFormatedText()
+			return cls._template.format(**kwargs)

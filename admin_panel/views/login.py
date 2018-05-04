@@ -1,15 +1,16 @@
-from ..library import BASE_HTML
+from ..library import HTML_RENDERER
 
-class login(BASE_HTML):
+class login(HTML_RENDERER):
 
-	def _getFormatedText(self):
+	@classmethod
+	def _getFormatedText(cls, html_collector, container=None):
 
-		# self._addJs("test.js")
+		# cls._addJs('test.js')
+		if container:
+			data = container.data
+		else:
+			data = {}
 
-		template_vars = ["username","username_error","password_error"]
+		data.update({i:'' for i in ['username','username_error','password_error'] if i not in data})
 
-		for v in template_vars:
-			if v not in self._body:
-				self._body[v] = ""
-
-		return self._template.format(**self._body)
+		return cls._template.format(**data)

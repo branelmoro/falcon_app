@@ -2,7 +2,7 @@
 
 from falcon import HTTP_400, HTTP_401, HTTP_403, HTTP_404, HTTP_405, HTTP_406, HTTP_500, HTTPMovedPermanently, HTTPFound, HTTPSeeOther, HTTPTemporaryRedirect, HTTPPermanentRedirect
 from .. import exception as appException
-from ..library import json, BASE_HTML, SESSION, APP_API, APPCACHE
+from ..library import json, SESSION, APP_API, APPCACHE, HTML_RENDERER
 import sys
 import traceback
 
@@ -265,11 +265,11 @@ class baseController(object):
 			message = message.format(**data)
 		return message
 
-	def _render(self, view, body={}, head={}):
-		return BASE_HTML.renderView(view=view, body=body, head=head, partial=False)
+	def _render(self, view, **kwargs):
+		return HTML_RENDERER.render(view=view, **kwargs)
 
-	def _renderPartial(self, view, body={}, head={}):
-		return BASE_HTML.renderView(view=view, body=body, head=head, partial=True)
+	def _renderPartial(self, view, **kwargs):
+		return HTML_RENDERER.render(view=view, partial=True, **kwargs)
 
 	def getAPI(self, container):
 		return APP_API(container)

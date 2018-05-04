@@ -1,9 +1,8 @@
-from ...library import BASE_HTML
+from ...library import HTML_RENDERER
 
-class footer(BASE_HTML):
+class footer(HTML_RENDERER):
 
-	def _getFormatedText(self):
+	@classmethod
+	def _getFormatedText(cls):
 
-		# self._addJs("test.js")
-
-		return self._template.format(**self._body)
+		return cls._formatHtml()

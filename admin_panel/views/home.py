@@ -1,10 +1,21 @@
-from ..library import BASE_HTML
+from ..library import HTML_RENDERER
 
-class home(BASE_HTML):
+class home(HTML_RENDERER):
 
-	def _getFormatedText(self):
+	@classmethod
+	def _getFormatedText(cls, container, html_collector):
 
-		self._body["header"] = BASE_HTML.renderView("common.header", body={}, parent=self)
-		self._body["footer"] = BASE_HTML.renderView("common.footer", body={}, parent=self)
+		data = {}
 
-		return self._template.format(**self._body)
+		# data["header"] = cls._renderView("common.header", container=container, html_collector=html_collector)
+		data["header"] = cls._renderView("common.header")
+		data["footer"] = cls._renderView("common.footer")
+
+		return cls._formatHtml(**data)
+
+	@classmethod
+	def _getFstring(cls):
+		return f'''
+
+
+		'''

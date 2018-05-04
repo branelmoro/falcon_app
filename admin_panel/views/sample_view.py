@@ -1,9 +1,9 @@
-from ..library import BASE_HTML
+from ..library import HTML_RENDERER
 
-class sample_view(BASE_HTML):
+class sample_view(HTML_RENDERER):
 
-	def _getFormatedText(self):
+	def _getFormatedText(cls):
 
-		self._addJs("test.js")
+		cls._addJs("test.js")
 
-		return self._template.format(**self._body)
+		return cls._formatHtml()
