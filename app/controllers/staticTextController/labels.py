@@ -12,11 +12,14 @@ from ...models.staticTextModel import labelsModel
 class labels(baseController):
 
 	def __init__(self):
-		super().__init__(5)
+		# super().__init__(5)
 		# self.__path = "/labels/"
+		self._resources = {
+			self._getResource('LB') : 'LB'
+		}
 
 	def getPath(self):
-		return self._path
+		return [i for i in self._resources]
 
 	def post(self, container):
 		req = container.req

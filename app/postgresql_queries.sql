@@ -39,7 +39,8 @@ INSERT INTO oauth2.resource (code, resource_path, resource_info, is_editable) VA
 ('AS', '/access-scope/', 'manage access-scope', false),
 ('AU', '/admin-user/', 'manage admin-user', false),
 ('CL', '/client/', 'manage clients app', false),
-('ER', '/errors/', 'manage errors', false);
+('ER', '/errors/', 'manage errors', false),
+('LB', '/labels/', 'manage labels', false);
 
 
 ALTER SEQUENCE oauth2.resource_id_seq RESTART WITH 5;

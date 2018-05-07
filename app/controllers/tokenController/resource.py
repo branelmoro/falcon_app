@@ -13,11 +13,16 @@ class resource(baseController):
 
 	def __init__(self):
 		# resource_id = 1
-		super().__init__(1)
+		# super().__init__(1)
 		# self._path = "/resource/"
 
+		self._resources = {
+			self._getResource('RS') : 'RS'
+		}
+
+
 	def getPath(self):
-		return self._path
+		return [i for i in self._resources]
 
 	def post(self, container):
 		req = container.req

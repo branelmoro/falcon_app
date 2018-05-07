@@ -14,11 +14,14 @@ class accessScope(baseController):
 
 	def __init__(self):
 		# resource_id = 1
-		super().__init__(2)
+		# super().__init__(2)
 		# self._path = "/access-scope/"
+		self._resources = {
+			self._getResource('AS') : 'AS'
+		}
 
 	def getPath(self):
-		return self._path
+		return [i for i in self._resources]
 
 	def post(self, container):
 		req = container.req

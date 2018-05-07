@@ -14,9 +14,12 @@ class errors(baseController):
 	def __init__(self):
 		super().__init__(5)
 		# self.__path = "/errors/"
+		self._resources = {
+			self._getResource('ER') : 'ER'
+		}
 
 	def getPath(self):
-		return self._path
+		return [i for i in self._resources]
 
 	def post(self, container):
 		req = container.req

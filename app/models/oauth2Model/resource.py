@@ -55,6 +55,19 @@ class resource(baseModel):
 		result = resultCursor.getOneRecord()
 		return (len(recource_codes) == result[0])
 
+	def getResourceFieldByCode(self, field, code):
+		qry = """
+			SELECT """+field+"""
+			FROM oauth2.resource
+			WHERE code = %s;
+		"""
+		resultCursor = self.pgSlave().query(qry,[code])
+		result = resultCursor.getOneRecord()
+		if result:
+			return result[0]
+		else:
+			return None
+
 	def __getResourceFieldById(self, field, uid):
 		qry = """
 			SELECT """+field+"""

@@ -35,6 +35,15 @@ class baseController(object):
 
 		self.__resource_id = resource_id
 
+	def _getResource(self, code=None):
+		if code is None:
+			raise appException.serverException_500({"resource_code":"Resource Codde not Provided"})
+		oauth2_resource = oauth2ResourceModel()
+		path = oauth2_resource.getResourceFieldByCode('resource_path', code)
+		if path is None:
+			raise appException.serverException_500({"resource_code":"Resource not found in authdb"})
+		return path
+
 	def getAllLangs(self):
 		return ['english', 'hindi', 'marathi', 'gujarati', 'malayalam', 'bengali', 'oriya', 'tamil', 'telugu', 'panjabi', 'urdu', 'chinese_simplified', 'chinese_traditional', 'arabic', 'russian', 'portuguese', 'japanese', 'german', 'korean', 'french', 'turkish', 'italian', 'polish', 'ukrainian', 'persian', 'romanian', 'serbian', 'croatian', 'thai', 'dutch', 'amharic', 'catalan', 'danish', 'greek', 'spanish', 'estonian', 'finnish', 'armenian', 'khmer', 'kannada', 'malay', 'nepali', 'norwegian', 'slovak', 'albanian', 'swedish', 'tagalog']
 
@@ -66,7 +75,8 @@ class baseController(object):
 		scopes = aTokenDb.smembers(req.headers["X-ACCESS-TOKEN"])
 
 		for scope in scopes:
-			if APPCACHE.ifResourceExistsInScopes(scope, req.method, self.__resource_id):
+			if APPCACHE.ifResourceExistsInScopes(scope, req.method, self._resources[req.uri_template]):
+			# if APPCACHE.ifResourceExistsInScopes(scope, req.method, self.__resource_id):
 				is_valid = True
 				break
 

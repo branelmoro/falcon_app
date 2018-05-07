@@ -14,13 +14,17 @@ class client(baseController):
 
 	def __init__(self):
 		# resource_id = 3
-		super().__init__(4)
+		# super().__init__(4)
 		# self._path = "/access-scope/"
+
+		self._resources = {
+			self._getResource('CL') : 'CL'
+		}
 
 		self.__allowed_user_types =  ["guest","registered_user","admin"]
 
 	def getPath(self):
-		return self._path
+		return [i for i in self._resources]
 
 	def post(self, container):
 		req = container.req
