@@ -166,9 +166,9 @@ class HTML_RENDERER():
 
 			except AttributeError:
 				exit("View Logic Class - "+view_class_name+" not found")
-			except:
-				exit("AAwoo... view nahi mila.." + view)
-				# raise appException.serverException_500()
+			# except:
+			# 	exit("AAwoo... view nahi mila.." + view)
+			# 	# raise appException.serverException_500()
 		return cls.__all_views[view]
 
 	@classmethod
