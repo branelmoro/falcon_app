@@ -5,6 +5,9 @@ from html import escape
 from .. import exception as appException
 
 
+APP_FOLDER_NAME = __name__.split('.')[0]
+
+
 BASEHTML = '''<!DOCTYPE html><html>
   <head>
 	{head}
@@ -28,17 +31,17 @@ class BASE_STATIC_LOADER(object):
 				fp.close()
 				cls._static_content[file_name] = d
 			else:
-				exit("file not found - " + file_path)
+				exit('file not found - ' + file_path)
 		return cls._static_content[file_name]
 
 
 class CSS(BASE_STATIC_LOADER):
-	_folder = dirname(dirname(abspath(__file__))) + "/static/css/"
+	_folder = dirname(dirname(abspath(__file__))) + '/static/css/'
 	_static_content = {}
 
 
 class JS(BASE_STATIC_LOADER):
-	_folder = dirname(dirname(abspath(__file__))) + "/static/js/"
+	_folder = dirname(dirname(abspath(__file__))) + '/static/js/'
 	_static_content = {}
 
 
@@ -134,7 +137,6 @@ class HTML_COLLECTOR(object):
 
 
 
-
 class HTML_RENDERER():
 
 	__blnUseFstring = False
@@ -156,25 +158,25 @@ class HTML_RENDERER():
 	def __getViewClass(cls, view):
 		if view not in cls.__all_views:
 			try:
-				view_class_name = view.split(".")[-1]
-				view_module = __import__(name=("admin_panel.views." + view), fromlist=[view_class_name])
+				view_class_name = view.split('.')[-1]
+				view_module = __import__(name=(APP_FOLDER_NAME + '.views.' + view), fromlist=[view_class_name])
 				
 				cls.__all_views[view] = getattr(view_module,view_class_name)
 
-				view_template_file = dirname(view_module.__file__) + "/" + view_class_name + ".html"
+				view_template_file = dirname(view_module.__file__) + '/' + view_class_name + '.html'
 				cls.__all_views[view]._template = cls.__getViewTemplate(view_template_file)
 
 			except AttributeError:
-				exit("View Logic Class - "+view_class_name+" not found")
+				exit('View Logic Class - '+view_class_name+' not found')
 			# except:
-			# 	exit("AAwoo... view nahi mila.." + view)
+			# 	exit('AAwoo... view nahi mila..' + view)
 			# 	# raise appException.serverException_500()
 		return cls.__all_views[view]
 
 	@classmethod
 	def __getViewTemplate(cls, view_template_file):
 		# print(view_template_file)
-		template = ""
+		template = ''
 		if(Path(view_template_file).is_file()):
 			fp = open(view_template_file, 'r')
 			html = fp.read()
