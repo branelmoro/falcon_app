@@ -2,8 +2,23 @@ from ..library import HTML_RENDERER
 
 class sample_view(HTML_RENDERER):
 
-	def _getFormatedText(cls):
+	@classmethod
+	def _getFormatedText(cls, html_collector, **kwargs):
 
-		cls._addJs("test.js")
+		html_collector.setTitle('Sample View')
 
-		return cls._formatHtml()
+		data = {}
+
+		# header = cls._renderView("common.header", container=container, html_collector=html_collector)
+		header = cls._renderView("common.header", html_collector=html_collector, **kwargs)
+		left_section = cls._renderView("common.left_nav", html_collector=html_collector, **kwargs)
+		right_section = cls._renderView("dashboard", html_collector=html_collector, **kwargs)
+
+		return cls._formatHtml(header=header, left_section=left_section, right_section=right_section)
+
+	@classmethod
+	def _getFstring(cls):
+		return f'''
+
+
+		'''
