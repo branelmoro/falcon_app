@@ -46,9 +46,9 @@ INSERT INTO oauth2.resource (code, resource_path, resource_info, is_editable) VA
 ('ASU', '/access-scope/{uid:int}', 'edit/get/delete access-scope', false),
 
 ('AU', '/admin-user/', 'create admin-user', false),
-('AU', '/admin-user/_find_', 'find admin-user', false),
-('AU', '/admin-user/_find_/{page:int}', 'find admin-user page', false),
-('AU', '/admin-user/', 'edit/get/delete admin-user', false),
+('AUS', '/admin-user/_find_', 'find admin-user', false),
+('AUP', '/admin-user/_find_/{page:int}', 'find admin-user page', false),
+('AUU', '/admin-user/', 'edit/get/delete admin-user', false),
 
 ('CL', '/client/', 'create clients app', false),
 ('CLS', '/client/_find_', 'find clients app', false),
@@ -85,10 +85,10 @@ CREATE INDEX oauth2_scope_is_editable ON oauth2.scope (is_editable);
 INSERT INTO oauth2.scope (scope_name, scope_info, allowed_get, allowed_post, allowed_put, allowed_delete, is_editable) VALUES
 ('sudo', 'superuser scope', '{"RS","AS","AU"}', '{"RS","AS","AU"}', '{"RS","AS","AU"}', '{"RS","AS","AU"}', false),
 ('test1', 'test scope',
-'{"RS","RSS","RSP","RSU","AS","ASS","ASP","ASU","AU","AU","AU","AU","CL","CLS","CLP","CLU","ER","LB","SSK","SSKS","SSKP","SSKU"}',
-'{"RS","RSS","RSP","RSU","AS","ASS","ASP","ASU","AU","AU","AU","AU","CL","CLS","CLP","CLU","ER","LB","SSK","SSKS","SSKP","SSKU"}',
-'{"RS","RSS","RSP","RSU","AS","ASS","ASP","ASU","AU","AU","AU","AU","CL","CLS","CLP","CLU","ER","LB","SSK","SSKS","SSKP","SSKU"}',
-'{"RS","RSS","RSP","RSU","AS","ASS","ASP","ASU","AU","AU","AU","AU","CL","CLS","CLP","CLU","ER","LB","SSK","SSKS","SSKP","SSKU"}',
+'{"RSS","RSP","ASS","ASP","ASU","AUS","AUP","CLS","CLP","ER","LB","SSKS","SSKP"}',
+'{"RS","RSS","RSP","AS","ASS","ASP","AU","AUS","AUP","CL","CLS","CLP","ER","LB","SSK","SSKS","SSKP"}',
+'{"RSU","ASU","AUU","CLU","ER","LB","SSKU"}',
+'{"RSU","ASU","AUU","CLU","ER","LB","SSKU"}',
 false)
 ;
 ALTER SEQUENCE oauth2.scope_id_seq RESTART WITH 2;
