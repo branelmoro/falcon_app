@@ -12,7 +12,7 @@ from ...models.staticTextModel import errorsModel
 class errors(baseController):
 
 	def __init__(self):
-		super().__init__(5)
+		# super().__init__(5)
 		# self.__path = "/errors/"
 		self._resources = {
 			self._getResource('ER') : 'ER'

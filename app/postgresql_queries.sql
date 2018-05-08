@@ -35,18 +35,40 @@ CREATE TABLE oauth2.resource (
  last_edit_time TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT now()
 );
 INSERT INTO oauth2.resource (code, resource_path, resource_info, is_editable) VALUES
-('RS', '/resource/', 'manage resource', false),
-('AS', '/access-scope/', 'manage access-scope', false),
-('AU', '/admin-user/', 'manage admin-user', false),
-('CL', '/client/', 'manage clients app', false),
+('RS', '/resource/', 'create resource', false),
+('RSS', '/resource/', 'find resource', false),
+('RSP', '/resource/', 'find resource page', false),
+('RSU', '/resource/', 'edit/get/delete resource', false),
+
+('AS', '/access-scope/', 'create access-scope', false),
+('ASS', '/access-scope/_find_', 'find access-scope', false),
+('ASP', '/access-scope/_find_/{page:int}', 'find access-scope page', false),
+('ASU', '/access-scope/{uid:int}', 'edit/get/delete access-scope', false),
+
+('AU', '/admin-user/', 'create admin-user', false),
+('AU', '/admin-user/_find_', 'find admin-user', false),
+('AU', '/admin-user/_find_/{page:int}', 'find admin-user page', false),
+('AU', '/admin-user/', 'edit/get/delete admin-user', false),
+
+('CL', '/client/', 'create clients app', false),
+('CLS', '/client/_find_', 'find clients app', false),
+('CLP', '/client/_find_/{page:int}', 'fine clients app page', false),
+('CLU', '/client/{uid:int}', 'edit/get/delete clients app', false),
+
 ('ER', '/errors/', 'manage errors', false),
-('LB', '/labels/', 'manage labels', false);
+('LB', '/labels/', 'manage labels', false),
 
-
+('SSK', '/search-skill/', 'create search word', false),
+('SSKS', '/search-skill/_find_', 'find search word', false),
+('SSKP', '/search-skill/_find_/{page:int}', 'find search word page', false),
+('SSKU', '/search-skill/{uid:int}', 'edit/get/delete search word', false)
+;
 ALTER SEQUENCE oauth2.resource_id_seq RESTART WITH 5;
+
+
 CREATE TABLE oauth2.scope (
  id serial PRIMARY KEY,
- scope_name varchar(80) NOT NULL UNIQUE,
+ scope_name varchar(50) NOT NULL UNIQUE,
  scope_info varchar(100),
  allowed_get text[],
  allowed_post text[],
@@ -60,9 +82,18 @@ CREATE INDEX oauth2_scope_allowed_post ON oauth2.scope (allowed_post);
 CREATE INDEX oauth2_scope_allowed_put ON oauth2.scope (allowed_put);
 CREATE INDEX oauth2_scope_allowed_delete ON oauth2.scope (allowed_delete);
 CREATE INDEX oauth2_scope_is_editable ON oauth2.scope (is_editable);
-INSERT INTO oauth2.scope (id, scope_name, scope_info, allowed_get, allowed_post, allowed_put, allowed_delete, is_editable) VALUES
-(1, 'superuser', '123456', '{"RS","AS","AU"}', '{"RS","AS","AU"}', '{"RS","AS","AU"}', '{"RS","AS","AU"}', false);
+INSERT INTO oauth2.scope (scope_name, scope_info, allowed_get, allowed_post, allowed_put, allowed_delete, is_editable) VALUES
+('sudo', 'superuser scope', '{"RS","AS","AU"}', '{"RS","AS","AU"}', '{"RS","AS","AU"}', '{"RS","AS","AU"}', false),
+('test1', 'test scope',
+'{"RS","RSS","RSP","RSU","AS","ASS","ASP","ASU","AU","AU","AU","AU","CL","CLS","CLP","CLU","ER","LB","SSK","SSKS","SSKP","SSKU"}',
+'{"RS","RSS","RSP","RSU","AS","ASS","ASP","ASU","AU","AU","AU","AU","CL","CLS","CLP","CLU","ER","LB","SSK","SSKS","SSKP","SSKU"}',
+'{"RS","RSS","RSP","RSU","AS","ASS","ASP","ASU","AU","AU","AU","AU","CL","CLS","CLP","CLU","ER","LB","SSK","SSKS","SSKP","SSKU"}',
+'{"RS","RSS","RSP","RSU","AS","ASS","ASP","ASU","AU","AU","AU","AU","CL","CLS","CLP","CLU","ER","LB","SSK","SSKS","SSKP","SSKU"}',
+false)
+;
 ALTER SEQUENCE oauth2.scope_id_seq RESTART WITH 2;
+
+
 CREATE TABLE oauth2.admin_user (
  id serial PRIMARY KEY,
  username varchar(80) NOT NULL UNIQUE,
@@ -74,8 +105,12 @@ CREATE TABLE oauth2.admin_user (
 CREATE INDEX oauth2_admin_user_password ON oauth2.admin_user (password);
 CREATE INDEX oauth2_admin_scope ON oauth2.admin_user (scope);
 CREATE INDEX oauth2_admin_user_is_editable ON oauth2.admin_user (is_editable);
-INSERT INTO oauth2.admin_user (id, username, password, scope, is_editable) VALUES(1, 'branelm', '123456', '{1}', false);
+INSERT INTO oauth2.admin_user (id, username, password, scope, is_editable) VALUES
+(1, 'branelm', '123456', '{1}', false)
+;
 ALTER SEQUENCE oauth2.admin_user_id_seq RESTART WITH 2;
+
+
 CREATE TABLE oauth2.client (
  id serial PRIMARY KEY,
  app_id varchar(80) NOT NULL UNIQUE,
@@ -89,7 +124,10 @@ CREATE INDEX oauth2_client_password ON oauth2.client (app_secret);
 CREATE INDEX oauth2_client_scope ON oauth2.client (scope);
 CREATE INDEX oauth2_client_usertype ON oauth2.client (user_type);
 CREATE INDEX oauth2_client_is_editable ON oauth2.client (is_editable);
-INSERT INTO oauth2.client (id, app_id, app_secret, scope, user_type, is_editable) VALUES (1, 'admin_app', 'shdfvbkflakjfjhslfhalisfjhjsghflajzshdnva', '{1,2,3,4,5}','admin', false), (2, 'web_app', 'yturerfa43t565u43qgf35w4e4q3th54sf', '{1,2,3,4,5}','admin', false);
+INSERT INTO oauth2.client (id, app_id, app_secret, scope, user_type, is_editable) VALUES
+(1, 'admin_app', 'shdfvbkflakjfjhslfhalisfjhjsghflajzshdnva', '{1,2,3,4,5}','admin', false),
+(2, 'web_app', 'yturerfa43t565u43qgf35w4e4q3th54sf', '{1,2,3,4,5}','admin', false)
+;
 ALTER SEQUENCE oauth2.client_id_seq RESTART WITH 3;
 
 

@@ -1,7 +1,7 @@
 # always extend your controller from base_controller
 # always give controller class name same as filename
 from falcon import HTTP_200
-from ..base_controller import baseController
+from ..base_controller import CRUDS
 from ..base_controller import appException
 
 from ...library import json
@@ -9,34 +9,42 @@ from ...library import json
 # import all required models here
 from ...models.oauth2Model import oauth2ResourceModel
 
-class resource(baseController):
+class resource(CRUDS):
 
 	def __init__(self):
-		# resource_id = 1
-		# super().__init__(1)
-		# self._path = "/resource/"
+		self._search_template = self._getResource('RSS')
+		self._search_page_template = self._getResource('RSP')
+		self._create_template = self._getResource('RS')
+		self._crud_template = self._getResource('RSU')
 
 		self._resources = {
-			self._getResource('RS') : 'RS'
+			self._search_template : 'RSS',
+			self._search_page_template : 'RSP',
+			self._create_template : 'RS',
+			self._crud_template : 'RSU'
 		}
 
-
 	def getPath(self):
-		return [i for i in self._resources]
+		return [
+			self._create_template,
+			self._search_template,
+			self._search_page_template,
+			self._crud_template
+		]
 
-	def post(self, container):
+	def _post(self, container):
 		req = container.req
 		resp = container.resp
-		"""Handles POST requests"""
+		'''Handles POST requests'''
 		self.__validateHttpPost(req)
 
 		# this is valid request
 		appResponce = {}
 
-		data = self._getFilteredRequestData(req, ["code", "resource_path", "resource_info"])
+		data = self._getFilteredRequestData(req, ['code', 'resource_path', 'resource_info'])
 
 		oauth2_resource = oauth2ResourceModel()
-		appResponce["result"] = oauth2_resource.createNewResource(data)
+		appResponce['result'] = oauth2_resource.createNewResource(data)
 		resp.status = HTTP_200  # This is the default status
 		resp.body = json.encode(appResponce)
 
@@ -53,85 +61,80 @@ class resource(baseController):
 		# database level validation goes here
 		oauth2_resource = oauth2ResourceModel()
 
-		if oauth2_resource.ifResourcePathAlreadyExists(req.body["resource_path"]):
-			appResponce["resource_path"] = self._getError(1)
-			# appResponce["resource_path"] = "Resource path already exists in database!"
+		if oauth2_resource.ifResourcePathAlreadyExists(req.body['resource_path']):
+			appResponce['resource_path'] = self._getError(1)
+			# appResponce['resource_path'] = 'Resource path already exists in database!'
 
-		if oauth2_resource.ifResourceCodeAlreadyExists(req.body["code"]):
-			appResponce["code"] = "Resource code already exists in database!"
+		if oauth2_resource.ifResourceCodeAlreadyExists(req.body['code']):
+			appResponce['code'] = 'Resource code already exists in database!'
 
 		if appResponce:
 			raise appException.clientException_400(appResponce)
 
 	def __commonValidation(self, req):
 
-		is_put = (req.method == "PUT")
+		is_put = (req.method == 'PUT')
 
 		appResponce = {}
 
-		if is_put and ("resource_id" not in req.body or (not isinstance(req.body["resource_id"], int))):
-			# appResponce["resource_id"] = "Please provide a valid resource id"
-			appResponce["resource_id"] = self._getError(2)
-
-		if is_put and ("code" not in req.body and "resource_path" not in req.body and "resource_info" not in req.body):
-			# appResponce["resource_id"] = "Please provide some information to update"
-			appResponce["resource_id"] = self._getError(3)
+		if is_put and ('code' not in req.body and 'resource_path' not in req.body and 'resource_info' not in req.body):
+			# appResponce['resource_id'] = 'Please provide some information to update'
+			appResponce['resource_id'] = self._getError(3)
 
 		if(
 			is_put
-			and "resource_path" in req.body
-			and (req.body["resource_path"] == "" or (not isinstance(req.body["resource_path"], str)) or req.body["resource_path"].find("/") != 0)
+			and 'resource_path' in req.body
+			and (req.body['resource_path'] == '' or (not isinstance(req.body['resource_path'], str)) or req.body['resource_path'].find('/') != 0)
 		) or (
 			not is_put
-			and ("resource_path" not in req.body or req.body["resource_path"] == "" or (not isinstance(req.body["resource_path"], str)) or req.body["resource_path"].find("/") != 0)
+			and ('resource_path' not in req.body or req.body['resource_path'] == '' or (not isinstance(req.body['resource_path'], str)) or req.body['resource_path'].find('/') != 0)
 		):
-			# appResponce["resource_path"] = "Please provide valid resource path"
-			appResponce["resource_path"] = self._getError(4)
+			# appResponce['resource_path'] = 'Please provide valid resource path'
+			appResponce['resource_path'] = self._getError(4)
 
 		if(
 			is_put
-			and "resource_info" in req.body
-			and req.body["resource_info"] == ""
+			and 'resource_info' in req.body
+			and req.body['resource_info'] == ''
 		) or (
 			not is_put
-			and ("resource_info" not in req.body or req.body["resource_info"] == "")
+			and ('resource_info' not in req.body or req.body['resource_info'] == '')
 		):
-			# appResponce["resource_info"] = "Please provide some resource information"
-			appResponce["resource_info"] = self._getError(4)
+			# appResponce['resource_info'] = 'Please provide some resource information'
+			appResponce['resource_info'] = self._getError(4)
 
 		if(
 			is_put
-			and "code" in req.body
-			and req.body["code"] == ""
+			and 'code' in req.body
+			and req.body['code'] == ''
 		) or (
 			not is_put
-			and ("code" not in req.body or req.body["code"] == "")
+			and ('code' not in req.body or req.body['code'] == '')
 		):
-			appResponce["code"] = "Please provide resource code"
+			appResponce['code'] = 'Please provide resource code'
 
 		if appResponce:
 			raise appException.clientException_400(appResponce)
 
-	def put(self, container):
+	def _put(self, container, uid):
 		req = container.req
 		resp = container.resp
-		"""Handles POST requests"""
-		self.__validateHttpPut(req)
+		'''Handles POST requests'''
+		self.__validateHttpPut(req, uid)
 
 		# this is valid request
 		appResponce = {}
 
-		data = self._getFilteredRequestData(req, ["code", "resource_path", "resource_info", "resource_id"])
+		data = self._getFilteredRequestData(req, ['code', 'resource_path', 'resource_info'])
+		data['resource_id'] = uid
 
 		oauth2_resource = oauth2ResourceModel()
-		appResponce["result"] = oauth2_resource.updateResource(data)
+		appResponce['result'] = oauth2_resource.updateResource(data)
 		resp.status = HTTP_200  # This is the default status
 		resp.body = json.encode(appResponce)
 
 	# function to handle all validation
-	def __validateHttpPut(self, req):
-		# token validation
-		self.validateHTTPRequest(req)
+	def __validateHttpPut(self, req, uid):
 
 		self.__commonValidation(req)
 
@@ -141,60 +144,47 @@ class resource(baseController):
 		# database level validation goes here
 		oauth2_resource = oauth2ResourceModel()
 
-		if not oauth2_resource.ifResourceIdExists(req.body["resource_id"]):
-			# appResponce["resource_id"] = "Please provide a valid resource id"
-			appResponce["resource_id"] = self._getError(7)
-		elif not oauth2_resource.ifResourceEditable(req.body["resource_id"]):
-			# appResponce["resource_id"] = "This resource is not editable"
-			appResponce["resource_id"] = self._getError(6)
+		if not oauth2_resource.ifResourceIdExists(uid):
+			self.raise404()
+		elif not oauth2_resource.ifResourceEditable(uid):
+			# appResponce['resource_id'] = 'This resource is not editable'
+			appResponce['resource_id'] = self._getError(6)
 		else:
-			if "resource_path" in req.body and oauth2_resource.ifResourcePathAlreadyExists(req.body["resource_path"], req.body["resource_id"]):
-				# appResponce["resource_path"] = "Resource path already exists in another record"
-				appResponce["resource_path"] = self._getError(1)
-			if "code" in req.body and oauth2_resource.ifResourceCodeAlreadyExists(req.body["code"], req.body["resource_id"]):
-				appResponce["code"] = "Resource code already exists in another record"
+			if 'resource_path' in req.body and oauth2_resource.ifResourcePathAlreadyExists(req.body['resource_path'], uid):
+				# appResponce['resource_path'] = 'Resource path already exists in another record'
+				appResponce['resource_path'] = self._getError(1)
+			if 'code' in req.body and oauth2_resource.ifResourceCodeAlreadyExists(req.body['code'], uid):
+				appResponce['code'] = 'Resource code already exists in another record'
 
 		if appResponce:
 			raise appException.clientException_400(appResponce)
 
-	def delete(self, container):
+	def _delete(self, container, uid):
 		req = container.req
 		resp = container.resp
-		"""Handles POST requests"""
-		self.__validateHttpDelete(req)
+		'''Handles POST requests'''
+		self.__validateHttpDelete(req, uid)
 
 		# this is valid request
 		appResponce = {}
 
-		data = self._getFilteredRequestData(req, ["resource_id"])
-
 		oauth2_resource = oauth2ResourceModel()
-		appResponce["result"] = oauth2_resource.deleteResource(data["resource_id"])
+		appResponce['result'] = oauth2_resource.deleteResource(uid)
 		resp.status = HTTP_200  # This is the default status
 		resp.body = json.encode(appResponce)
 
-	def __validateHttpDelete(self, req):
-		# token validation
-		self.validateHTTPRequest(req)
+	def __validateHttpDelete(self, req, uid):
 
 		appResponce = {}
+		
+		# database level validation goes here
+		oauth2_resource = oauth2ResourceModel()
 
-		if("resource_id" not in req.body or (not isinstance(req.body["resource_id"], int))):
-			# appResponce["resource_id"] = "Please provide a valid resource id"
-			appResponce["resource_id"] = self._getError(2)
+		if not oauth2_resource.ifResourceIdExists(uid):
+			self.raise404()
+		elif not oauth2_resource.ifResourceEditable(uid):
+			# appResponce['resource_id'] = 'Resource is not editable'
+			appResponce['resource_id'] = self._getError(6)
 
 		if appResponce:
 			raise appException.clientException_400(appResponce)
-		else:
-			# database level validation goes here
-			oauth2_resource = oauth2ResourceModel()
-
-			if not oauth2_resource.ifResourceIdExists(req.body["resource_id"]):
-				# appResponce["resource_id"] = "Please provide a valid resource id"
-				appResponce["resource_id"] = self._getError(7)
-			elif not oauth2_resource.ifResourceEditable(req.body["resource_id"]):
-				# appResponce["resource_id"] = "Resource is not editable"
-				appResponce["resource_id"] = self._getError(6)
-
-			if appResponce:
-				raise appException.clientException_400(appResponce)
