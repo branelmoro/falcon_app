@@ -37,7 +37,7 @@ class baseController(object):
 
 	def _getResource(self, code=None):
 		if code is None:
-			raise appException.serverException_500({"resource_code":"Resource Codde not Provided"})
+			raise appException.serverException_500({"resource_code":"Resource Code not Provided"})
 		oauth2_resource = oauth2ResourceModel()
 		path = oauth2_resource.getResourceFieldByCode('resource_path', code)
 		if path is None:

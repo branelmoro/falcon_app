@@ -1,3 +1,4 @@
+import sys
 from os.path import dirname, abspath
 from pathlib import Path
 from html import escape
@@ -143,6 +144,9 @@ class HTML_RENDERER():
 
 	__all_views = {}
 
+	_template = ''
+
+
 	@classmethod
 	def render(cls, view, partial=False, **kwargs):
 		html_collector = HTML_COLLECTOR()
@@ -193,8 +197,23 @@ class HTML_RENDERER():
 			return val
 
 	@classmethod
+	def setFormatHtml(cls, blnFstring = False):
+		if blnFstring:
+			cls._formatHtml = cls._getFstring
+		else:
+			cls._formatHtml = cls._template.format
+
+	@classmethod
 	def _formatHtml(cls, **kwargs):
 		if cls.__blnUseFstring:
 			return cls._getFstring(**kwargs)
 		else:
 			return cls._template.format(**kwargs)
+
+	@classmethod
+	def _getFstring(cls, **kwargs):
+		pass
+
+
+blnFstring = (sys.version_info.major > 3 or (sys.version_info.major == 3 and sys.version_info.minor >= 6))
+# HTML_RENDERER.setFormatHtml(blnFstring)

@@ -36,9 +36,9 @@ CREATE TABLE oauth2.resource (
 );
 INSERT INTO oauth2.resource (code, resource_path, resource_info, is_editable) VALUES
 ('RS', '/resource/', 'create resource', false),
-('RSS', '/resource/', 'find resource', false),
-('RSP', '/resource/', 'find resource page', false),
-('RSU', '/resource/', 'edit/get/delete resource', false),
+('RSS', '/resource/_find_', 'find resource', false),
+('RSP', '/resource/_find_/{page:int}', 'find resource page', false),
+('RSU', '/resource/{uid:int}', 'edit/get/delete resource', false),
 
 ('AS', '/access-scope/', 'create access-scope', false),
 ('ASS', '/access-scope/_find_', 'find access-scope', false),
@@ -48,7 +48,7 @@ INSERT INTO oauth2.resource (code, resource_path, resource_info, is_editable) VA
 ('AU', '/admin-user/', 'create admin-user', false),
 ('AUS', '/admin-user/_find_', 'find admin-user', false),
 ('AUP', '/admin-user/_find_/{page:int}', 'find admin-user page', false),
-('AUU', '/admin-user/', 'edit/get/delete admin-user', false),
+('AUU', '/admin-user/{page:int}', 'edit/get/delete admin-user', false),
 
 ('CL', '/client/', 'create clients app', false),
 ('CLS', '/client/_find_', 'find clients app', false),
@@ -186,7 +186,8 @@ CREATE TABLE static_text.errors (
  last_edit_time TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT now()
 );
 
-INSERT INTO static_text.errors (id, info, english, is_editable) VALUES (1, 'resource api', 'Resource path already exists in another record in database!', false),
+INSERT INTO static_text.errors (id, info, english, is_editable) VALUES
+(1, 'resource api', 'Resource path already exists in another record in database!', false),
 (2, 'resource api', 'Please provide a valid resource id!', false),
 (3, 'resource api', 'No resorce information provided for updation.. Please provide some information!', false),
 (4, 'resource api', 'Please provide a valid resource path!', false),
@@ -241,6 +242,8 @@ INSERT INTO static_text.errors (id, info, english, is_editable) VALUES (1, 'reso
 (53, 'token api', 'Please provide access token or refresh token!', false)
 ;
 ALTER SEQUENCE static_text.errors_id_seq RESTART WITH 54;
+
+
 CREATE TABLE static_text.labels (
  id serial PRIMARY KEY,
  info text NOT NULL,
