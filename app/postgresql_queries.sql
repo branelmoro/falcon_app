@@ -63,12 +63,11 @@ INSERT INTO oauth2.resource (code, resource_path, resource_info, is_editable) VA
 ('SSKP', '/search-skill/_find_/{page:int}', 'find search word page', false),
 ('SSKU', '/search-skill/{uid:int}', 'edit/get/delete search word', false)
 ;
-ALTER SEQUENCE oauth2.resource_id_seq RESTART WITH 5;
 
 
 CREATE TABLE oauth2.scope (
  id serial PRIMARY KEY,
- scope_name varchar(50) NOT NULL UNIQUE,
+ code varchar(50) NOT NULL UNIQUE,
  scope_info varchar(100),
  allowed_get text[],
  allowed_post text[],
@@ -82,7 +81,7 @@ CREATE INDEX oauth2_scope_allowed_post ON oauth2.scope (allowed_post);
 CREATE INDEX oauth2_scope_allowed_put ON oauth2.scope (allowed_put);
 CREATE INDEX oauth2_scope_allowed_delete ON oauth2.scope (allowed_delete);
 CREATE INDEX oauth2_scope_is_editable ON oauth2.scope (is_editable);
-INSERT INTO oauth2.scope (scope_name, scope_info, allowed_get, allowed_post, allowed_put, allowed_delete, is_editable) VALUES
+INSERT INTO oauth2.scope (code, scope_info, allowed_get, allowed_post, allowed_put, allowed_delete, is_editable) VALUES
 ('sudo', 'superuser scope', '{"RS","AS","AU"}', '{"RS","AS","AU"}', '{"RS","AS","AU"}', '{"RS","AS","AU"}', false),
 ('test1', 'test scope',
 '{"RSS","RSP","ASS","ASP","ASU","AUS","AUP","CLS","CLP","ER","LB","SSKS","SSKP"}',
@@ -91,31 +90,29 @@ INSERT INTO oauth2.scope (scope_name, scope_info, allowed_get, allowed_post, all
 '{"RSU","ASU","AUU","CLU","ER","LB","SSKU"}',
 false)
 ;
-ALTER SEQUENCE oauth2.scope_id_seq RESTART WITH 2;
 
 
 CREATE TABLE oauth2.admin_user (
  id serial PRIMARY KEY,
  username varchar(80) NOT NULL UNIQUE,
  password varchar(80) NOT NULL,
- scope smallint[],
+ scope text[],
  is_editable boolean DEFAULT true,
  last_edit_time TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT now()
 );
 CREATE INDEX oauth2_admin_user_password ON oauth2.admin_user (password);
 CREATE INDEX oauth2_admin_scope ON oauth2.admin_user (scope);
 CREATE INDEX oauth2_admin_user_is_editable ON oauth2.admin_user (is_editable);
-INSERT INTO oauth2.admin_user (id, username, password, scope, is_editable) VALUES
-(1, 'branelm', '123456', '{1}', false)
+INSERT INTO oauth2.admin_user (username, password, scope, is_editable) VALUES
+('branelm', '123456', '{"sudo","test1"}', false)
 ;
-ALTER SEQUENCE oauth2.admin_user_id_seq RESTART WITH 2;
 
 
 CREATE TABLE oauth2.client (
  id serial PRIMARY KEY,
  app_id varchar(80) NOT NULL UNIQUE,
  app_secret varchar(80) NOT NULL,
- scope smallint[],
+ scope text[],
  user_type usertype,
  is_editable boolean DEFAULT true,
  last_edit_time TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT now()
@@ -124,11 +121,10 @@ CREATE INDEX oauth2_client_password ON oauth2.client (app_secret);
 CREATE INDEX oauth2_client_scope ON oauth2.client (scope);
 CREATE INDEX oauth2_client_usertype ON oauth2.client (user_type);
 CREATE INDEX oauth2_client_is_editable ON oauth2.client (is_editable);
-INSERT INTO oauth2.client (id, app_id, app_secret, scope, user_type, is_editable) VALUES
-(1, 'admin_app', 'shdfvbkflakjfjhslfhalisfjhjsghflajzshdnva', '{1,2,3,4,5}','admin', false),
-(2, 'web_app', 'yturerfa43t565u43qgf35w4e4q3th54sf', '{1,2,3,4,5}','admin', false)
+INSERT INTO oauth2.client (app_id, app_secret, scope, user_type, is_editable) VALUES
+('admin_app', 'shdfvbkflakjfjhslfhalisfjhjsghflajzshdnva', '{1,2,3,4,5}','admin', false),
+('web_app', 'yturerfa43t565u43qgf35w4e4q3th54sf', '{1,2,3,4,5}','admin', false)
 ;
-ALTER SEQUENCE oauth2.client_id_seq RESTART WITH 3;
 
 
 CREATE SCHEMA static_text;

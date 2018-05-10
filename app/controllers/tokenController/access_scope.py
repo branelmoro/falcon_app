@@ -49,7 +49,7 @@ class accessScope(CRUDS):
 
 		scope_model = oauth2ScopeModel()
 
-		scope_detail = self._getFilteredRequestData(req, ['scope_name', 'scope_info', 'allowed_get', 'allowed_post', 'allowed_put', 'allowed_delete'])
+		scope_detail = self._getFilteredRequestData(req, ['code', 'scope_info', 'allowed_get', 'allowed_post', 'allowed_put', 'allowed_delete'])
 
 		appResponce['result'] = scope_model.createScope(scope_detail)
 
@@ -79,8 +79,8 @@ class accessScope(CRUDS):
 		elif scope_id and not scope_model.ifScopeEditable(scope_id):
 			appResponce['scope_id'] = self._getError(14)
 		else:
-			if 'scope_name' in req.body and scope_model.ifScopeNameExists(req.body['scope_name'], scope_id):
-				appResponce['scope_name'] = self._getError(15)
+			if 'code' in req.body and scope_model.ifScopeCodeExists(req.body['code'], scope_id):
+				appResponce['code'] = self._getError(15)
 
 			resource_model = oauth2ResourceModel()
 			if 'allowed_get' in req.body and len(req.body['allowed_get']) > 0 and not resource_model.ifValidResourcesExists(req.body['allowed_get']):
@@ -132,20 +132,20 @@ class accessScope(CRUDS):
 		appResponce = {}
 
 		if is_put:
-			editableFields = ['scope_name', 'scope_info', 'allowed_get', 'allowed_post', 'allowed_put', 'allowed_delete']
+			editableFields = ['code', 'scope_info', 'allowed_get', 'allowed_post', 'allowed_put', 'allowed_delete']
 			fieldReceived = [i for i in editableFields if i in req.body]
 			if not fieldReceived:
 				appResponce['scope_id'] = self._getError(9)
 
 		if(
 			is_put
-			and 'scope_name' in req.body
-			and (req.body['scope_name'] == '' or (not isinstance(req.body['scope_name'], str)))
+			and 'code' in req.body
+			and (req.body['code'] == '' or (not isinstance(req.body['code'], str)))
 		) or (
 			not is_put
-			and ('scope_name' not in req.body or req.body['scope_name'] == '' or (not isinstance(req.body['scope_name'], str)))
+			and ('code' not in req.body or req.body['code'] == '' or (not isinstance(req.body['code'], str)))
 		):
-			appResponce['scope_name'] = self._getError(10)
+			appResponce['code'] = self._getError(10)
 
 
 		if(
@@ -188,7 +188,7 @@ class accessScope(CRUDS):
 		appResponce = {}
 
 
-		scope_detail = self._getFilteredRequestData(req, ['scope_name', 'scope_info', 'allowed_get', 'allowed_post', 'allowed_put', 'allowed_delete'])
+		scope_detail = self._getFilteredRequestData(req, ['code', 'scope_info', 'allowed_get', 'allowed_post', 'allowed_put', 'allowed_delete'])
 		scope_detail['id'] = uid
 
 		scope_model = oauth2ScopeModel()
@@ -233,7 +233,7 @@ class accessScope(CRUDS):
 			self.raise404()
 			# appResponce['scope_id'] = self._getError(13)
 		elif not scope_model.ifScopeEditable(uid):
-			appResponce['scope_name'] = self._getError(14)
+			appResponce['code'] = self._getError(14)
 
 		if appResponce:
 			raise appException.clientException_400(appResponce)

@@ -19,7 +19,7 @@ class scope(baseModel):
 
 	def getAllScopeDetails(self):
 		qry = """
-			SELECT scope_name,
+			SELECT code,
 				id,
 				allowed_get,
 				allowed_post,
@@ -34,7 +34,7 @@ class scope(baseModel):
 	def __getScopeDetails(self, ids):
 		values = "%s,"*(len(ids)-1) + "%s"
 		qry = """
-			SELECT scope_name,
+			SELECT code,
 				id,
 				allowed_get,
 				allowed_post,
@@ -97,8 +97,8 @@ class scope(baseModel):
 		# self.__APPCACHE.deleteScope(scope_id)
 
 
-	def ifScopeNameExists(self, scope_name, not_id=None):
-		param = [scope_name]
+	def ifScopeCodeExists(self, code, not_id=None):
+		param = [code]
 		strNotId = ""
 		if not_id is not None:
 			param.append(not_id)
@@ -108,7 +108,7 @@ class scope(baseModel):
 			SELECT exists(
 				SELECT id
 				FROM oauth2.scope
-				WHERE scope_name = %s """+strNotId+"""
+				WHERE code = %s """+strNotId+"""
 			);
 		"""
 		resultCursor = self.pgSlave().query(qry,param)
@@ -131,7 +131,7 @@ class scope(baseModel):
 		dbObj = self.pgMaster()
 		qry = """
 			INSERT INTO oauth2.scope (
-				scope_name,
+				code,
 				scope_info,
 				allowed_get,
 				allowed_post,
@@ -140,7 +140,7 @@ class scope(baseModel):
 				last_edit_time
 			) VALUES (%s, %s, %s::int[], %s::int[], %s::int[], %s::int[], %s);
 		"""
-		resultCursor = dbObj.query(qry, [scope_detail["scope_name"], scope_detail["scope_info"], scope_detail["allowed_get"], scope_detail["allowed_post"], scope_detail["allowed_put"], scope_detail["allowed_delete"], datetime.now()])
+		resultCursor = dbObj.query(qry, [scope_detail["code"], scope_detail["scope_info"], scope_detail["allowed_get"], scope_detail["allowed_post"], scope_detail["allowed_put"], scope_detail["allowed_delete"], datetime.now()])
 		# end transaction
 
 		insertId = resultCursor.getLastInsertId();
@@ -155,7 +155,7 @@ class scope(baseModel):
 		params = []
 		listSet = []
 
-		fieldList = ["scope_name", "scope_info"]
+		fieldList = ["code", "scope_info"]
 		for i in fieldList:
 			if i in scope_detail:
 				listSet.append(i + " = %s")
@@ -196,16 +196,16 @@ class scope(baseModel):
 		# end transaction
 		return resultCursor.getStatusMessage()
 
-	def ifValidScopesExists(self, ids):
-		values = "%s,"*(len(ids)-1) + "%s"
+	def ifValidScopeCodeExists(self, codes):
+		values = "%s,"*(len(codes)-1) + "%s"
 		qry = """
 			SELECT count(id) as cnt
 			FROM oauth2.scope
-			WHERE id in ("""+values+""");
+			WHERE code in ("""+values+""");
 		"""
-		resultCursor = self.pgSlave().query(qry,ids)
+		resultCursor = self.pgSlave().query(qry,codes)
 		result = resultCursor.getOneRecord()
-		return (len(ids) == result[0])
+		return (len(codes) == result[0])
 
 	def ifScopeEditable(self, scope_id):
 		qry = """

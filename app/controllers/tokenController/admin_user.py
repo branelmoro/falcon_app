@@ -79,7 +79,7 @@ class adminUser(CRUDS):
 				appResponce['username'] = self._getError(26)
 
 			scope_model = oauth2ScopeModel()
-			if 'scope' in req.body and len(req.body['scope']) > 0 and not scope_model.ifValidScopesExists(req.body['scope']):
+			if 'scope' in req.body and len(req.body['scope']) > 0 and not scope_model.ifValidScopeCodeExists(req.body['scope']):
 				appResponce['scope'] = self._getError(27)
 
 		if appResponce:
@@ -130,7 +130,7 @@ class adminUser(CRUDS):
 		else:
 			if 'scope' in req.body:
 				if req.body['scope']:
-					nonInt = [i for i in req.body['scope'] if not isinstance(i, int)]
+					nonInt = [i for i in req.body['scope'] if not isinstance(i, str)]
 					if nonInt:
 						appResponce['scope'] = self._getError(22)
 				else:
