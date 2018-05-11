@@ -60,7 +60,7 @@ class index(baseController):
 			token_data = self.__generateTokenFromRefreshToken(container)
 		elif(req.body["grant_type"] == "authorization_code"):
 			appResponce = {}
-			appResponce["grant_type"] = self._getError(43)
+			appResponce["grant_type"] = self._getError('GRT_AUTH_NOT_IMPL')
 			raise appException.clientException_400(appResponce)
 
 		resp.body = json.encode(token_data)
@@ -74,7 +74,7 @@ class index(baseController):
 		# data validation
 		appResponce = {}
 		if("AUTHORIZATION" not in req.headers):
-			appResponce["authorization"] = self._getError(44)
+			appResponce["authorization"] = self._getError('NEED_AUTH_CRD')
 		else:
 			arr = req.headers["AUTHORIZATION"].split(' ')
 			authCredentials = base64.b64decode(arr[-1]).decode('utf8').split(':')
@@ -82,24 +82,24 @@ class index(baseController):
 				req.body["client_id"] = authCredentials[0]
 				req.body["client_secret"] = authCredentials[1]
 			else:
-				appResponce["authorization"] = self._getError(45)
+				appResponce["authorization"] = self._getError('INVALID_CLIENT_CRD')
 
 		if("grant_type" not in req.body):
-			appResponce["grant_type"] = self._getError(46)
+			appResponce["grant_type"] = self._getError('NEED_GTANT_TYPE')
 		elif(req.body["grant_type"] != "authorization_code" and req.body["grant_type"] != "password" and req.body["grant_type"] != "client_credentials" and req.body["grant_type"] != "refresh_token"):
-			appResponce["grant_type"] = self._getError(47)
+			appResponce["grant_type"] = self._getError('INVALID_GTANT_TYPE')
 		elif(req.body["grant_type"] == "password"):
 			if("username" not in req.body or (not isinstance(req.body["username"], str)) or req.body["username"] == ""):
-				appResponce["username"] = self._getError(48)
+				appResponce["username"] = self._getError('NEED_USERNAME')
 			if("password" not in req.body or (not isinstance(req.body["password"], str)) or req.body["password"] == ""):
-				appResponce["password"] = self._getError(49)
+				appResponce["password"] = self._getError('NEED_PASSWORD')
 		elif(req.body["grant_type"] == "client_credentials"):
 			pass
 		elif(req.body["grant_type"] == "refresh_token"):
 			if("refresh_token" not in req.body or (not isinstance(req.body["refresh_token"], str)) or req.body["refresh_token"] == ""):
-				appResponce["refresh_token"] = self._getError(50)
+				appResponce["refresh_token"] = self._getError('NEED_REFRESH_TOKEN')
 		elif(req.body["grant_type"] == "authorization_code"):
-			appResponce["grant_type"] = self._getError(51)
+			appResponce["grant_type"] = self._getError('AUTH_CODE_NOT_IMPL')
 
 
 		if appResponce:
@@ -122,7 +122,7 @@ class index(baseController):
 		oauth2_client = oauth2ClientModel()
 		container.data["client_app_data"] = oauth2_client.get_user_type_scope(client_id, client_secret)
 		if(not container.data["client_app_data"]):
-			appResponce["authorization"] = self._getError(45)
+			appResponce["authorization"] = self._getError('INVALID_CLIENT_CRD')
 
 		if appResponce:
 			raise appException.clientException_400(appResponce)
@@ -135,7 +135,7 @@ class index(baseController):
 			oauth2_admin_user = oauth2AdminUserModel()
 			user_data = oauth2_admin_user.get_user_scope(username, password)
 			if(user_data is False):
-				appResponce["username"] = self._getError(52)
+				appResponce["username"] = self._getError('INALID_USERNAME_PASSWORD')
 			else:
 				container.data["userscope"] = user_data[0]
 				container.data["user_data"] = {
@@ -302,7 +302,7 @@ class index(baseController):
 		# data validation
 		appResponce = {}
 		if("accessToken" not in req.body and "refreshToken" not in req.body):
-			appResponce["accessToken"] = self._getError(53)
+			appResponce["accessToken"] = self._getError('NEED_TOKEN')
 
 		if appResponce:
 			raise appException.clientException_400(appResponce)

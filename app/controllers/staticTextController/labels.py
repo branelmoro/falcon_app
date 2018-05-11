@@ -59,13 +59,13 @@ class labels(baseController):
 		appResponce = {}
 
 		if is_put and ("label_id" not in req.body or (not isinstance(req.body["label_id"], int))):
-			appResponce["label_id"] = self._getLabel(36)
+			appResponce["label_id"] = self._getError('ER_VALID_ID')
 			raise appException.clientException_400(appResponce)
 
 		arrLangs = self.getAllLangs()
 		langsToAdd = [a for a in arrLangs if a in req.body]
 		if is_put and ("info" not in req.body and not langsToAdd):
-			appResponce["label_id"] = self._getLabel(37)
+			appResponce["label_id"] = self._getError('NEED_INFO')
 			raise appException.clientException_400(appResponce)
 
 		if(
@@ -76,7 +76,7 @@ class labels(baseController):
 			not is_put
 			and ("info" not in req.body or req.body["info"] == "" or (not isinstance(req.body["info"], str)))
 		):
-			appResponce["info"] = self._getLabel(38)
+			appResponce["info"] = self._getError('ER_INFO')
 
 		if(
 			is_put
@@ -86,13 +86,13 @@ class labels(baseController):
 			not is_put
 			and ("english" not in req.body or req.body["english"] == "" or (not isinstance(req.body["english"], str)))
 		):
-			appResponce["english"] = self._getLabel(39, data={"language":"english"})
+			appResponce["english"] = self._getError('ER_MSG', data={"language":"english"})
 
 		if langsToAdd:
 			invalidLangs = [a for a in langsToAdd if not isinstance(req.body[a], str) or req.body[a] == ""]
 			if invalidLangs:
 				for lang in invalidLangs:
-					appResponce[lang] = self._getLabel(39, data={"language":lang})
+					appResponce[lang] = self._getError('ER_MSG', data={"language":lang})
 
 		if appResponce:
 			raise appException.clientException_400(appResponce)
@@ -114,12 +114,12 @@ class labels(baseController):
 		label_model = labelsModel()
 
 		if is_put and not label_model.ifLabelIdExists(label_id):
-			appResponce["label_id"] = self._getLabel(40)
+			appResponce["label_id"] = self._getError('ER_NO_EXISTS')
 		elif is_put and not label_model.ifLabelEditable(label_id):
-			appResponce["label_id"] = self._getLabel(41)
+			appResponce["label_id"] = self._getError('ER_NO_EDIT')
 		else:
 			if "english" in req.body and label_model.ifEnglishLabelExists(req.body["english"], label_id):
-				appResponce["english"] = self._getLabel(42, data={"language":"english"})
+				appResponce["english"] = self._getError('ER_EXISTS', data={"language":"english"})
 
 		if appResponce:
 			raise appException.clientException_400(appResponce)
@@ -176,7 +176,7 @@ class labels(baseController):
 
 		appResponce = {}
 		if("label_id" not in req.body or req.body["label_id"] == "" or (not isinstance(req.body["label_id"], int))):
-			appResponce["label_id"] = self._getLabel(36)
+			appResponce["label_id"] = self._getError('ER_VALID_ID')
 
 		if appResponce:
 			raise appException.clientException_400(appResponce)
@@ -186,9 +186,9 @@ class labels(baseController):
 			label_detail = labelsModel()
 
 			if not label_detail.ifLabelIdExists(req.body["label_id"]):
-				appResponce["label_id"] = self._getLabel(40)
+				appResponce["label_id"] = self._getError('ER_NO_EXISTS')
 			elif not label_detail.ifLabelEditable(req.body["label_id"]):
-				appResponce["label_id"] = self._getLabel(41)
+				appResponce["label_id"] = self._getError('ER_NO_EDIT')
 
 		if appResponce:
 			raise appException.clientException_400(appResponce)

@@ -59,13 +59,13 @@ class errors(baseController):
 		appResponce = {}
 
 		if is_put and ("error_id" not in req.body or (not isinstance(req.body["error_id"], int))):
-			appResponce["error_id"] = self._getError(36)
+			appResponce["error_id"] = self._getError('ER_VALID_ID')
 			raise appException.clientException_400(appResponce)
 
 		arrLangs = self.getAllLangs()
 		langsToAdd = [a for a in arrLangs if a in req.body]
 		if is_put and ("info" not in req.body and not langsToAdd):
-			appResponce["error_id"] = self._getError(37)
+			appResponce["error_id"] = self._getError('NEED_INFO')
 			raise appException.clientException_400(appResponce)
 
 		if(
@@ -76,7 +76,7 @@ class errors(baseController):
 			not is_put
 			and ("info" not in req.body or req.body["info"] == "" or (not isinstance(req.body["info"], str)))
 		):
-			appResponce["info"] = self._getError(38)
+			appResponce["info"] = self._getError('ER_INFO')
 
 		if(
 			is_put
@@ -86,13 +86,13 @@ class errors(baseController):
 			not is_put
 			and ("english" not in req.body or req.body["english"] == "" or (not isinstance(req.body["english"], str)))
 		):
-			appResponce["english"] = self._getError(39, data={"language":"english"})
+			appResponce["english"] = self._getError('ER_MSG', data={"language":"english"})
 
 		if langsToAdd:
 			invalidLangs = [a for a in langsToAdd if not isinstance(req.body[a], str) or req.body[a] == ""]
 			if invalidLangs:
 				for lang in invalidLangs:
-					appResponce[lang] = self._getError(39, data={"language":lang})
+					appResponce[lang] = self._getError('ER_MSG', data={"language":lang})
 
 		if appResponce:
 			raise appException.clientException_400(appResponce)
@@ -114,12 +114,12 @@ class errors(baseController):
 		error_model = errorsModel()
 
 		if is_put and not error_model.ifErrorIdExists(error_id):
-			appResponce["error_id"] = self._getError(40)
+			appResponce["error_id"] = self._getError('ER_NO_EXISTS')
 		elif is_put and not error_model.ifErrorEditable(error_id):
-			appResponce["error_id"] = self._getError(41)
+			appResponce["error_id"] = self._getError('ER_NO_EDIT')
 		else:
 			if "english" in req.body and error_model.ifEnglishErrorExists(req.body["english"], error_id):
-				appResponce["english"] = self._getError(42, data={"language":"english"})
+				appResponce["english"] = self._getError('ER_EXISTS', data={"language":"english"})
 
 		if appResponce:
 			raise appException.clientException_400(appResponce)
@@ -176,7 +176,7 @@ class errors(baseController):
 
 		appResponce = {}
 		if("error_id" not in req.body or req.body["error_id"] == "" or (not isinstance(req.body["error_id"], int))):
-			appResponce["error_id"] = self._getError(36)
+			appResponce["error_id"] = self._getError('ER_VALID_ID')
 
 		if appResponce:
 			raise appException.clientException_400(appResponce)
@@ -186,9 +186,9 @@ class errors(baseController):
 			error_detail = errorsModel()
 
 			if not error_detail.ifErrorIdExists(req.body["error_id"]):
-				appResponce["error_id"] = self._getError(40)
+				appResponce["error_id"] = self._getError('ER_NO_EXISTS')
 			elif not error_detail.ifErrorEditable(req.body["error_id"]):
-				appResponce["error_id"] = self._getError(41)
+				appResponce["error_id"] = self._getError('ER_NO_EDIT')
 
 		if appResponce:
 			raise appException.clientException_400(appResponce)

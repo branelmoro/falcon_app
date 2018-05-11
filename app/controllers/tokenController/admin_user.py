@@ -73,14 +73,14 @@ class adminUser(CRUDS):
 		if admin_user_id and not admin_user_model.ifAdminUserIdExists(admin_user_id):
 			self.raise404()
 		elif admin_user_id and not admin_user_model.ifAdminUserEditable(admin_user_id):
-			appResponce['username'] = self._getError(25)
+			appResponce['username'] = self._getError('AU_NO_EDIT')
 		else:
 			if 'username' in req.body and admin_user_model.ifUserNameExists(req.body['username'], admin_user_id):
-				appResponce['username'] = self._getError(26)
+				appResponce['username'] = self._getError('AU_USER_EXISTS')
 
 			scope_model = oauth2ScopeModel()
 			if 'scope' in req.body and len(req.body['scope']) > 0 and not scope_model.ifValidScopeCodeExists(req.body['scope']):
-				appResponce['scope'] = self._getError(27)
+				appResponce['scope'] = self._getError('VALID_SCOPE_CODE')
 
 		if appResponce:
 			raise appException.clientException_400(appResponce)
@@ -96,7 +96,7 @@ class adminUser(CRUDS):
 			editableFields = ['username', 'password', 'scope']
 			fieldReceived = [i for i in editableFields if i in req.body]
 			if not fieldReceived:
-				appResponce['admin_user_id'] = self._getError(19)
+				appResponce['admin_user_id'] = self._getError('NEED_INFO')
 
 		if(
 			is_put
@@ -106,7 +106,7 @@ class adminUser(CRUDS):
 			not is_put
 			and ('username' not in req.body or req.body['username'] == '' or (not isinstance(req.body['username'], str)))
 		):
-			appResponce['username'] = self._getError(20)
+			appResponce['username'] = self._getError('AU_VALID_USER')
 
 		if(
 			is_put
@@ -116,7 +116,7 @@ class adminUser(CRUDS):
 			not is_put
 			and ('password' not in req.body or req.body['password'] == '' or (not isinstance(req.body['password'], str)))
 		):
-			appResponce['password'] = self._getError(21)
+			appResponce['password'] = self._getError('AU_PASSWORD')
 
 		if(
 			is_put
@@ -126,15 +126,15 @@ class adminUser(CRUDS):
 			not is_put
 			and ('scope' not in req.body or not isinstance(req.body['scope'], list))
 		):
-			appResponce['scope'] = self._getError(22)
+			appResponce['scope'] = self._getError('VALID_SCOPE_CODE')
 		else:
 			if 'scope' in req.body:
 				if req.body['scope']:
 					nonInt = [i for i in req.body['scope'] if not isinstance(i, str)]
 					if nonInt:
-						appResponce['scope'] = self._getError(22)
+						appResponce['scope'] = self._getError('VALID_SCOPE_CODE')
 				else:
-					appResponce['scope'] = self._getError(23, data={'endpoint':'admin user'})
+					appResponce['scope'] = self._getError('ASSIGN_SCOPE')
 
 		if appResponce:
 			raise appException.clientException_400(appResponce)
@@ -193,7 +193,7 @@ class adminUser(CRUDS):
 		if not admin_user_model.ifAdminUserIdExists(uid):
 			self.raise404()
 		elif not admin_user_model.ifAdminUserEditable(uid):
-			appResponce['username'] = self._getError(25)
+			appResponce['username'] = self._getError('AU_NO_EDIT')
 
 		if appResponce:
 			raise appException.clientException_400(appResponce)

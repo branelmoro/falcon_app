@@ -75,22 +75,21 @@ class accessScope(CRUDS):
 
 		if scope_id and not scope_model.ifScopeIdExists(scope_id):
 			self.raise404()
-			# appResponce['scope_id'] = self._getError(13)
 		elif scope_id and not scope_model.ifScopeEditable(scope_id):
-			appResponce['scope_id'] = self._getError(14)
+			appResponce['scope_id'] = self._getError('AS_NO_EDIT')
 		else:
 			if 'code' in req.body and scope_model.ifScopeCodeExists(req.body['code'], scope_id):
-				appResponce['code'] = self._getError(15)
+				appResponce['code'] = self._getError('AS_CODE_EXISTS')
 
 			resource_model = oauth2ResourceModel()
 			if 'allowed_get' in req.body and len(req.body['allowed_get']) > 0 and not resource_model.ifValidResourcesExists(req.body['allowed_get']):
-				appResponce['allowed_get'] = self._getError(16, data={'method':'get'})
+				appResponce['allowed_get'] = self._getError('AS_VALID_RES', data={'method':'get'})
 			if 'allowed_post' in req.body and len(req.body['allowed_post']) > 0 and not resource_model.ifValidResourcesExists(req.body['allowed_post']):
-				appResponce['allowed_post'] = self._getError(16, data={'method':'post'})
+				appResponce['allowed_post'] = self._getError('AS_VALID_RES', data={'method':'post'})
 			if 'allowed_put' in req.body and len(req.body['allowed_put']) > 0 and not resource_model.ifValidResourcesExists(req.body['allowed_put']):
-				appResponce['allowed_put'] = self._getError(16, data={'method':'put'})
+				appResponce['allowed_put'] = self._getError('AS_VALID_RES', data={'method':'put'})
 			if 'allowed_delete' in req.body and len(req.body['allowed_delete']) > 0 and not resource_model.ifValidResourcesExists(req.body['allowed_delete']):
-				appResponce['allowed_delete'] = self._getError(16, data={'method':'delete'})
+				appResponce['allowed_delete'] = self._getError('AS_VALID_RES', data={'method':'delete'})
 
 			# for update scope case
 			if scope_id:
@@ -103,9 +102,9 @@ class accessScope(CRUDS):
 					if checkDbScopes:
 						# run query to check if atleat one resource access exists
 						if not scope_model.ifAtleastOneResourceAccessIsGiven(scope_id, checkDbScopes):
-							appResponce['allowed_resource'] = self._getError(12)
+							appResponce['allowed_resource'] = self._getError('AS_RESOURCE')
 					else:
-						appResponce['allowed_resource'] = self._getError(12)
+						appResponce['allowed_resource'] = self._getError('AS_RESOURCE')
 
 		if appResponce:
 			raise appException.clientException_400(appResponce)
@@ -114,11 +113,11 @@ class accessScope(CRUDS):
 	def __checkAllowedActionList(self, req, appResponce, allowed_method, is_put):
 		if(allowed_method in req.body):
 			if(not isinstance(req.body[allowed_method], list)):
-				appResponce[allowed_method] = self._getError(16, data={'method':allowed_method})
+				appResponce[allowed_method] = self._getError('AS_VALID_RES', data={'method':allowed_method})
 			else:
 				nonInt = [i for i in req.body[allowed_method] if not isinstance(i, str)]
 				if nonInt:
-					appResponce[allowed_method] = self._getError(16, data={'method':allowed_method})
+					appResponce[allowed_method] = self._getError('AS_VALID_RES', data={'method':allowed_method})
 		else:
 			if not is_put:
 				req.body[allowed_method] = []
@@ -135,7 +134,7 @@ class accessScope(CRUDS):
 			editableFields = ['code', 'scope_info', 'allowed_get', 'allowed_post', 'allowed_put', 'allowed_delete']
 			fieldReceived = [i for i in editableFields if i in req.body]
 			if not fieldReceived:
-				appResponce['scope_id'] = self._getError(9)
+				appResponce['scope_id'] = self._getError('NEED_INFO')
 
 		if(
 			is_put
@@ -145,7 +144,7 @@ class accessScope(CRUDS):
 			not is_put
 			and ('code' not in req.body or req.body['code'] == '' or (not isinstance(req.body['code'], str)))
 		):
-			appResponce['code'] = self._getError(10)
+			appResponce['code'] = self._getError('AS_VALID_CODE')
 
 
 		if(
@@ -156,11 +155,11 @@ class accessScope(CRUDS):
 			not is_put
 			and ('scope_info' not in req.body or req.body['scope_info'] == '' or (not isinstance(req.body['scope_info'], str)))
 		):
-			appResponce['scope_info'] = self._getError(11)
+			appResponce['scope_info'] = self._getError('AS_VALID_INFO')
 
 
 		if(not is_put and 'allowed_get' not in req.body and 'allowed_post' not in req.body and 'allowed_put' not in req.body and 'allowed_delete' not in req.body):
-			appResponce['allowed_resource'] = self._getError(12)
+			appResponce['allowed_resource'] = self._getError('AS_RESOURCE')
 		else:
 			appResponce = self.__checkAllowedActionList(req, appResponce, 'allowed_get', is_put)
 			appResponce = self.__checkAllowedActionList(req, appResponce, 'allowed_post', is_put)
@@ -172,7 +171,7 @@ class accessScope(CRUDS):
 				lstAllowedScopes = ['allowed_get', 'allowed_post', 'allowed_put', 'allowed_delete']
 				receivedScopes = [i for i in lstAllowedScopes if i in req.body and len(req.body[i]) > 0]
 				if not receivedScopes:
-					appResponce['allowed_resource'] = self._getError(12)
+					appResponce['allowed_resource'] = self._getError('AS_RESOURCE')
 
 
 		if appResponce:
@@ -231,9 +230,8 @@ class accessScope(CRUDS):
 		scope_model = oauth2ScopeModel()
 		if not scope_model.ifScopeIdExists(uid):
 			self.raise404()
-			# appResponce['scope_id'] = self._getError(13)
 		elif not scope_model.ifScopeEditable(uid):
-			appResponce['code'] = self._getError(14)
+			appResponce['code'] = self._getError('AS_NO_EDIT')
 
 		if appResponce:
 			raise appException.clientException_400(appResponce)

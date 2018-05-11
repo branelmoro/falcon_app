@@ -130,6 +130,7 @@ INSERT INTO oauth2.client (app_id, app_secret, scope, user_type, is_editable) VA
 CREATE SCHEMA static_text;
 CREATE TABLE static_text.errors (
  id serial PRIMARY KEY,
+ code varchar(50) NOT NULL UNIQUE,
  info text NOT NULL,
  english text NOT NULL UNIQUE,
  hindi text DEFAULT NULL,
@@ -182,6 +183,57 @@ CREATE TABLE static_text.errors (
  last_edit_time TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT now()
 );
 
+INSERT INTO static_text.errors (code, english, is_editable) VALUES
+('GRT_AUTH_NOT_IMPL', 'Grant Authorization code not implemented yet!', false),
+('NEED_AUTH_CRD', 'Please provide authorization credentials!', false),
+('INVALID_CLIENT_CRD', 'Invalid client app credentials provided for authorization!', false),
+('NEED_GTANT_TYPE', 'Please provide a grant type!', false),
+('INVALID_GTANT_TYPE', 'Invalid grant type provided..Please provide a valid grant type!', false),
+('NEED_USERNAME', 'Please provide username!', false),
+('NEED_PASSWORD', 'Please provide password!', false),
+('NEED_REFRESH_TOKEN', 'Please provide refresh token!', false),
+('AUTH_CODE_NOT_IMPL', 'Authorization code not implemented yet!', false),
+('INALID_USERNAME_PASSWORD', 'Username and password do not match!', false),
+('NEED_TOKEN', 'Please provide access token or refresh token!', false),
+
+('NEED_INFO', 'No information provided for updation.. Please provide some information!', false),
+
+('RS_PATH', 'Resource path already exists in database!', false),
+('RS_VPATH', 'Please provide a valid resource path!', false),
+('RS_INFO', 'Please provide some resource information!', false),
+('RS_NO_EDIT', 'This resource is not editable!', false),
+
+('AS_VALID_CODE', 'Please provide a valid scope code!', false),
+('AS_VALID_INFO', 'Please provide valid scope info!', false),
+('AS_RESOURCE', 'Please provide atleast one resource access to scope!', false),
+
+('AS_NO_EDIT', 'This access scope is not editable!', false),
+('AS_CODE_EXISTS', 'Scope code already exists in database!', false),
+('AS_VALID_RES', 'Invalid {method} resources provided..Please provide valid resources!', false),
+
+('AU_VALID_USER', 'Please provide a valid username for admin user!', false),
+('AU_PASSWORD', 'Please provide a password for admin user account!', false),
+('AU_NO_EDIT', 'Admin user is not editable!', false),
+('AU_USER_EXISTS', 'Username already exists in database!', false),
+
+('ASSIGN_SCOPE', 'Please assign at least one access scope!', false),
+('VALID_SCOPE_CODE', 'Invalid scopes provided..Please provide list of valid access scopes!', false),
+
+('CL_NO_EDIT', 'Client is not editable!', false),
+('CL_APPID_EXISTS', 'Client App Id already exists in database!', false),
+('CL_VALID_APPID', 'Please provide valid app id!', false),
+('CL_VALID_UTYPE', 'Please provide valid user type!', false),
+('CL_SECRET', 'Please provide valid app secret!', false),
+
+('ER_VALID_ID', 'Please provide a valid error id!', false),
+('ER_INFO', 'Please provide error information!', false),
+('ER_MSG', 'Please provide a valid error message in {language}!', false),
+('ER_NO_EXISTS', 'Error id does not exist!', false),
+('ER_NO_EDIT', 'Error is not editable!', false),
+('ER_EXISTS', 'Error in {language} already exists in database!', false)
+;
+
+
 INSERT INTO static_text.errors (id, info, english, is_editable) VALUES
 (1, 'resource api', 'Resource path already exists in another record in database!', false),
 (2, 'resource api', 'Please provide a valid resource id!', false),
@@ -190,16 +242,20 @@ INSERT INTO static_text.errors (id, info, english, is_editable) VALUES
 (5, 'resource api', 'Please provide some resource information!', false),
 (6, 'resource api', 'This resource is not editable!', false),
 (7, 'resource api', 'Resource id does not exists in database!', false),
+
 (8, 'access-scope api', 'Invalid scope provided..Please provide a valid scope!', false),
 (9, 'access-scope api', 'No scope information provided for updation.. Please provide some information!', false),
 (10, 'access-scope api', 'Please provide a valid scope name!', false),
 (11, 'access-scope api', 'Please provide valid scope info!', false),
 (12, 'access-scope api', 'Please provide atleast one resource access to scope!', false),
+
+
 (13, 'resource api', 'Scope id does not exists in database!', false),
 (14, 'resource api', 'This access scope is not editable!', false),
 (15, 'resource api', 'Scope name already exists in another record in database!', false),
 (16, 'access-scope api', 'Invalid {method} resources provided..Please provide valid resources!', false),
 (17, 'access-scope api', 'Please provide list of valid {method} resources!', false),
+
 (18, 'admin-user api', 'Please provide a valid admin user id!', false),
 (19, 'admin-user api', 'No admin-user information provided for updation.. Please provide some information!', false),
 (20, 'admin-user api', 'Please provide a valid username for admin user!', false),
@@ -210,6 +266,7 @@ INSERT INTO static_text.errors (id, info, english, is_editable) VALUES
 (25, 'admin-user api', 'Admin user is not editable!', false),
 (26, 'admin-user api', 'Username already exists in database!', false),
 (27, 'admin-user api, client api', 'Invalid scopes provided..Please provide list of valid access scopes!', false),
+
 (28, 'client api', 'Client id does not exist!', false),
 (29, 'client api', 'Client is not editable!', false),
 (30, 'client api', 'Client App Id already exists in database!', false),
@@ -218,6 +275,8 @@ INSERT INTO static_text.errors (id, info, english, is_editable) VALUES
 (33, 'client api', 'Please provide valid app id!', false),
 (34, 'client api', 'Please provide valid user type!', false),
 (35, 'client api', 'Please provide valid app secret!', false),
+
+
 (36, 'errors api', 'Please provide a valid error id!', false),
 (37, 'errors api', 'No error information provided for updation.. Please provide some information!', false),
 (38, 'errors api', 'Please provide error information!', false),
@@ -225,6 +284,8 @@ INSERT INTO static_text.errors (id, info, english, is_editable) VALUES
 (40, 'errors api', 'Error id does not exist!', false),
 (41, 'errors api', 'Error is not editable!', false),
 (42, 'errors api', 'Error in {language} already exists in database!', false),
+
+
 (43, 'token api', 'Grant Authorization code not implemented yet!', false),
 (44, 'token api', 'Please provide authorization credentials!', false),
 (45, 'token api', 'Invalid client app credentials provided for authorization!', false),

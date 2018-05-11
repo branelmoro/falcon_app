@@ -62,8 +62,7 @@ class resource(CRUDS):
 		oauth2_resource = oauth2ResourceModel()
 
 		if oauth2_resource.ifResourcePathAlreadyExists(req.body['resource_path']):
-			appResponce['resource_path'] = self._getError(1)
-			# appResponce['resource_path'] = 'Resource path already exists in database!'
+			appResponce['resource_path'] = self._getError('RS_PATH')
 
 		if oauth2_resource.ifResourceCodeAlreadyExists(req.body['code']):
 			appResponce['code'] = 'Resource code already exists in database!'
@@ -79,7 +78,7 @@ class resource(CRUDS):
 
 		if is_put and ('code' not in req.body and 'resource_path' not in req.body and 'resource_info' not in req.body):
 			# appResponce['resource_id'] = 'Please provide some information to update'
-			appResponce['resource_id'] = self._getError(3)
+			appResponce['resource_id'] = self._getError('NEED_INFO')
 
 		if(
 			is_put
@@ -90,7 +89,7 @@ class resource(CRUDS):
 			and ('resource_path' not in req.body or req.body['resource_path'] == '' or (not isinstance(req.body['resource_path'], str)) or req.body['resource_path'].find('/') != 0)
 		):
 			# appResponce['resource_path'] = 'Please provide valid resource path'
-			appResponce['resource_path'] = self._getError(4)
+			appResponce['resource_path'] = self._getError('RS_VPATH')
 
 		if(
 			is_put
@@ -101,7 +100,7 @@ class resource(CRUDS):
 			and ('resource_info' not in req.body or req.body['resource_info'] == '')
 		):
 			# appResponce['resource_info'] = 'Please provide some resource information'
-			appResponce['resource_info'] = self._getError(4)
+			appResponce['resource_info'] = self._getError('RS_INFO')
 
 		if(
 			is_put
@@ -148,11 +147,11 @@ class resource(CRUDS):
 			self.raise404()
 		elif not oauth2_resource.ifResourceEditable(uid):
 			# appResponce['resource_id'] = 'This resource is not editable'
-			appResponce['resource_id'] = self._getError(6)
+			appResponce['resource_id'] = self._getError('RS_NO_EDIT')
 		else:
 			if 'resource_path' in req.body and oauth2_resource.ifResourcePathAlreadyExists(req.body['resource_path'], uid):
 				# appResponce['resource_path'] = 'Resource path already exists in another record'
-				appResponce['resource_path'] = self._getError(1)
+				appResponce['resource_path'] = self._getError('RS_PATH')
 			if 'code' in req.body and oauth2_resource.ifResourceCodeAlreadyExists(req.body['code'], uid):
 				appResponce['code'] = 'Resource code already exists in another record'
 
@@ -184,7 +183,7 @@ class resource(CRUDS):
 			self.raise404()
 		elif not oauth2_resource.ifResourceEditable(uid):
 			# appResponce['resource_id'] = 'Resource is not editable'
-			appResponce['resource_id'] = self._getError(6)
+			appResponce['resource_id'] = self._getError('RS_NO_EDIT')
 
 		if appResponce:
 			raise appException.clientException_400(appResponce)
