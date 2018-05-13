@@ -124,6 +124,17 @@ class redisCrud(object):
 		return self.getConnection().ttl(key)
 
 
+	# list commands
+	def lpush(self, key, value):
+		return self.getConnection().lpush(key, value)
+
+	def rpush(self, key, value):
+		return self.getConnection().rpush(key, value)
+
+	def lrange(self, key, start=0, end=-1):
+		return [i.decode('utf-8') for i in self.getConnection().lrange(key, start, end)]
+
+
 	# set commands
 	def sadd(self, key, value):
 		return self.getConnection().sadd(key, value)

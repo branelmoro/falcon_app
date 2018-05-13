@@ -242,7 +242,7 @@ class APP_API(object):
 		return self.__getDataFromAPI(method="DELETE", url=url, data=data, header=header)
 
 	def __getDataFromAPI(self, method, url, data=None, header={}, async=False):
-		header["access-token"] = self.__getToken()
+		header["X-ACCESS-TOKEN"] = self.__getToken()
 
 		response = BACKEND_API.execute(method=method, url=url, data=data, header=header, async=async)
 
@@ -273,7 +273,7 @@ class APP_API(object):
 
 	def __refreshUserToken(self):
 		refresh_token = self.__session.get("refreshToken")
-		arrResponce = AUTH.grant_type_refresh_token()
+		arrResponce = AUTH.grant_type_refresh_token(refresh_token)
 		if arrResponce["httpcode"] == 400:
 			self.__session.destory()
 		else:

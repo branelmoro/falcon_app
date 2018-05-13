@@ -56,6 +56,7 @@ class baseController(object):
 	def __validateToken(self, req):
 		# validate token here
 		is_valid = False
+		print(req.headers)
 		
 		if('X-ACCESS-TOKEN' in req.headers):
 			aTokenDb = SESSION('token_scopeDb');
@@ -72,7 +73,10 @@ class baseController(object):
 		is_valid = False
 
 		aTokenDb = SESSION('token_scopeDb');
-		scopes = aTokenDb.smembers(req.headers['X-ACCESS-TOKEN'])
+		scopes = aTokenDb.lrange(req.headers['X-ACCESS-TOKEN'])
+
+		print(scopes)
+		print(self._resources)
 
 		for scope in scopes:
 			if APPCACHE.ifResourceExistsInScopes(scope, req.method, self._resources[req.uri_template]):
@@ -94,7 +98,7 @@ class baseController(object):
 			except Exception as e:
 				raise appException.clientException_400({'request_body':'Invalid json provided'})
 
-	def validateHTTPRequest(self, req, blnValidateToken = False):
+	def validateHTTPRequest(self, req, blnValidateToken = True):
 		self.__validateRequestHeaders(req)
 		if blnValidateToken:
 			self.__validateToken(req)

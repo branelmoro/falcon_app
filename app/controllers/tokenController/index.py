@@ -173,14 +173,15 @@ class index(baseController):
 
 		# save new token and refresh token in cache
 		# aTokenDb.set(accessToken, json.encode(scope), self.__accessTokenExpiry)
-		aTokenDb.sadd(accessToken, scope)
+		for i in scope:
+			aTokenDb.lpush(accessToken, i)
 		aTokenDb.expire(accessToken, self.__accessTokenExpiry)
 
 		params = {
 			"accessToken" : accessToken,
 			"accessTokenExpiry" : self.__accessTokenExpiry,
 			# "scope": oauth2ScopeModel().getScopeNamesFromIds(scope),
-			"resources": oauth2ScopeModel().getAllowedResourcesFromScopeIds(scope)
+			"resources": oauth2ScopeModel().getAllowedResourcesFromScopeCodes(scope)
 		}
 
 		return params
@@ -240,7 +241,8 @@ class index(baseController):
 
 		# save new token and refresh token in cache
 		# aTokenDb.set(accessToken, json.encode(scope), self.__accessTokenExpiry)
-		aTokenDb.sadd(accessToken, scope)
+		for i in scope:
+			aTokenDb.lpush(accessToken, i)
 		aTokenDb.expire(accessToken, self.__accessTokenExpiry)
 
 		# rTokenDb.set(refreshToken, json.encode({"client_id":client_id,"username":username}), self.__refreshTokenExpiry)
@@ -253,7 +255,7 @@ class index(baseController):
 			"accessTokenExpiry" : self.__accessTokenExpiry,
 			"refreshTokenExpiry" : self.__refreshTokenExpiry,
 			# "scope": oauth2ScopeModel().getScopeNamesFromIds(scope),
-			"resources": oauth2ScopeModel().getAllowedResourcesFromScopeIds(scope)
+			"resources": oauth2ScopeModel().getAllowedResourcesFromScopeCodes(scope)
 		}
 
 		return params

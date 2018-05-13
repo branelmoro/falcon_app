@@ -31,8 +31,8 @@ class scope(baseModel):
 
 		return resultCursor.getAllRecords()
 
-	def __getScopeDetails(self, ids):
-		values = "%s,"*(len(ids)-1) + "%s"
+	def __getScopeDetails(self, codes):
+		values = "%s,"*(len(codes)-1) + "%s"
 		qry = """
 			SELECT code,
 				id,
@@ -41,25 +41,17 @@ class scope(baseModel):
 				allowed_put,
 				allowed_delete
 			FROM oauth2.scope
-			WHERE id in ("""+values+""");
+			WHERE code in ("""+values+""");
 		"""
-		resultCursor = self.pgSlave().query(qry,ids)
+		resultCursor = self.pgSlave().query(qry,codes)
 
 		# return [list(i) for i in resultCursor.getAllRecords()]
 		return resultCursor.getAllRecords()
 
 
-	def getScopeNamesFromIds(self, ids):
-		result = self.__getScopeDetails(ids)
+	def getAllowedResourcesFromScopeCodes(self, codes):
 
-		self.__addScopeToCache(result)
-
-		return [i[0] for i in result]
-
-
-	def getAllowedResourcesFromScopeIds(self, ids):
-
-		result = self.__getScopeDetails(ids)
+		result = self.__getScopeDetails(codes)
 
 		get = []
 		post = []
@@ -143,9 +135,9 @@ class scope(baseModel):
 		resultCursor = dbObj.query(qry, [scope_detail["code"], scope_detail["scope_info"], scope_detail["allowed_get"], scope_detail["allowed_post"], scope_detail["allowed_put"], scope_detail["allowed_delete"], datetime.now()])
 		# end transaction
 
-		insertId = resultCursor.getLastInsertId();
+		# insertId = resultCursor.getLastInsertId();
 
-		self.__addScopeToCache(self.__getScopeDetails([insertId]))
+		# self.__addScopeToCache(self.__getScopeDetails([insertId]))
 
 		return resultCursor.getStatusMessage()
 
@@ -174,7 +166,7 @@ class scope(baseModel):
 		dbObj = self.pgMaster()
 		resultCursor = dbObj.query(qry, params)
 
-		self.__addScopeToCache(self.__getScopeDetails([scope_detail["id"]]))
+		# self.__addScopeToCache(self.__getScopeDetails([scope_detail["id"]]))
 		# end transaction
 		return resultCursor.getStatusMessage()
 
@@ -245,18 +237,18 @@ class scope(baseModel):
 
 		params = [resource_code, resource_code, resource_code, resource_code]
 
-		qry = """
-			SELECT id
-			FROM oauth2.scope
-			WHERE %s::text = ANY(allowed_get)
-				or %s::text = ANY(allowed_post)
-				or %s::text = ANY(allowed_put)
-				or %s::text = ANY(allowed_delete);
-		"""
-		resultCursor = self.pgSlave().query(qry,params)
-		result = resultCursor.getAllRecords()
+		# qry = """
+		# 	SELECT id
+		# 	FROM oauth2.scope
+		# 	WHERE %s::text = ANY(allowed_get)
+		# 		or %s::text = ANY(allowed_post)
+		# 		or %s::text = ANY(allowed_put)
+		# 		or %s::text = ANY(allowed_delete);
+		# """
+		# resultCursor = self.pgSlave().query(qry,params)
+		# result = resultCursor.getAllRecords()
 
-		ids = [result[i][0] for i in result]
+		# ids = [result[i][0] for i in result]
 
 		qry = """
 			UPDATE oauth2.scope
@@ -273,7 +265,7 @@ class scope(baseModel):
 		resultCursor = dbObj.query(qry, params)
 		# end transaction
 
-		if ids:
-			self.__addScopeToCache(self.__getScopeDetails(ids))
+		# if ids:
+		# 	self.__addScopeToCache(self.__getScopeDetails(ids))
 
 		return resultCursor.getStatusMessage()

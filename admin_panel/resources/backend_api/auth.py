@@ -29,12 +29,12 @@ class AUTH(BACKEND_API):
 		return cls.__authorize(data)
 
 	@classmethod
-	def grant_type_refresh_token(cls, data={}):
-		# data = {
-		# 	"refresh_token":"asdfsdfsdfsdfsdfsdfsdfsdfsdf",
-		# 	"grant_type":"refresh_token"
-		# }
-		data["grant_type"] = "refresh_token"
+	def grant_type_refresh_token(cls, refresh_token):
+		data = {
+			"refresh_token":refresh_token,
+			"grant_type":"refresh_token"
+		}
+		# data["grant_type"] = "refresh_token"
 		return cls.__authorize(data)
 
 	@classmethod

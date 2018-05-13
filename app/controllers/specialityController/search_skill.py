@@ -16,10 +16,17 @@ from ...models.specialityModel import skillParentModel
 class SearchSkill(CRUDS):
 
 	def __init__(self):
-		self._search_template = '/search-skill/_find_'
-		self._search_page_template = '/search-skill/_find_/{page:int}'
-		self._create_template = '/search-skill/'
-		self._crud_template = '/search-skill/{uid:int}'
+		self._search_template = self._getResource('SSKS')
+		self._search_page_template = self._getResource('SSKP')
+		self._create_template = self._getResource('SSK')
+		self._crud_template = self._getResource('SSKU')
+
+		self._resources = {
+			self._search_template : 'SSKS',
+			self._search_page_template : 'SSKP',
+			self._create_template : 'SSK',
+			self._crud_template : 'SSKU'
+		}
 
 	def getPath(self):
 		return [

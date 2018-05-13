@@ -122,8 +122,8 @@ CREATE INDEX oauth2_client_scope ON oauth2.client (scope);
 CREATE INDEX oauth2_client_usertype ON oauth2.client (user_type);
 CREATE INDEX oauth2_client_is_editable ON oauth2.client (is_editable);
 INSERT INTO oauth2.client (app_id, app_secret, scope, user_type, is_editable) VALUES
-('admin_app', 'shdfvbkflakjfjhslfhalisfjhjsghflajzshdnva', '{1,2,3,4,5}','admin', false),
-('web_app', 'yturerfa43t565u43qgf35w4e4q3th54sf', '{1,2,3,4,5}','admin', false)
+('admin_app', 'shdfvbkflakjfjhslfhalisfjhjsghflajzshdnva', '{"sudo","test1"}','admin', false),
+('web_app', 'yturerfa43t565u43qgf35w4e4q3th54sf', '{"sudo","test1"}','admin', false)
 ;
 
 

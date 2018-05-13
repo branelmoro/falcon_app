@@ -31,7 +31,24 @@ class index(baseController):
 		req = container.req
 		resp = container.resp
 		# print(req.params)
-		# print(unescape(req.params['sampletext']))
+
+
+
+		app_api = container.getAPI()
+
+		data = app_api.get(**{
+			'url':container.getAPIURL('/')
+		})
+
+		print(data)
+
+
+		data = app_api.get(**{
+			'url':container.getAPIURL('/search-skill/_find_')
+		})
+
+		print(data)
+
 		resp.body = self._render(view='dashboard', container=container)
 
 		# if container.getSession().isUserLoggedIn():
