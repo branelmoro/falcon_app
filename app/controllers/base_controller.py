@@ -23,25 +23,25 @@ class container(object):
 
 
 class baseController(object):
-	"""This is base controller and all other controllers will be child"""
+	'''This is base controller and all other controllers will be child'''
 
 	def __init__(self, resource_id=None):
 		if resource_id is None:
-			raise appException.serverException_500({"resource_id":"Resource Id not Provided"})
+			raise appException.serverException_500({'resource_id':'Resource Id not Provided'})
 		oauth2_resource = oauth2ResourceModel()
 		self._path = oauth2_resource.getResourcePathById(resource_id)
 		if self._path is None:
-			raise appException.serverException_500({"resource_id":"Resource not found in authdb"})
+			raise appException.serverException_500({'resource_id':'Resource not found in authdb'})
 
 		self.__resource_id = resource_id
 
 	def _getResource(self, code=None):
 		if code is None:
-			raise appException.serverException_500({"resource_code":"Resource Code not Provided"})
+			raise appException.serverException_500({'resource_code':'Resource Code not Provided'})
 		oauth2_resource = oauth2ResourceModel()
 		path = oauth2_resource.getResourceFieldByCode('resource_path', code)
 		if path is None:
-			raise appException.serverException_500({"resource_code":"Resource not found in authdb"})
+			raise appException.serverException_500({'resource_code':'Resource not found in authdb'})
 		return path
 
 	def getAllLangs(self):
@@ -51,28 +51,28 @@ class baseController(object):
 		# validate request headers here
 		is_valid = True
 		if not is_valid:
-			raise appException.clientException_406({"header":"Invalid Headers in request"})
+			raise appException.clientException_406({'header':'Invalid Headers in request'})
 
 	def __validateToken(self, req):
 		# validate token here
 		is_valid = False
 		
-		if("X-ACCESS-TOKEN" in req.headers):
-			aTokenDb = SESSION("token_scopeDb");
-			if(aTokenDb.exists(req.headers["X-ACCESS-TOKEN"])):
+		if('X-ACCESS-TOKEN' in req.headers):
+			aTokenDb = SESSION('token_scopeDb');
+			if(aTokenDb.exists(req.headers['X-ACCESS-TOKEN'])):
 				is_valid = True
 
-		# req.headers["X-ACCESS-TOKEN"]
+		# req.headers['X-ACCESS-TOKEN']
 		if not is_valid:
-			raise appException.clientException_401({"token":"Unauthorised User, Invalid Token Provided"})
+			raise appException.clientException_401({'token':'Unauthorised User, Invalid Token Provided'})
 
 	def __validateUrlAccessRights(self, req):
 		# validate token here
 		# path = self.getPath()
 		is_valid = False
 
-		aTokenDb = SESSION("token_scopeDb");
-		scopes = aTokenDb.smembers(req.headers["X-ACCESS-TOKEN"])
+		aTokenDb = SESSION('token_scopeDb');
+		scopes = aTokenDb.smembers(req.headers['X-ACCESS-TOKEN'])
 
 		for scope in scopes:
 			if APPCACHE.ifResourceExistsInScopes(scope, req.method, self._resources[req.uri_template]):
@@ -81,18 +81,18 @@ class baseController(object):
 				break
 
 		if not is_valid:
-			raise appException.clientException_403({"url":"Access denied! You don't have right to resource url."})
+			raise appException.clientException_403({'url':'Access denied! You don\'t have right to resource url.'})
 
 	def __validateRequestBody(self, req):
 		# validate request body here
-		reqBody = req.stream.read().decode("utf-8")
+		reqBody = req.stream.read().decode('utf-8')
 		if reqBody == '':
 			req.body = {}
 		else:
 			try:
 				req.body = json.decode(reqBody)
 			except Exception as e:
-				raise appException.clientException_400({"request_body":"Invalid json provided"})
+				raise appException.clientException_400({'request_body':'Invalid json provided'})
 
 	def validateHTTPRequest(self, req, blnValidateToken = False):
 		self.__validateRequestHeaders(req)
@@ -103,29 +103,29 @@ class baseController(object):
 
 		# if request is valid then we get below params
 		# params = {
-		# 	"woking" : "fine",
-		# 	"headers" : req.headers,
-		# 	"params" : req.params,
-		# 	# "options" : req.options,
-		# 	"cookies" : req.cookies,
-		# 	"protocol" : req.protocol,
-		# 	"method" : req.method,
-		# 	"host" : req.host,
-		# 	"subdomain" : req.subdomain,
-		# 	# "env" : req.env,
-		# 	"app" : req.app,
-		# 	"access_route" : req.access_route,
-		# 	"remote_addr" : req.remote_addr,
-		# 	"context" : req.context,
-		# 	"uri" : req.uri,
-		# 	"url" : req.url,
-		# 	"relative_uri" : req.relative_uri,
-		# 	"path" : req.path,
-		# 	"query_string" : req.query_string,
-		# 	"uri_template" : req.uri_template,
-		# 	"accept" : req.accept,
-		# 	"auth" : req.auth,
-		# 	"body" : req.body
+		# 	'woking' : 'fine',
+		# 	'headers' : req.headers,
+		# 	'params' : req.params,
+		# 	# 'options' : req.options,
+		# 	'cookies' : req.cookies,
+		# 	'protocol' : req.protocol,
+		# 	'method' : req.method,
+		# 	'host' : req.host,
+		# 	'subdomain' : req.subdomain,
+		# 	# 'env' : req.env,
+		# 	'app' : req.app,
+		# 	'access_route' : req.access_route,
+		# 	'remote_addr' : req.remote_addr,
+		# 	'context' : req.context,
+		# 	'uri' : req.uri,
+		# 	'url' : req.url,
+		# 	'relative_uri' : req.relative_uri,
+		# 	'path' : req.path,
+		# 	'query_string' : req.query_string,
+		# 	'uri_template' : req.uri_template,
+		# 	'accept' : req.accept,
+		# 	'auth' : req.auth,
+		# 	'body' : req.body
 		# }
 
 		return True
@@ -134,16 +134,16 @@ class baseController(object):
 		resp = container.resp
 		resp.status = HTTP_500
 		params = {
-			"nodename" : "node1",
-			"version" : "0.0.1",
-			"message" : "Error occured on server while processing"
+			'nodename' : 'node1',
+			'version' : '0.0.1',
+			'message' : 'Error occured on server while processing'
 		}
 		exc_type, exc_value, exc_traceback = sys.exc_info()
 		tb = traceback.format_list(traceback.extract_tb(exc_traceback))
 		exception_message = traceback.format_exception_only(exc_type, exc_value)
 		if True:#debugging enabled
-			params["traceback"] = tb
-			params["exception_message"] = exception_message
+			params['traceback'] = tb
+			params['exception_message'] = exception_message
 		else:
 			#log server error tb, exception_message, req
 			pass
@@ -172,7 +172,7 @@ class baseController(object):
 		resp.body = json.encode(params)
 
 	def __defaultRequestSetup(self, req, resp):
-		resp.set_header("content-type", "application/json")
+		resp.set_header('content-type', 'application/json')
 		return container(req=req, resp=resp)
 
 	def on_get(self, req, resp, **kargs):
@@ -216,16 +216,16 @@ class baseController(object):
 			self.__internalServerError(container)
 
 	def get(self, container, **kargs):
-		raise appException.clientException_405({"message" : "get method not allowed"})
+		raise appException.clientException_405({'message' : 'get method not allowed'})
 
 	def post(self, container, **kargs):
-		raise appException.clientException_405({"message" : "post method not allowed"})
+		raise appException.clientException_405({'message' : 'post method not allowed'})
 
 	def put(self, container, **kargs):
-		raise appException.clientException_405({"message" : "put method not allowed"})
+		raise appException.clientException_405({'message' : 'put method not allowed'})
 
 	def delete(self, container, **kargs):
-		raise appException.clientException_405({"message" : "delete method not allowed"})
+		raise appException.clientException_405({'message' : 'delete method not allowed'})
 
 	def _getFilteredRequestData(self, req, fieldList):
 		data = {}
@@ -241,7 +241,7 @@ class baseController(object):
 		return message
 
 	def raise404(self):
-		raise appException.clientException_404({"message" : "Url does not exists"})
+		raise appException.clientException_404({'message' : 'Url does not exists'})
 
 
 class CRUDS(baseController):

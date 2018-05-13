@@ -131,7 +131,7 @@ CREATE SCHEMA static_text;
 CREATE TABLE static_text.errors (
  id serial PRIMARY KEY,
  code varchar(50) NOT NULL UNIQUE,
- info text NOT NULL,
+ info text DEFAULT NULL,
  english text NOT NULL UNIQUE,
  hindi text DEFAULT NULL,
  marathi text DEFAULT NULL,
@@ -234,76 +234,12 @@ INSERT INTO static_text.errors (code, english, is_editable) VALUES
 ;
 
 
-INSERT INTO static_text.errors (id, info, english, is_editable) VALUES
-(1, 'resource api', 'Resource path already exists in another record in database!', false),
-(2, 'resource api', 'Please provide a valid resource id!', false),
-(3, 'resource api', 'No resorce information provided for updation.. Please provide some information!', false),
-(4, 'resource api', 'Please provide a valid resource path!', false),
-(5, 'resource api', 'Please provide some resource information!', false),
-(6, 'resource api', 'This resource is not editable!', false),
-(7, 'resource api', 'Resource id does not exists in database!', false),
-
-(8, 'access-scope api', 'Invalid scope provided..Please provide a valid scope!', false),
-(9, 'access-scope api', 'No scope information provided for updation.. Please provide some information!', false),
-(10, 'access-scope api', 'Please provide a valid scope name!', false),
-(11, 'access-scope api', 'Please provide valid scope info!', false),
-(12, 'access-scope api', 'Please provide atleast one resource access to scope!', false),
-
-
-(13, 'resource api', 'Scope id does not exists in database!', false),
-(14, 'resource api', 'This access scope is not editable!', false),
-(15, 'resource api', 'Scope name already exists in another record in database!', false),
-(16, 'access-scope api', 'Invalid {method} resources provided..Please provide valid resources!', false),
-(17, 'access-scope api', 'Please provide list of valid {method} resources!', false),
-
-(18, 'admin-user api', 'Please provide a valid admin user id!', false),
-(19, 'admin-user api', 'No admin-user information provided for updation.. Please provide some information!', false),
-(20, 'admin-user api', 'Please provide a valid username for admin user!', false),
-(21, 'admin-user api', 'Please provide a password for admin user account!', false),
-(22, 'admin-user api, client api', 'Please provide list of valid access scopes!', false),
-(23, 'admin-user api, client api', 'Please provide at least one access scope to {endpoint}!', false),
-(24, 'admin-user api', 'Admin User id does not exist!', false),
-(25, 'admin-user api', 'Admin user is not editable!', false),
-(26, 'admin-user api', 'Username already exists in database!', false),
-(27, 'admin-user api, client api', 'Invalid scopes provided..Please provide list of valid access scopes!', false),
-
-(28, 'client api', 'Client id does not exist!', false),
-(29, 'client api', 'Client is not editable!', false),
-(30, 'client api', 'Client App Id already exists in database!', false),
-(31, 'client api', 'No client information provided for updation.. Please provide some information!', false),
-(32, 'client api', 'Please provide a valid client id!', false),
-(33, 'client api', 'Please provide valid app id!', false),
-(34, 'client api', 'Please provide valid user type!', false),
-(35, 'client api', 'Please provide valid app secret!', false),
-
-
-(36, 'errors api', 'Please provide a valid error id!', false),
-(37, 'errors api', 'No error information provided for updation.. Please provide some information!', false),
-(38, 'errors api', 'Please provide error information!', false),
-(39, 'errors api', 'Please provide a valid error message in {language}!', false),
-(40, 'errors api', 'Error id does not exist!', false),
-(41, 'errors api', 'Error is not editable!', false),
-(42, 'errors api', 'Error in {language} already exists in database!', false),
-
-
-(43, 'token api', 'Grant Authorization code not implemented yet!', false),
-(44, 'token api', 'Please provide authorization credentials!', false),
-(45, 'token api', 'Invalid client app credentials provided for authorization!', false),
-(46, 'token api', 'Please provide a grant type!', false),
-(47, 'token api', 'Invalid grant type provided..Please provide a valid grant type!', false),
-(48, 'token api', 'Please provide username!', false),
-(49, 'token api', 'Please provide password!', false),
-(50, 'token api', 'Please provide refresh token!', false),
-(51, 'token api', 'Authorization code not implemented yet!', false),
-(52, 'token api', 'Username and password do not match!', false),
-(53, 'token api', 'Please provide access token or refresh token!', false)
-;
-ALTER SEQUENCE static_text.errors_id_seq RESTART WITH 54;
 
 
 CREATE TABLE static_text.labels (
  id serial PRIMARY KEY,
- info text NOT NULL,
+ code text NOT NULL UNIQUE,
+ info text DEFAULT NULL,
  english text NOT NULL UNIQUE,
  hindi text DEFAULT NULL,
  marathi text DEFAULT NULL,
